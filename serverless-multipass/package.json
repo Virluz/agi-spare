@@ -1,0 +1,11 @@
+{
+    "name": "serverless-multipass",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Serverless function to generate Shopify Multipass login URLs",
+    "license": "MIT",
+    "type": "commonjs",
+    "dependencies": {
+        "multipassify": "^1.0.0"
+    }
+}

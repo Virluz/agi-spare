@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Style Union</string>
+    <string name="default_notification_channel_id">com.style_union</string>
+    <!-- Facebook SDK -->
+    <string name="facebook_app_id">${FACEBOOK_APP_ID}</string>
+    <string name="facebook_client_token">${FACEBOOK_CLIENT_TOKEN}</string>
+</resources>

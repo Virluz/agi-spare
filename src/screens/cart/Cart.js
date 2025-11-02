@@ -388,7 +388,7 @@ const Cart = () => {
             <Toolbar title={'My Cart'} />
 
             {/* Free Delivery banner */}
-            {(() => {
+            {/* {(() => {
                 const subtotalNum = parseFloat(totals?.subtotal || '0');
                 const remaining = Math.max(0, Math.ceil(FREE_THRESHOLD - subtotalNum));
                 const progress = Math.max(0, Math.min(100, (subtotalNum / FREE_THRESHOLD) * 100));
@@ -429,7 +429,7 @@ const Cart = () => {
                         </View>
                     </View>
                 );
-            })()}
+            })()} */}
 
 
 
@@ -469,78 +469,63 @@ const Cart = () => {
                         console.log("Item", item);
 
                         return (
-                            <View style={styles.lineItem}>
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('ProductDetails', { productId: merchandise.product.id })}
-                                    style={{
-                                        height: 60, width: 60,
-                                        paddingRight: 10
-                                    }}>
-                                    <Image
-                                        style={{
-                                            height: '100%', width: '100%',
-                                        }}
-                                        source={{ uri: merchandise?.product?.featuredImage?.url }} />
-                                </TouchableOpacity>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={appStyles.text_14_reg_mainTextColor2} numberOfLines={1}>{merchandise?.product.title}</Text>
+                            <View style={styles.cardItem}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={styles.thumbBox}>
+                                        <Image style={styles.thumb} source={{ uri: merchandise?.product?.featuredImage?.url }} />
+                                    </View>
+                                    <View style={{ flex: 1, paddingLeft: 12 }}>
+                                        <Text style={[appStyles.text_14_semi_mainTextColor2]} numberOfLines={1}>
+                                            {merchandise?.product?.title}
+                                        </Text>
+                                        <Text style={[appStyles.text_12_reg_mainTextColor2, { opacity: 0.8 }]} numberOfLines={1}>
+                                            {merchandise?.title}
+                                        </Text>
+                                        {/* Pickup badge if present */}
+                                        {Array.isArray(item?.node?.attributes) && item.node.attributes.some(a => a.key === 'pickup' && a.value === 'true') && (
+                                            <View style={styles.pickupBadge}>
+                                                <Text style={[appStyles.text_12_reg_mainTextColor2, { color: '#2e7d32' }]}>Pickup: {item.node.attributes.find(a => a.key === 'storeName')?.value || 'Selected store'}</Text>
+                                            </View>
+                                        )}
 
-                                    <Text style={appStyles.text_14_reg_mainTextColor2}>{merchandise.title}</Text>
-                                    {/* Pickup badge if present on the line */}
-                                    {Array.isArray(item?.node?.attributes) && item.node.attributes.some(a => a.key === 'pickup' && a.value === 'true') && (
-                                        <View style={{ marginTop: 4, paddingVertical: 2, paddingHorizontal: 6, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#2e7d32' }}>
-                                            <Text style={[appStyles.text_12_reg_mainTextColor2, { color: '#2e7d32' }]}>
-                                                Pickup: {item.node.attributes.find(a => a.key === 'storeName')?.value || 'Selected store'}
-                                            </Text>
+                                        {/* Price row */}
+                                        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 6 }}>
+                                            <Text style={[appStyles.text_12_reg_mainTextColor2, { textDecorationLine: 'line-through', opacity: 0.6 }]}>₹{Math.round(Number(merchandise?.price?.amount || 0) * 1.14)}</Text>
+                                            <Text style={[appStyles.text_16_semi_mainTextColor2]}>₹{merchandise?.price?.amount}</Text>
                                         </View>
-                                    )}
-                                    <Text style={appStyles.text_14_reg_mainTextColor2}>
-                                        {merchandise.price.amount}
+                                    </View>
 
-                                        {/* {merchandise.price.currencyCode} */}
-                                    </Text>
+                                    {/* Qty control */}
+                                    <View style={styles.qtyPill}>
+                                        <TouchableOpacity
+                                            style={styles.qtyIcon}
+                                            onPress={() => handleDecrement(id, quantity, merchandise?.product?.title)}
+                                            disabled={!!lineLoading[id]}
+                                        >
+                                            <Minus size={16} />
+                                        </TouchableOpacity>
+                                        {lineLoading[id] ? (
+                                            <ActivityIndicator size="small" style={{ marginHorizontal: 8 }} />
+                                        ) : (
+                                            <Text style={appStyles.text_14_reg_mainTextColor2}>{quantity}</Text>
+                                        )}
+                                        <TouchableOpacity
+                                            style={styles.qtyIcon}
+                                            onPress={() => handleUpdateQuantity(id, quantity + 1)}
+                                            disabled={!!lineLoading[id]}
+                                        >
+                                            <Plus size={16} />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                                <View style={styles.qtyContainer}>
-                                    <TouchableOpacity
-                                        style={styles.qtyButton}
-                                        onPress={() => handleDecrement(id, quantity, merchandise?.product?.title)}
-                                        disabled={!!lineLoading[id]}
-                                    >
-                                        <Minus size={14} />
-                                    </TouchableOpacity>
-                                    {lineLoading[id] ? (
-                                        <ActivityIndicator size="small" style={{ marginHorizontal: 8 }} />
-                                    ) : (
-                                        <Text style={appStyles.text_14_reg_mainTextColor2}>{quantity}</Text>
-                                    )}
-                                    <TouchableOpacity
-                                        style={styles.qtyButton}
-                                        onPress={() => handleUpdateQuantity(id, quantity + 1)}
-                                        disabled={!!lineLoading[id]}
-                                    >
-                                        <Plus size={14} />
-                                    </TouchableOpacity>
-                                </View>
-                                {/* <TouchableOpacity
-                                    style={styles.removeButton}
-                                    onPress={() => handleRemoveItem(id)}
-                                >
-                                    <Text style={{ color: "white" }}>Remove</Text>
-                                </TouchableOpacity> */}
                             </View>
                         );
                     }}
                     style={{
-                        paddingTop: heightPixel(16)
+                        paddingTop: heightPixel(8)
                     }}
                     ItemSeparatorComponent={
-                        <Text style={{
-                            borderBottomWidth: 0.5,
-                            height: 1,
-                            borderColor: '#808080',
-                            borderStyle: 'dotted'
-
-                        }} />
+                        <View style={{ height: 8 }} />
                     }
                     refreshControl={
                         <RefreshControl
@@ -560,104 +545,67 @@ const Cart = () => {
                         <>
 
 
-                            {cart?.lines?.edges.length > 0 &&
-                                <View style={styles.summaryContainer}>
-                                    <Text style={appStyles.text_14_semi_mainTextColor2}>Bill Details</Text>
+                            {cart?.lines?.edges.length > 0 && (() => {
+                                const mrpTotal = Math.round(Number(totals.subtotal) * 1.14);
+                                const productTotal = Number(totals.subtotal);
+                                const COUPON_DISCOUNT = 150; // static placeholder; plug real coupon value if available
+                                const deliveryCharge = Number(totals.deliveryFee);
+                                const grand = Math.max(0, productTotal + deliveryCharge - COUPON_DISCOUNT);
+                                const savings = (mrpTotal - productTotal) + (deliveryCharge === 0 ? DELIVERY_FEE : 0) + COUPON_DISCOUNT;
 
-                                    {_getVerticalPadding(8)}
-
-                                    <View style={styles.summaryRow}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={appStyles.text_14_reg_mainTextColor2}>Item Total</Text>
+                                return (
+                                    <View style={styles.payCard}>
+                                        <View style={styles.payCardHeader}>
+                                            <Text style={[appStyles.text_16_semi_mainTextColor2]}>Payment Summary</Text>
                                         </View>
-                                        <View style={{ width: 'auto', alignItems: 'flex-end', }}>
 
-                                            <Text style={appStyles.text_14_reg_mainTextColor2}> {Constants.CURRENCY}{totals.subtotal} </Text>
-
+                                        <View style={styles.payRow}>
+                                            <Text style={appStyles.text_14_reg_mainTextColor2}>Total MRP</Text>
+                                            <Text style={appStyles.text_14_semi_mainTextColor2}>₹{mrpTotal.toLocaleString('en-IN')}</Text>
                                         </View>
-                                    </View>
 
-                                    <View style={styles.summaryRow}>
-                                        <View style={{ flex: 1 }}>
-
-                                            <Text style={appStyles.text_14_reg_mainTextColor2}>{isPickupOnly ? 'Pickup — No delivery charges' : `Delivery Fee (Free on orders above ${Constants.CURRENCY}1699)`}</Text>
+                                        <View style={styles.payRow}>
+                                            <Text style={appStyles.text_14_reg_mainTextColor2}>Product Total</Text>
+                                            <Text style={appStyles.text_14_semi_mainTextColor2}>₹{productTotal.toLocaleString('en-IN')}</Text>
                                         </View>
-                                        <View style={{
-                                            width: 'auto', alignItems: 'flex-end',
-                                        }}>
 
-                                            {isPickupOnly ? (
-                                                <Text style={[appStyles.text_14_reg_mainTextColor2, { color: '#2e7d32' }]}>FREE</Text>
-                                            ) : Number(totals.deliveryFee) > 0 ? (
-                                                <Text style={appStyles.text_14_reg_mainTextColor2}>{Constants.CURRENCY}{totals.deliveryFee} </Text>
+                                        <View style={styles.payRow}>
+                                            <Text style={appStyles.text_14_reg_mainTextColor2}>Coupon Discount</Text>
+                                            <Text style={[appStyles.text_14_semi_mainTextColor2, { color: '#23A01D' }]}>-₹{COUPON_DISCOUNT}</Text>
+                                        </View>
+
+                                        <View style={styles.payRow}>
+                                            <Text style={appStyles.text_14_reg_mainTextColor2}>Delivery Charges</Text>
+                                            {deliveryCharge > 0 ? (
+                                                <Text style={appStyles.text_14_semi_mainTextColor2}>₹{deliveryCharge}</Text>
                                             ) : (
-                                                <Text style={[appStyles.text_14_reg_mainTextColor2, { color: '#2e7d32' }]}>FREE</Text>
+                                                <Text style={[appStyles.text_14_semi_mainTextColor2, { color: '#23A01D' }]}>Free</Text>
                                             )}
                                         </View>
 
-                                    </View>
+                                        <View style={styles.payDivider} />
 
-                                    {_getVerticalPadding(8)}
-
-                                    <Text style={{
-                                        borderBottomWidth: 0.5,
-                                        height: 1,
-                                        borderColor: '#808080',
-                                        borderStyle: 'dotted'
-
-                                    }} />
-
-                                    {_getVerticalPadding(8)}
-
-
-                                    <View style={styles.summaryRow}>
-                                        <View style={{ flex: 1 }}>
-
-                                            <Text style={appStyles.text_14_reg_mainTextColor2}>{`To Pay`}</Text>
-                                        </View>
-                                        <View style={{
-                                            width: 'auto', alignItems: 'flex-end',
-                                        }}>
-
-                                            <Text style={appStyles.text_14_reg_mainTextColor2}>{Constants.CURRENCY}{totals.toPay} </Text>
-
+                                        <View style={[styles.payRow, { paddingTop: 6 }]}>
+                                            <Text style={[appStyles.text_16_semi_mainTextColor2]}>Grand Total</Text>
+                                            <Text style={[appStyles.text_16_semi_mainTextColor2]}>₹{grand.toLocaleString('en-IN')}</Text>
                                         </View>
 
+
                                     </View>
+                                );
+                            })()}
 
-                                </View>
-                            }
-
-
-
-                            <YouWillAlsoLike />
 
                             {_getVerticalPadding(60)}
 
                         </>
                     }
 
-                    ListHeaderComponent={
-
-                        <>
-
-                            {cart?.lines?.edges &&
-
-                                <View style={{ alignItems: 'flex-end' }}>
-
-                                    cart?.lines?.edges?.length  <Text style={appStyles.text_14_reg_mainTextColor2}>
-
-                                        {cart?.lines?.edges?.length} Items Selected
-
-                                    </Text>
-
-                                </View>
-                            }
-
-
-                        </>
-
-                    }
+                    ListHeaderComponent={cart?.lines?.edges && (
+                        <View style={{ alignItems: 'flex-end', paddingTop: heightPixel(8) }}>
+                            <Text style={appStyles.text_14_reg_mainTextColor2}>{cart?.lines?.edges?.length} Items Selected</Text>
+                        </View>
+                    )}
                 />
 
 
@@ -713,25 +661,19 @@ const Cart = () => {
             </Modal>
 
 
-            {cart?.lines?.edges &&
+            {cart?.lines?.edges && (
                 <View style={{
-                    height: 32, backgroundColor: '#F4FBFF',
+                    height: 32,
+                    backgroundColor: '#F4FBFF',
                     paddingHorizontal: widthPixel(16),
                     alignItems: 'flex-end',
                     justifyContent: 'center'
                 }}>
-
                     <Text style={appStyles.text_14_reg_mainTextColor2}>
-
                         To Pay: <Text style={appStyles.text_14_bold_mainTextColor2}>{Constants.CURRENCY}{totals.toPay} </Text>
-                        {/* {Number(totals.deliveryFee) > 0 && (
-                            <Text style={appStyles.text_12_reg_mainTextColor2}>  + Delivery {Constants.CURRENCY}{totals.deliveryFee}</Text>
-                        )} */}
-
                     </Text>
-
                 </View>
-            }
+            )}
 
             <View style={styles.footer}>
 
@@ -814,6 +756,24 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+    cardItem: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#eee',
+        padding: 12,
+        // marginHorizontal: widthPixel(16),
+    },
+    thumbBox: {
+        width: 64,
+        height: 64,
+        borderWidth: 1,
+        borderColor: '#eee',
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: '#fafafa'
+    },
+    thumb: { width: '100%', height: '100%' },
     lineItem: {
         flexDirection: "row",
         alignItems: "center",
@@ -821,6 +781,16 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginBottom: 8,
         borderRadius: 6,
+    },
+    pickupBadge: {
+        marginTop: 6,
+        paddingVertical: 2,
+        paddingHorizontal: 6,
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: '#2e7d32',
+        borderRadius: 4,
+        backgroundColor: '#F0FFF0'
     },
     title: {
         fontSize: 16,
@@ -830,6 +800,18 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "gray",
     },
+    qtyPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E5EA',
+        borderRadius: 20,
+        paddingHorizontal: 8,
+        height: 32,
+        backgroundColor: '#F7F7F7',
+        alignSelf: 'center'
+    },
+    qtyIcon: { padding: 6 },
     qtyContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -856,6 +838,33 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         paddingHorizontal: 8,
         borderRadius: 4,
+    },
+    payCard: {
+        marginTop: 12,
+        // marginHorizontal: widthPixel(16),
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#eee',
+        padding: 12,
+    },
+    payCardHeader: { marginBottom: 8 },
+    payRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 4
+    },
+    payDivider: { height: 1, backgroundColor: '#EEE', marginVertical: 6 },
+    savingsPill: {
+        marginTop: 10,
+        backgroundColor: '#F1FFF1',
+        borderWidth: 1,
+        borderColor: '#BDE8BD',
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        alignItems: 'center'
     },
     summaryContainer: {
         // flex: 1,

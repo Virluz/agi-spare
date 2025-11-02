@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AppState, DeviceEventEmitter, FlatList, Image, NativeEventEmitter, NativeModules, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { _getHorizontalPadding, _getValidateText, checkBackgroundPermission, checkLocationPermission, DEVICE_WIDTH, generateTokenFromUsernamePassword, getCameraIcon, getDeviceInfo, getTabIcon } from '../utils/Helper';
 import ProfileContainer from './ProfileContainer';
 import Home from '../screens/home/Home';
@@ -31,6 +32,7 @@ export const BottomTabs = () => {
     const { colorScheme, apiCredentials } = useSelector(state => state.app);
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
+    const insets = useSafeAreaInsets();
 
 
     useEffect(() => {
@@ -75,7 +77,7 @@ export const BottomTabs = () => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: colorSet.mainThemeBackgroundColor,
+            backgroundColor: 'transparent',
         }}>
 
             <Tab.Navigator
@@ -103,122 +105,72 @@ export const BottomTabs = () => {
                     }
 
                     return (
-                        <View style={{
-                            // height: 20,
-                            // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                        <View style={[styles.customTabBarContainer]}>
 
-                        }}>
+                            {state.routes.map((route, index) => {
+                                const { options } = descriptors[route.key];
+                                const label =
+                                    options.tabBarLabel !== undefined
+                                        ? options.tabBarLabel
+                                        : options.title !== undefined
+                                            ? options.title
+                                            : route.name;
 
-                            <View style={[{
-                                flex: 1,
-                                width: '100%',
-                                position: 'absolute',
-                                bottom: 20,
-                                backgroundColor: 'transparent',
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-end',
-                                paddingHorizontal: 16,
+                                const isFocused = state.index === index;
 
-                            }]}>
-                                {/* Left Tabs */}
-                                <View style={{
-                                    flexDirection: 'row',
-                                    overflow: 'hidden',
-                                    borderRadius: 10,
-                                    alignItems: 'center',
-                                    justifyContent: 'space-around',
-                                    height: 40,
-                                    width: (DEVICE_WIDTH / 2) - 24 - 30,
-                                }}>
-                                    <BlurView
-                                        style={{
-                                            position: 'absolute', top: 0,
-                                            left: 0, right: 0, bottom: 0,
-                                        }}
-                                        overlayColor={'rgba(231, 226, 226, 0.2)'}
-                                        blurType="light"
-                                        blurAmount={30}
-                                    />
-                                    {state?.routes?.slice(0, 2).map((item, index) => getTabIcon(
-                                        item?.name,
-                                        index === state.index ? colorSet?.primaryColor : colorSet?.black,
-                                        index === state.index,
-                                        () => navigation.navigate(item?.name)
-                                    ))}
-                                </View>
+                                const onPress = () => {
+                                    const event = navigation.emit({
+                                        type: 'tabPress',
+                                        target: route.key,
+                                        canPreventDefault: true,
+                                    });
 
-                                {/* Center Tab */}
-                                <View style={{
-                                    width: 70,
-                                    height: 70,
-                                    bottom: -15,
-                                    borderRadius: 35,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 10,
-                                    overflow: 'hidden',
-                                }}>
-                                    <BlurView
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                        }}
-                                        overlayColor={'rgba(231, 226, 226, 0.2)'}
+                                    if (!isFocused && !event.defaultPrevented) {
+                                        navigation.navigate(route.name, route.params);
+                                    }
+                                };
 
-                                        blurType="light"
-                                        blurAmount={30}
-                                    />
+                                const onLongPress = () => {
+                                    navigation.emit({
+                                        type: 'tabLongPress',
+                                        target: route.key,
+                                    });
+                                };
+
+                                return (
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate(state.routes[2]?.name)}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
+                                        key={index}
+                                        accessibilityRole="button"
+                                        accessibilityState={isFocused ? { selected: true } : {}}
+                                        accessibilityLabel={options.tabBarAccessibilityLabel}
+                                        testID={options.tabBarTestID}
+                                        onPress={onPress}
+                                        onLongPress={onLongPress}
+                                        style={[
+                                            styles.tabBarItem,
+                                            isFocused && styles.activeTabBarItem
+                                        ]}
                                     >
-                                        <Image
-                                            source={require('../../assets/images/fluid.png')}
-                                            style={{
-                                                width: 40,
-                                                height: 20,
-                                                resizeMode: 'contain',
-                                                tintColor: state.index === 2 ? colorSet?.primaryColor : colorSet?.black,
-                                            }}
-                                        />
+                                        <View style={[
+                                            styles.tabIconContainer,
+                                            // isFocused && styles.activeTabIconContainer
+                                        ]}>
+                                            {getTabIcon(
+                                                route.name,
+                                                isFocused ? '#F27E03' : colorSet.dark3,
+                                                isFocused
+                                            )}
+                                        </View>
+                                        <Text style={[
+                                            styles.tabBarLabel,
+                                            { color: isFocused ? '#F27E03' : colorSet.dark3 }
+                                        ]}>
+                                            {label}
+                                        </Text>
                                     </TouchableOpacity>
-                                </View>
-
-                                {/* Right Tabs */}
-                                <View style={{
-                                    flexDirection: 'row', overflow: 'hidden',
-                                    borderRadius: 10, height: 40,
-                                    alignItems: 'center',
-                                    justifyContent: 'space-around',
-                                    width: (DEVICE_WIDTH / 2) - 24 - 30,
-                                }}>
-                                    <BlurView
-                                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, }}
-                                        blurType="light"
-                                        blurAmount={30}
-                                        overlayColor={'rgba(231, 226, 226, 0.2)'}
-
-                                    />
-                                    {state?.routes?.slice(3, 5).map((item, index) => getTabIcon(
-                                        item?.name,
-                                        (index + 3) === state.index ? colorSet?.primaryColor : colorSet?.black, // Adjust index for active state
-                                        (index + 3) === state.index,
-                                        () => navigation.navigate(item?.name)
-                                    ))}
-                                </View>
-                            </View>
-
+                                );
+                            })}
                         </View>
-
                     )
 
                 }
@@ -226,37 +178,12 @@ export const BottomTabs = () => {
 
                 initialRouteName={'Home'}
                 screenOptions={({ route }) => ({
-                    // headerTitleStyle: styles.text_14_bold_mainTextColor2,
-                    // // headerTitleAlign: 'center',
-                    // headerStyle: {
-                    //     elevation: 0,
-                    //     backgroundColor: colorSet.mainThemeBackgroundColor,
-                    //     height: heightPixel(54),
-                    // },
-                    tabBarActiveTintColor: colorSet.black,
-                    tabBarInactiveTintColor: colorSet.white,
-                    // tabBarItemStyle: {
-                    //     backgroundColor: colorSet.mainThemeBackgroundColor,
-                    // },
-                    tabBarStyle: styles.tabBarStyle,
-                    tabBarItemStyle: {
-                        backgroundColor: 'transparent',
-                    },
-                    tabBarBackground: () => <View style={{ flex: 1, backgroundColor: 'transparent' }} />,
-                    // // tabBarLabelStyle: {
-                    // //     color: colorSet.mainTextColor,
-                    // //     fontSize: fonts._12, fontWeight: '400'
-                    // // },
-                    tabBarLabelStyle: { fontSize: 12 },
-                    tabBarIcon: ({ focused, color, size }) => {
-                        return getTabIcon(route?.name, color, focused);
-                    },
-                    tabBarShowLabel: true,
-
+                    headerShown: false,
                 })}
                 sceneContainerStyle={{
                     backgroundColor: 'transparent',
                 }}
+
             // screenListeners={({ navigation, route }) => ({
             //     tabPress: e => {
             //         e.preventDefault();
@@ -284,13 +211,13 @@ export const BottomTabs = () => {
                         headerShown: false,
                     }} />
 
-                <Tab.Screen name={'New In'}
+                {/* <Tab.Screen name={'New In'}
                     component={NewInScreen}
                     options={{
                         headerShown: false,
 
                     }}
-                />
+                /> */}
 
                 <Tab.Screen
                     name={'Cart'}
@@ -300,7 +227,7 @@ export const BottomTabs = () => {
                     }} />
 
 
-                <Tab.Screen name={'Rewards'}
+                <Tab.Screen name={'Profile'}
                     component={ProfileContainer}
                     options={{
                         headerShown: false,

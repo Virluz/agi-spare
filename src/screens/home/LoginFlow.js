@@ -92,7 +92,7 @@ const LoginFlow = () => {
                 }}
             >
                 <View style={localStyles.successBox}>
-                    <Text style={localStyles.successLogo}>STYLE UNION</Text>
+                    <Text style={localStyles.successLogo}>AGI SPARE</Text>
                     <Text style={localStyles.successText}>You are successfully Logged In</Text>
                     <TouchableOpacity style={localStyles.startBtn}><Text style={localStyles.startBtnText}>Start Styling</Text></TouchableOpacity>
                     <View style={localStyles.loader} />

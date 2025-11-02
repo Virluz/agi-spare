@@ -19,6 +19,7 @@ const fetch_products = gql`
             edges {
               node {
                 id
+                sku
                 price {
                   amount
                   currencyCode

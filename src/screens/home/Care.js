@@ -14,7 +14,7 @@ const Care = () => {
     const { t } = useTranslation();
 
     const translateKeys = {
-        styleUnionCare: t('STYLE UNION CARE'),
+        styleUnionCare: t('AGI SPARE CARE'),
         customerSupport: t('24x7 CUSTOMER SUPPORT'),
         returnAndRefund: t('RETURN & REFUND POLICY'),
         securePaymentSystem: t('SECURE PAYMENT SYSTEM')
@@ -74,7 +74,7 @@ const Care = () => {
                 {_getVerticalPadding(16)}
 
                 <Text style={[styles.text_12_reg_dark3, localStyles.footerText]}>
-                    © 2025 Style Union. V2
+                    © 2025 agi spare. V2
                 </Text>
 
                 {_getVerticalPadding(16)}

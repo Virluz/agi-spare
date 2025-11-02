@@ -20,7 +20,7 @@ const NUM_COLUMNS = 2;
 const SIDE_MARGIN = widthPixel(16); // padding left/right
 const ITEM_WIDTH = (DEVICE_WIDTH - SIDE_MARGIN * 2 - ITEM_SPACING * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
-const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false, MAX_VISIBLE_COLORS = 3, showColors = true, horizonal = false, showAddToCartButton = false, isWishlistItem = false }) => {
+const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false, MAX_VISIBLE_COLORS = 3, showColors = true, horizonal = false, showAddToCartButton = false, isWishlistItem = false, disableNavigation = false, showDetails = false }) => {
 
     if (!item.node || item?.node === null)
         return (
@@ -83,6 +83,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     return (
         <TouchableWithoutFeedback
             onPress={() => {
+                if (disableNavigation) return;
                 navigation.navigate('ProductDetails', { productId: item?.node?.id });
                 return;
             }}>
@@ -197,21 +198,46 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     </>
 
                 }
-                <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1 }}>
+                <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
                     <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2} numberOfLines={2}>{item.node.title}</Text>
 
-                    {_getVerticalPadding(8)}
-                    <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
-                        ₹{item.node.variants.edges[0].node.price.amount}
-                    </Text>
+                    {showDetails && (
+                        <>
+                            {_getVerticalPadding(4)}
+                            <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2} numberOfLines={1}>
+                                {item?.node?.variants?.edges?.[0]?.node?.sku || ''}
+                            </Text>
+                            {_getVerticalPadding(4)}
+                            <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2} numberOfLines={2}>
+                                {String(item?.node?.description || '').replace(/<[^>]*>/g, '')}
+                            </Text>
+                        </>
+                    )}
+
+                    {_getVerticalPadding(6)}
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+                        <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
+                            ₹{item.node.variants.edges[0].node.price.amount}
+                        </Text>
+                        <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2}>
+                            <Text style={{ textDecorationLine: 'line-through', opacity: 0.6 }}>
+                                ₹{Math.round(Number(item.node.variants.edges[0].node.price.amount) * 1.14)}
+                            </Text> 14% OFF
+                        </Text>
+                    </View>
 
                 </View>
 
                 {showAddToCartButton &&
                     <View style={{ width: '100%', paddingTop: -widthPixel(8) }}>
-
-                        <PrimaryButton title={'Add to Cart'} />
-
+                        <PrimaryButton title={'Add to Cart'} color={'#F2994A'} onPress={() => {
+                            try {
+                                const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
+                                if (variantId) {
+                                    dispatch(addOrUpdateCartLine({ variantId, quantity: 1 }));
+                                }
+                            } catch (_) { }
+                        }} />
                     </View>
                 }
 

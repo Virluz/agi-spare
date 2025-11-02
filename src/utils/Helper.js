@@ -58,49 +58,29 @@ const getTabIcon = (name, color, focused, onPress) => {
   switch (name) {
     case 'Home':
       iconView = (
-        <Image style={{ height: 24, width: 24, tintColor: color }} source={require('../../assets/images/style_icon.png')} />)
+        <Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/style_icon.png')} />)
       break;
     case 'Category':
-      iconView = (<Image style={{ height: 24, width: 24, tintColor: color }} source={require('../../assets/images/categories.png')} />)
+      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/categories.png')} />)
 
       break;
     case 'Cart':
-      iconView = (<Image style={{ height: 24, width: 24, tintColor: color }} source={require('../../assets/images/cart.png')} />)
+      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/cart.png')} />)
       break;
 
     case 'New In':
-      iconView = (<Image style={{ height: 24, width: 24, tintColor: color }} source={require('../../assets/images/fluid.png')} />)
+      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/fluid.png')} />)
       break;
 
+    case 'Profile':
     case 'Rewards':
-      iconView = (<Image style={{ height: 24, width: 24, tintColor: color }} source={require('../../assets/images/rewards.png')} />)
+      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/rewards.png')} />)
       break;
     default:
       break;
   }
 
-
-  return (
-    <TouchableOpacity
-      style={{
-        alignItems: 'center',
-        // backgroundColor: focused ? 'white' : 'rgba(255, 255, 255, 0.1)',
-        borderRadius: 12,
-        paddingVertical: heightPixel(2),
-        width: ((DEVICE_WIDTH - 32) / 5) - 5,
-        // backgroundColor: 'red'
-      }}
-      onPress={onPress}
-    >
-
-      {iconView}
-
-      {/* <Text style={{ fontSize: 11, color: color }}>
-        {name}
-      </Text> */}
-
-    </TouchableOpacity>
-  );
+  return iconView;
 };
 
 const _getFilePicker = async () => {

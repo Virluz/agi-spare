@@ -27,6 +27,7 @@ const collection_by_handle = gql`
               edges {
                 node {
                   id
+                  sku
                   price {
                     amount
                     currencyCode

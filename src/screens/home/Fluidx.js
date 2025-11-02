@@ -74,7 +74,7 @@ const Fluidx = () => {
                 alignItems: 'center',
             }}>
 
-                <SectionName title={'Everyone is talking about style union'.toUpperCase()} width={DEVICE_WIDTH - 100} />
+                <SectionName title={'Everyone is talking about agi spare'.toUpperCase()} width={DEVICE_WIDTH - 100} />
 
                 {_getVerticalPadding(30)}
 

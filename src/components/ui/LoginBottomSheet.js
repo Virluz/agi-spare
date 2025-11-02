@@ -194,7 +194,7 @@ const LoginBottomSheet = React.forwardRef(
         const SuccessView = (
             <View style={localStyles.content}>
                 <View style={localStyles.successBox}>
-                    <Text style={localStyles.successLogo}>STYLE UNION</Text>
+                    <Text style={localStyles.successLogo}>AGI SPARE</Text>
                     <Text style={localStyles.successText}>You are successfully Logged In</Text>
                     <TouchableOpacity style={localStyles.startBtn} onPress={onSuccessStart}>
                         <Text style={localStyles.startBtnText}>Start Styling</Text>

@@ -2,7 +2,7 @@ import { ActivityIndicator, FlatList, Image, RefreshControl, ScrollView, StyleSh
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
 import AppStyles from '../../styles/AppStyles';
-import { ArrowLeft, ArrowRight, ArrowRightIcon, ArrowRightLeft, Bell, Check, CheckCheck, CheckSquare, CheckSquare2, ChevronRight, Filter, Lock, Menu, MenuIcon, MenuSquareIcon, MoveLeft, MoveRight, Search, SortAsc, SortAscIcon, X } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, ArrowRightIcon, ArrowRightLeft, ArrowUpDown, Bell, Check, CheckCheck, CheckSquare, CheckSquare2, ChevronRight, Filter, Lock, Menu, MenuIcon, MenuSquareIcon, MoveLeft, MoveRight, Search, SortAsc, SortAscIcon, X } from 'lucide-react-native';
 import Toolbar from '../../components/ui/Toolbar';
 import { useTranslation } from 'react-i18next';
 import { heightPixel, widthPixel } from '../../utils/fonts';
@@ -48,7 +48,7 @@ const ProductList = () => {
     const colorSet = AppStyles.colorSet[colorScheme];
     const navigation = useNavigation();
     const [isSearchView, setIsSearchView] = useState(false);
-    const [colorSearchQuery, setColorSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [endlessLoader, setEndLessLoader] = useState(false);
@@ -429,73 +429,84 @@ const ProductList = () => {
                         data={loading ? ["1", "2", "3", "4", "5", "6",] : products}
                         // renderItem={renderItem}
                         ListHeaderComponent={
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                            // contentContainerStyle={{
-                            //     flexDirection: 'row',
-                            //     // height: 100,
-                            //     // backgroundColor: 'red'
-                            //     // alignItems: 'center',
-                            //     // justifyContent: 'space-between'
-                            // }}
-                            >
+                            <View>
+                                {/* Search bar */}
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    backgroundColor: '#FFFFFF',
+                                    borderRadius: widthPixel(24),
+                                    height: heightPixel(44),
+                                    paddingHorizontal: widthPixel(14),
+                                    marginHorizontal: SIDE_MARGIN,
+                                    marginBottom: ITEM_SPACING,
+                                    borderWidth: StyleSheet.hairlineWidth,
+                                    borderColor: 'rgba(0,0,0,0.08)'
+                                }}>
+                                    <Search size={20} color={'#F2994A'} />
+                                    <TextInput
+                                        placeholder={'Find perfect spare part...'}
+                                        placeholderTextColor={'#8E8E8E'}
+                                        value={searchQuery}
+                                        onChangeText={setSearchQuery}
+                                        onSubmitEditing={() => callApi(true, null, searchQuery)}
+                                        style={{ flex: 1, marginLeft: 8, color: colorSet.black }}
+                                        returnKeyType="search"
+                                    />
+                                </View>
 
-                                {availableFilters?.find(filter => filter.id === 'filter.p.m.custom.select_product_type')?.values?.map((item, index) => {
-                                    const isSelected = selectedFilters['filter.p.m.custom.select_product_type']?.includes(item.input);
-                                    const isDisabled = item?.count === 0;
-                                    return (
-                                        <TouchableOpacity
-                                            key={item?.id || item?.input || `${item?.label || 'value'}-${index}`}
-                                            style={{
-                                                // backgroundColor: 'red',
-                                                // flexDirection: 'row',
-                                                // alignItems: 'center',
-                                                // justifyContent: 'space-between',
-                                                // paddingVertical: 5,
-                                                padding: 8,
-                                                marginBottom: ITEM_SPACING,
-                                                borderBottomWidth: isSelected ? 1 : 0
-                                            }}
-                                            disabled={isDisabled}
-                                            onPress={async () => {
-                                                console.log("item", item);
-
-                                                let value = item?.input;
-                                                const currentValues = selectedFilters['filter.p.m.custom.select_product_type'] || [];
-                                                let newValues;
-
-                                                if (currentValues.includes(value)) {
-                                                    newValues = currentValues.filter(v => v !== value);
-                                                } else {
-                                                    // newValues = [...currentValues, value]; //for multiple 
-                                                    newValues = [value];
-                                                }
-
-                                                const updatedFilters = {
-                                                    ...selectedFilters,
-                                                    'filter.p.m.custom.select_product_type': newValues
-                                                }
-                                                setSelectedFilters(updatedFilters);
-                                                // await sleep(1000);
-                                                applyFiltersToApi(updatedFilters);
-                                                return;
-
-
-                                            }}
-                                        >
-                                            <Text style={[styles.text_12_reg_mainTextColor2, {
-                                                // color: isSelected ? "white" : 'black'
-                                            }]}>
-                                                {item.label}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-
-                            </ScrollView >
+                                {/* Category chips */}
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: SIDE_MARGIN, paddingBottom: ITEM_SPACING }}>
+                                    {availableFilters?.find(filter => filter.id === 'filter.p.m.custom.select_product_type')?.values?.map((item, index) => {
+                                        const isSelected = selectedFilters['filter.p.m.custom.select_product_type']?.includes(item.input);
+                                        const isDisabled = item?.count === 0;
+                                        return (
+                                            <TouchableOpacity
+                                                key={item?.id || item?.input || `${item?.label || 'value'}-${index}`}
+                                                style={{
+                                                    paddingVertical: 8,
+                                                    paddingHorizontal: 12,
+                                                    marginRight: 8,
+                                                    borderRadius: 20,
+                                                    backgroundColor: isSelected ? '#F2994A' : '#1D1A44',
+                                                    opacity: isDisabled ? 0.5 : 1,
+                                                }}
+                                                disabled={isDisabled}
+                                                onPress={async () => {
+                                                    let value = item?.input;
+                                                    const currentValues = selectedFilters['filter.p.m.custom.select_product_type'] || [];
+                                                    let newValues;
+                                                    if (currentValues.includes(value)) {
+                                                        newValues = currentValues.filter(v => v !== value);
+                                                    } else {
+                                                        newValues = [value];
+                                                    }
+                                                    const updatedFilters = {
+                                                        ...selectedFilters,
+                                                        'filter.p.m.custom.select_product_type': newValues
+                                                    }
+                                                    setSelectedFilters(updatedFilters);
+                                                    applyFiltersToApi(updatedFilters);
+                                                    return;
+                                                }}
+                                            >
+                                                <Text style={{ color: isSelected ? '#fff' : '#fff' }}>{item.label}</Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+                            </View>
                         }
-                        renderItem={({ item, index }) => <ProductCard item={item} index={index} />}
+                        renderItem={({ item, index }) => (
+                            <ProductCard
+                                item={item}
+                                index={index}
+                                showColors={false}
+                                disableNavigation={true}
+                                showAddToCartButton={true}
+                                showDetails={true}
+                            />
+                        )}
                         numColumns={2}
                         keyExtractor={(item, index) => {
                             // item is either a product edge or a skeleton string during loading
@@ -536,35 +547,24 @@ const ProductList = () => {
 
             </View >
 
-            <View style={{
-                position: 'absolute',
-                bottom: 80,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'black',
-                alignSelf: 'center',
-                padding: 10,
-                gap: 12,
-                borderRadius: 8,
-
-
-                // width: '100%'
-            }}>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }} onPress={() => refSortRBSheet.current.open()}>
-
-                    <SortAsc color={colorSet.white} />
-                    <Text style={styles.text_16_reg_mainTextColor3}>Sort By</Text>
-                </TouchableOpacity>
-                <Text style={styles.text_16_reg_mainTextColor3}>
-                    |
-                </Text>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }} onPress={() => refFilterRBSheet.current.open()}>
-                    <Menu color={colorSet.white} />
-
-                    <Text style={styles.text_16_reg_mainTextColor3}>Filter</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+                onPress={() => refFilterRBSheet.current.open()}
+                style={{
+                    position: 'absolute',
+                    bottom: 80,
+                    alignSelf: 'center',
+                    backgroundColor: '#1D1A44',
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 24,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8
+                }}
+            >
+                <ArrowUpDown color={'#fff'} size={18} />
+                <Text style={{ color: '#fff', fontWeight: '700' }}>FILTERS</Text>
+            </TouchableOpacity>
 
             {getSortBottomSheet()}
             {getFilterBottomSheet()}

@@ -534,7 +534,7 @@ const LoginWithOtpScreen = ({
 
             {success && (
                 <View style={localStyles.successPanel}>
-                    <Text style={localStyles.successLogo}>STYLE UNION</Text>
+                    <Text style={localStyles.successLogo}>AGI SPARE</Text>
                     <Text style={localStyles.successText}>You are successfully Logged In</Text>
                     <TouchableOpacity style={localStyles.startBtn} onPress={onStartStyling}>
                         <Text style={localStyles.startBtnText}>Start Styling</Text>

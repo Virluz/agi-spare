@@ -228,7 +228,6 @@ const getAllStyles = (schemeFromParent) => {
     container: {
       flex: 1,
       backgroundColor: colorSet[scheme].mainThemeBackgroundColor,
-      backgroundColor: 'red',
       paddingHorizontal: widthPixel(16),
     },
     container_no_padding: {
@@ -1250,7 +1249,63 @@ const getAllStyles = (schemeFromParent) => {
       fontSize: fontPixel(16),
       color: colorSet[scheme].mainTextColor3,
       fontFamily: fontFamily.semiBoldFont,
-    }
+    },
+
+    // Custom Tab Bar Styles
+    customTabBarContainer: {
+      width: '100%',
+      height: 70,
+      flexDirection: 'row',
+      backgroundColor: '#F6F6F6',
+      borderTopRightRadius: widthPixel(25),
+      borderTopLeftRadius: widthPixel(25),
+      overflow: 'hidden',
+    },
+    customTabBar: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderTopLeftRadius: widthPixel(25),
+      borderTopRightRadius: widthPixel(25),
+      paddingHorizontal: widthPixel(8),
+      paddingVertical: heightPixel(8),
+    },
+    tabBarItem: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      // paddingVertical: heightPixel(8),
+    },
+    activeTabBarItem: {
+      // Additional styles for active state if needed
+    },
+    tabIconContainer: {
+      width: widthPixel(32),
+      height: widthPixel(32),
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: widthPixel(16),
+      marginBottom: heightPixel(4),
+    },
+    activeTabIconContainer: {
+      backgroundColor: '#F27E03',
+      shadowColor: '#F27E03',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    tabBarLabel: {
+      fontSize: fontPixel(11),
+      fontFamily: fontFamily.regularFont,
+      textAlign: 'center',
+    },
   });
 };
 

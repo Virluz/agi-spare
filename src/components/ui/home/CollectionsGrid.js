@@ -126,7 +126,7 @@ const CollectionsGrid = ({ collections, title = "Categories" }) => {
 const localStyles = StyleSheet.create({
     container: {
         marginVertical: heightPixel(20),
-        paddingHorizontal: widthPixel(16),
+        // paddingHorizontal: widthPixel(16),
     },
     title: {
         textAlign: 'center',

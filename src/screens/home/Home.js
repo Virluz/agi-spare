@@ -12,6 +12,8 @@ import { MENU_QUERY } from '../../graphql/queries/menu/fetch_menus';
 import FastImage from '@d11/react-native-fast-image';
 import { SearchIcon, ArrowRight, Instagram, Youtube, Facebook } from 'lucide-react-native';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
+import ProductCard from '../../components/ui/ProductCard';
+import BestSeller from '../category/BestSeller';
 
 const height = Dimensions.get('window').height - heightPixel(140);
 
@@ -20,9 +22,7 @@ const BannerCarousel = () => {
     const scrollRef = useRef(null);
     const [index, setIndex] = useState(0);
     const images = [
-        require('../../../assets/images/home/scroll_1.png'),
-        require('../../../assets/images/home/scroll_2.png'),
-        require('../../../assets/images/home/scroll_3.png'),
+        require('../../../assets/images/home/spare.png'),
     ];
 
     const onScroll = (e) => {
@@ -165,13 +165,14 @@ const Home = () => {
                         ))}
                     </View>
 
-                    <TouchableOpacity style={localStyles.loadMore} onPress={() => navigation.navigate('CategoryContainer')}>
+                    <TouchableOpacity style={localStyles.loadMore} onPress={() => navigation.navigate('Category')}>
                         <Text style={localStyles.loadMoreText}>Load More</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Best Sellers */}
-                <View style={localStyles.bestSellersSection}>
+                <BestSeller />
+                {/* <View style={localStyles.bestSellersSection}>
                     <Text style={localStyles.bestSellersTitle}>Best Sellers</Text>
 
                     <ScrollView
@@ -180,27 +181,37 @@ const Home = () => {
                         contentContainerStyle={{ paddingHorizontal: widthPixel(12) }}
                     >
                         {bestSellers.map((p, i) => (
-                            <View key={i} style={localStyles.bestCard}>
-                                <FastImage
-                                    source={p.image || require('../../../assets/images/img.png')}
-                                    style={localStyles.bestImage}
-                                    resizeMode={FastImage.resizeMode.contain}
-                                />
-                                <View style={{ paddingHorizontal: widthPixel(12), paddingBottom: heightPixel(12) }}>
-                                    <Text numberOfLines={2} style={localStyles.bestName}>{p.name}</Text>
-                                    <Text style={localStyles.bestSku}>{p.sku}</Text>
-                                    <Text numberOfLines={1} style={localStyles.bestMeta}>{p.meta}</Text>
-                                    <View style={{ height: heightPixel(10) }} />
-                                    <PrimaryButton title={'Know More'} color={'#F2994A'} onPress={() => navigation.navigate('ProductList')} />
-                                </View>
-                            </View>
+                            <ProductCard key={i} item={p} index={i} />
+
+                            // <ProductCard
+                            //     item={item}
+                            //     index={index}
+                            //     showColors={false}
+                            //     disableNavigation={true}
+                            //     showAddToCartButton={true}
+                            //     showDetails={true}
+                            // />
+                            // <View key={i} style={localStyles.bestCard}>
+                            //     <FastImage
+                            //         source={p.image || require('../../../assets/images/img.png')}
+                            //         style={localStyles.bestImage}
+                            //         resizeMode={FastImage.resizeMode.contain}
+                            //     />
+                            //     <View style={{ paddingHorizontal: widthPixel(12), paddingBottom: heightPixel(12) }}>
+                            //         <Text numberOfLines={2} style={localStyles.bestName}>{p.name}</Text>
+                            //         <Text style={localStyles.bestSku}>{p.sku}</Text>
+                            //         <Text numberOfLines={1} style={localStyles.bestMeta}>{p.meta}</Text>
+                            //         <View style={{ height: heightPixel(10) }} />
+                            //         <PrimaryButton title={'Know More'} color={'#F2994A'} onPress={() => navigation.navigate('ProductList')} />
+                            //     </View>
+                            // </View>
                         ))}
                     </ScrollView>
 
                     <TouchableOpacity style={[localStyles.loadMore, { marginBottom: heightPixel(8) }]} onPress={() => navigation.navigate('ProductList')}>
                         <Text style={localStyles.loadMoreText}>View All</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 {/* Partners */}
                 <View style={localStyles.partnersSection}>
@@ -208,9 +219,14 @@ const Home = () => {
                     <Text style={localStyles.partnersSubtitle}>Trusted by leading brands and{"\n"}valued clients worldwide</Text>
 
                     <View style={localStyles.partnersGrid}>
-                        {partners.map((b, i) => (
+                        {partnerLogos.map((logo, i) => (
                             <View key={i} style={localStyles.partnerBox}>
-                                <Text style={localStyles.partnerName}>{b}</Text>
+                                <FastImage
+                                    source={logo}
+
+                                    resizeMode={FastImage.resizeMode.contain}
+                                    style={{ width: '60%', height: '50%' }}
+                                />
                             </View>
                         ))}
                     </View>
@@ -260,9 +276,15 @@ const bestSellers = [
     { name: 'ORIGINAL JOYSTICK CONTROLLER', sku: '1001122147', meta: 'JLG, GENIE compatible' },
 ];
 
-const partners = [
-    'Adani', 'Aditya Birla', 'AM/NS India', 'Larsen & Toubro',
-    'Tata Steel', 'JLG', 'Genie', 'Tata Pigments'
+const partnerLogos = [
+    require('../../../assets/images/brands/adani.png'),
+    require('../../../assets/images/brands/birla.png'),
+    require('../../../assets/images/brands/anns.png'),
+    require('../../../assets/images/brands/larsen.png'),
+    require('../../../assets/images/brands/tata_steel.png'),
+    require('../../../assets/images/brands/jlg.png'),
+    require('../../../assets/images/brands/genie.png'),
+    require('../../../assets/images/brands/tata_pigments.png'),
 ];
 
 const localStyles = StyleSheet.create({
@@ -451,10 +473,7 @@ const localStyles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#EEE'
     },
-    partnerName: {
-        color: '#4A4A68',
-        fontWeight: '700'
-    },
+    // partnerName removed in favor of logos
 
     // Success
     successSection: {

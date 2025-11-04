@@ -19,6 +19,7 @@ import EditAddress from '../screens/profile/address/EditAddress';
 import WebPage from '../screens/drawer/WebPage';
 import LoginBottomSheet from '../components/ui/LoginBottomSheet';
 import LoginWithOtpScreen from '../screens/LoginWithOtpScreen';
+import LoginScreen from '../screens/profile/LoginScreen';
 
 const AccountStack = createStackNavigator();
 
@@ -31,7 +32,7 @@ const AccountContainer = () => {
       <AccountStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
       <AccountStack.Screen name="Notifications" component={Notifications} />
       <AccountStack.Screen name="Wishlist" component={Wishlist} />
-      <AccountStack.Screen name="Login" component={LoginWithOtpScreen} />
+      <AccountStack.Screen name="Login" component={LoginScreen} />
       <AccountStack.Screen name="SignUp" component={SignUp} />
       <AccountStack.Screen name="ForgotPassword" component={ForgotPassword} />
 

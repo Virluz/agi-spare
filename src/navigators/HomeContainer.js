@@ -9,6 +9,7 @@ import ProductDetails from '../screens/product/ProductDetails';
 import ProductList from '../screens/product/ProductList';
 import Collections from '../screens/home/Collections';
 import Privacy from '../screens/profile/Privacy';
+import LevelOne from '../screens/category/LevelOne';
 const HomeStack = createStackNavigator();
 
 
@@ -74,6 +75,14 @@ const HomeContainer = ({ navigation, route }) => {
                 }}
                 name="ProductDetails"
                 component={ProductDetails}
+            />
+
+            <HomeStack.Screen
+                options={{
+                    headerShown: false,
+                }}
+                name="LevelOne"
+                component={LevelOne}
             />
         </HomeStack.Navigator>
     )

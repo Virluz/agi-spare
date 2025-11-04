@@ -8,11 +8,12 @@ import { addOrUpdateCartLine } from '../../redux/reducers/cartSlice';
 import { toggleWishlistItem } from '../../redux/reducers/wishlistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { widthPixel } from '../../utils/fonts';
-import { Cross, CrossIcon, Heart, ShoppingBag, ShoppingBasket, ShoppingCart, ShoppingCartIcon, X } from 'lucide-react-native';
+import { Cross, CrossIcon, Heart, HeartIcon, ShoppingBag, ShoppingBasket, ShoppingCart, ShoppingCartIcon, X } from 'lucide-react-native';
 import FastImage from '@d11/react-native-fast-image';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
 import { PrimaryButton } from './PrimaryButton';
+import { showErrorMsg, showSuccessMsg } from '../../widgets/FlashMessages';
 
 
 const ITEM_SPACING = widthPixel(16); // space between items
@@ -63,7 +64,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
 
     const isRightItem = (index + 1) % NUM_COLUMNS === 0;
-    const { colorScheme, } = useSelector(state => state.app);
+    const { colorScheme, isLoggedInGlobal } = useSelector(state => state.app);
     const colors = extactColorsFromVariants(item?.node?.variants)
 
 
@@ -215,31 +216,56 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     )}
 
                     {_getVerticalPadding(6)}
-                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-                        <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
-                            ₹{item.node.variants.edges[0].node.price.amount}
-                        </Text>
-                        <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2}>
-                            <Text style={{ textDecorationLine: 'line-through', opacity: 0.6 }}>
-                                ₹{Math.round(Number(item.node.variants.edges[0].node.price.amount) * 1.14)}
-                            </Text> 14% OFF
-                        </Text>
-                    </View>
+                    {isLoggedInGlobal && (
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+                            <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
+                                ₹{item.node.variants.edges[0].node.price.amount}
+                            </Text>
+                            <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2}>
+                                <Text style={{ textDecorationLine: 'line-through', opacity: 0.6 }}>
+                                    ₹{Math.round(Number(item.node.variants.edges[0].node.price.amount) * 1.14)}
+                                </Text> 14% OFF
+                            </Text>
+                        </View>
+                    )}
 
                 </View>
 
-                {showAddToCartButton &&
+                {showAddToCartButton && isLoggedInGlobal &&
                     <View style={{ width: '100%', paddingTop: -widthPixel(8) }}>
-                        <PrimaryButton title={'Add to Cart'} color={'#F2994A'} onPress={() => {
+                        <PrimaryButton title={'Add to Cart'} color={'#F2994A'} onPress={async () => {
                             try {
                                 const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
-                                if (variantId) {
-                                    dispatch(addOrUpdateCartLine({ variantId, quantity: 1 }));
+                                if (!variantId) {
+                                    showErrorMsg('Variant unavailable');
+                                    return;
                                 }
-                            } catch (_) { }
+                                await dispatch(addOrUpdateCartLine({ variantId, quantity: 1 })).unwrap();
+                                showSuccessMsg('Added to cart');
+                            } catch (e) {
+                                showErrorMsg(String(e?.message || 'Failed to add to cart'));
+                            }
                         }} />
                     </View>
                 }
+
+                {showAddToCartButton && !isLoggedInGlobal && (
+                    <View style={{ width: '100%', paddingTop: -widthPixel(8) }}>
+                        <PrimaryButton
+                            title={'Know More'}
+                            color={colorSet?.primaryColor || '#3B82F6'}
+                            onPress={() => {
+                                // Take user to the login screen to unlock prices and purchasing
+                                try {
+                                    navigation.navigate('Login');
+                                } catch (e) {
+                                    // Fallback: navigate to Profile tab if Login route isn't available
+                                    try { navigation.navigate('Profile'); } catch { }
+                                }
+                            }}
+                        />
+                    </View>
+                )}
 
                 <Ripple
                     onPress={() => {
@@ -255,10 +281,14 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
                     {isWishlistItem ? <X size={18} /> :
 
-                        <FastImage
-                            source={isInWishlist ? require('../../../assets/images/home/heart_filled.png') : require('../../../assets/images/home/heart.png')}
-                            style={{ height: widthPixel(17), width: widthPixel(17), }}
+                        <HeartIcon color={isInWishlist ? 'red' : 'black'}
+                            {...isInWishlist && { fill: 'red' }}
                         />
+
+                        // <FastImage
+                        //     source={isInWishlist ? require('../../../assets/images/home/heart_filled.png') : require('../../../assets/images/home/heart.png')}
+                        //     style={{ height: widthPixel(17), width: widthPixel(17), }}
+                        // />
                     }
 
                 </Ripple>

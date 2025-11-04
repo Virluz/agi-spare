@@ -601,11 +601,11 @@ const Cart = () => {
                         </>
                     }
 
-                    ListHeaderComponent={cart?.lines?.edges && (
-                        <View style={{ alignItems: 'flex-end', paddingTop: heightPixel(8) }}>
-                            <Text style={appStyles.text_14_reg_mainTextColor2}>{cart?.lines?.edges?.length} Items Selected</Text>
-                        </View>
-                    )}
+                // ListHeaderComponent={cart?.lines?.edges && (
+                //     <View style={{ alignItems: 'flex-end', paddingTop: heightPixel(8) }}>
+                //         <Text style={appStyles.text_14_reg_mainTextColor2}>{cart?.lines?.edges?.length} Items Selected</Text>
+                //     </View>
+                // )}
                 />
 
 
@@ -661,7 +661,7 @@ const Cart = () => {
             </Modal>
 
 
-            {cart?.lines?.edges && (
+            {/* {cart?.lines?.edges && (
                 <View style={{
                     height: 32,
                     backgroundColor: '#F4FBFF',
@@ -673,7 +673,7 @@ const Cart = () => {
                         To Pay: <Text style={appStyles.text_14_bold_mainTextColor2}>{Constants.CURRENCY}{totals.toPay} </Text>
                     </Text>
                 </View>
-            )}
+            )} */}
 
             <View style={styles.footer}>
 

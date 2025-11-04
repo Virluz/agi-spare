@@ -13,7 +13,11 @@ import {
     Alert,
 } from 'react-native';
 import { showErrorMsg } from '../../widgets/FlashMessages';
-import { customerAccessTokenCreate } from '../../graphql/graph_request';
+import { loginCustomer, customerRecover } from '../../graphql/graph_request';
+import { saveAuthToken } from '../../utils/customerAuth';
+import { useDispatch } from 'react-redux';
+import { setIsLoggedIn } from '../../redux/reducers/appSlice';
+import { useNavigation } from '@react-navigation/native';
 
 
 // Login Form Component
@@ -33,22 +37,23 @@ const LoginForm = ({ onLoginSuccess, switchToRecovery }) => {
         setError('');
 
         try {
-            const data = await customerAccessTokenCreate({
-                input: {
-                    email,
-                    password
-                }
-            });
-
-
-            if (data.customerAccessTokenCreate.customerUserErrors.length > 0) {
-                const error = data.customerAccessTokenCreate.customerUserErrors[0];
-                showErrorMsg(error.message);
+            const data = await loginCustomer(email, password);
+            const errs = data?.customerAccessTokenCreate?.customerUserErrors;
+            if (errs && errs.length) {
+                const error = errs[0];
+                showErrorMsg(error?.message || 'Login failed');
+                setError(error?.message || 'Login failed');
                 return;
             }
 
-            const accessToken = data.customerAccessTokenCreate.customerAccessToken.accessToken;
-            onLoginSuccess(accessToken);
+            const tokenObj = data?.customerAccessTokenCreate?.customerAccessToken;
+            const accessToken = tokenObj?.accessToken;
+            const expiresAt = tokenObj?.expiresAt;
+            if (!accessToken) {
+                setError('Login failed: Missing access token');
+                return;
+            }
+            onLoginSuccess(accessToken, expiresAt);
 
         } catch (err) {
             setError('An error occurred during login. Please try again.');
@@ -126,16 +131,13 @@ const PasswordRecovery = ({ switchToLogin }) => {
         setMessage('');
 
         try {
-            const { data } = await customerRecover({
-                variables: { email }
-            });
-
-            if (data.customerRecover.customerUserErrors.length > 0) {
-                const error = data.customerRecover.customerUserErrors[0];
-                setMessage(error.message);
+            const data = await customerRecover(email);
+            const errs = data?.customerRecover?.customerUserErrors;
+            if (errs && errs.length) {
+                const error = errs[0];
+                setMessage(error?.message || 'Failed to send reset instructions');
                 return;
             }
-
             setMessage('Password reset instructions have been sent to your email.');
 
         } catch (err) {
@@ -192,12 +194,23 @@ const PasswordRecovery = ({ switchToLogin }) => {
 // Main Login Screen Component
 const LoginScreen = () => {
     const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+    const dispatch = useDispatch();
+    const navigation = useNavigation();
 
-    const handleLoginSuccess = (accessToken) => {
-        // Store the access token securely (consider using SecureStore from expo-secure-store)
-        console.log('Login successful, access token:', accessToken);
-        // Navigate to the main app screen
-        Alert.alert('Success', 'You have successfully logged in!');
+    const handleLoginSuccess = async (accessToken, expiresAt) => {
+        try {
+            if (accessToken) {
+                await saveAuthToken(accessToken, expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString());
+                dispatch(setIsLoggedIn(true));
+                Alert.alert('Success', 'You have successfully logged in!');
+                // Send the user back to main stack
+                navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
+            } else {
+                Alert.alert('Login failed', 'No access token returned');
+            }
+        } catch (e) {
+            Alert.alert('Error', 'Failed to persist login, please try again.');
+        }
     };
 
     return (

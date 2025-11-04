@@ -55,7 +55,7 @@ const lightColorSet = {
   red2: '#FFE2E5',
   red4: '#E14345',
   red5: '#FFEEEE',
-  primaryColor: '#D30027',
+  primaryColor: '#F27E03',
 
   urgent: '#D12122',
   red: '#F00000',
@@ -138,7 +138,7 @@ const darkColorSet = {
   red2: '#FFE2E5',
   red4: '#E14345',
   red5: '#FFEEEE',
-  primaryColor: '#D30027',
+  primaryColor: '#F27E03',
 
 
   urgent: '#D12122',
@@ -191,16 +191,16 @@ export const fontFamily = {
   // semiBoldFont: 'Metropolis-SemiBold',
   // regularFont: 'Metropolis-Regular',
 
-  boldFont: 'Campton-SemiBold',
-  semiBoldFont: 'Campton-Medium',
-  regularFont: 'Campton-Book',
+  boldFont: 'NeueMontreal-Bold',
+  semiBoldFont: 'NeueMontreal-Medium',
+  regularFont: 'NeueMontreal-Regular',
 
 
   // boldFont: 'Campton-Book',
   // semiBoldFont: 'Campton-Book',
   // regularFont: 'Campton-Book',
 
-  secondaryFont: 'Kino',
+  secondaryFont: 'inner',
   // boldFont: 'Satoshi-Bold',
   // semiBoldFont: 'Satoshi-Medium',
   // regularFont: 'Satoshi-Regular',

@@ -1,133 +1,76 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import AppStyles from '../../styles/AppStyles';
+import React, { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { heightPixel, widthPixel } from '../../utils/fonts';
-import { _getVerticalPadding, extactColorsFromVariants, ITEM_SPACING, noDataView, SIDE_MARGIN } from '../../utils/Helper';
+import AppStyles from '../../styles/AppStyles';
+import { _getVerticalPadding, ITEM_SPACING, SIDE_MARGIN } from '../../utils/Helper';
 import SectionName from '../../components/ui/home/SectionName';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl } from 'react-native-gesture-handler';
-import { showErrorMsg } from '../../widgets/FlashMessages';
 import ProductCard from '../../components/ui/ProductCard';
-import { getBestSellers, getCollectionByHandle } from '../../graphql/graph_request';
-import Ripple from "react-native-material-ripple";
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { useNavigation } from '@react-navigation/native';
-
-
+import { getCollectionByHandle } from '../../graphql/graph_request';
+import { useTranslation } from 'react-i18next';
+import { showErrorMsg } from '../../widgets/FlashMessages';
+import Constants from '../../utils/Constants';
 
 const BestSeller = () => {
-    const { colorScheme, } = useSelector(state => state.app);
+  const { colorScheme } = useSelector(state => state.app);
+  const appStyles = AppStyles.getAllStyles(colorScheme);
+  const colorSet = AppStyles.colorSet[colorScheme];
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+  const navigation = useNavigation();
+  const { t } = useTranslation();
 
-    const styles = AppStyles.getAllStyles(colorScheme);
-    const colorSet = AppStyles.colorSet[colorScheme];
-    const [loading, setLoading] = useState(false);
-    const [selectedTab, setSelectedTab] = useState(0);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getCollectionByHandle({ handle: 'best-seller', first: 4 });
+        setItems(res?.collection?.products?.edges || []);
+      } catch (e) {
+        showErrorMsg(Constants.DEFAULT_ERROR);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
+  return (
+    <View style={appStyles.container_no_padding}>
+      {_getVerticalPadding(30)}
+      <View style={{ alignItems: 'center' }}>
+        <SectionName title={t('BEST SELLERS')} />
+        {_getVerticalPadding(10)}
+        <FlatList
+          data={items}
+          renderItem={({ item, index }) => (
+            <ProductCard item={item} index={index} />
+          )}
+          keyExtractor={(item, index) => item?.node?.id?.toString?.() || String(index)}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: SIDE_MARGIN,
+            paddingTop: ITEM_SPACING,
+            paddingBottom: ITEM_SPACING,
+            flexGrow: 1,
+            backgroundColor: colorSet?.mainThemeBackgroundColor,
+          }}
+          ListFooterComponent={
+            <PrimaryButton
+              title={'View All'}
+              showNextArrows
+              onPress={() => navigation.navigate('ProductList', { handle: 'best-seller', title: 'Best Sellers' })}
+            />
+          }
+          scrollEnabled={false}
+        />
+      </View>
+      {_getVerticalPadding(30)}
+    </View>
+  );
+};
 
-    const [bestSellers, setBestSellers] = useState([]);
-    const [newIns, setNewIns] = useState([]);
-    const navigation = useNavigation();
+export default BestSeller;
 
-    const { t } = useTranslation();
-
-    const translateKeys = {
-        bestSeller: t('BEST SELLERS'),
-        newIn: t('NEW IN')
-    }
-
-
-    useEffect(() => {
-        callApi();
-
-
-    }, [])
-
-    const callApi = async (loader) => {
-        if (loader)
-            setLoading(true)
-
-        try {
-
-
-            const response = await getBestSellers({ first: 4 });
-            // console.log("response", response);
-
-            // Initial load
-            setBestSellers(response.products.edges);
-
-
-
-
-
-            const responseNewIns = await getCollectionByHandle({
-                handle: "new-new", // required
-                first: 4 // optional, defaults to 20
-            });
-            // console.log("response", responseNewIns,);
-
-            // Initial load
-            setNewIns(responseNewIns.collection.products.edges);
-
-
-
-        } catch (error) {
-
-            console.log("error", error);
-
-            showErrorMsg(Constants.DEFAULT_ERROR);
-
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    return (
-        <View style={styles.container_no_padding}>
-
-            {_getVerticalPadding(30)}
-
-
-            <View style={{
-                alignItems: 'center',
-            }}>
-
-                <SectionName title={translateKeys.bestSeller} />
-
-                {_getVerticalPadding(10)}
-
-                <FlatList
-                    data={selectedTab === 0 ? bestSellers : newIns}
-                    // renderItem={renderItem}
-
-                    renderItem={({ item, index }) => <ProductCard item={item} index={index} />}
-                    numColumns={2}
-                    keyExtractor={item => item?.node?.id?.toString()}
-
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingHorizontal: SIDE_MARGIN,
-                        paddingTop: ITEM_SPACING,
-                        paddingBottom: ITEM_SPACING,
-                        flexGrow: 1,
-                        backgroundColor: colorSet?.mainThemeBackgroundColor,
-                    }}
-                    ListFooterComponent={
-
-                        <PrimaryButton title={'View All'} showNextArrows onPress={() => navigation.navigate('ProductList', { handle: 'best-sellers', title: 'Store Best Sellers' })} />
-
-                    }
-                    scrollEnabled={false}
-                />
-
-            </View>
-
-            {_getVerticalPadding(30)}
-
-        </View >
-    )
-}
-
-export default BestSeller
-
-const styles = StyleSheet.create({})
+const localStyles = StyleSheet.create({});

@@ -58,23 +58,52 @@ const getTabIcon = (name, color, focused, onPress) => {
   switch (name) {
     case 'Home':
       iconView = (
-        <Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/style_icon.png')} />)
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={focused
+            ? require('../../assets/images/tabicons/home_filled.png')
+            : require('../../assets/images/tabicons/home_.png')}
+        />)
       break;
     case 'Category':
-      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/categories.png')} />)
-
+      iconView = (
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={focused
+            ? require('../../assets/images/tabicons/category_filled.png')
+            : require('../../assets/images/tabicons/category_.png')}
+        />)
       break;
     case 'Cart':
-      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/cart.png')} />)
+      iconView = (
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={focused
+            ? require('../../assets/images/tabicons/cart_filled.png')
+            : require('../../assets/images/tabicons/cart_.png')}
+        />)
       break;
 
     case 'New In':
-      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/fluid.png')} />)
+      // Fallback: if no dedicated icon, reuse Home icons
+      iconView = (
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={focused
+            ? require('../../assets/images/tabicons/home_filled.png')
+            : require('../../assets/images/tabicons/home_.png')}
+        />)
       break;
 
     case 'Profile':
     case 'Rewards':
-      iconView = (<Image style={{ height: 20, width: 20, tintColor: color }} source={require('../../assets/images/rewards.png')} />)
+      iconView = (
+        <Image
+          style={{ height: 20, width: 20 }}
+          source={focused
+            ? require('../../assets/images/tabicons/profile_filled.png')
+            : require('../../assets/images/tabicons/profile_.png')}
+        />)
       break;
     default:
       break;

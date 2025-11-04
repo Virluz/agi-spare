@@ -55,7 +55,7 @@ export const PrimaryButton = ({ disabled, onPress, iconStyle, iconSource, title,
               {iconSource}
             </>}
 
-            {showNextArrows &&
+            {false &&
 
               <Image
                 source={require('../../../assets/images/next_arrows.png')}
@@ -81,7 +81,9 @@ const getStyles = (colorScheme, color, disabled) => {
     container: {
       margin: fonts._10,
       height: heightPixel(35),
-      width: '100%',
+      // width: '100%',
+      paddingHorizontal: widthPixel(16),
+      borderRadius: widthPixel(100),
       // paddingHorizontal: widthPixel(32),
       alignSelf: 'center',
       backgroundColor: backgroundColor,

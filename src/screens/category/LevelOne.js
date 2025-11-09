@@ -130,15 +130,15 @@ const localStyles = StyleSheet.create({
   cardFooter: {
     marginTop: heightPixel(8),
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   cardTitle: {
     color: '#1F2024',
     fontWeight: '700',
     fontSize: heightPixel(16),
-    flex: 1,
-    marginRight: widthPixel(6)
+    // flex: 1,
+    marginRight: widthPixel(5)
   }
 });
 

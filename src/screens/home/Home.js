@@ -109,13 +109,15 @@ const Home = () => {
 
     return (
         <>
-            <Toolbar home={true} title={'agi spare'} isSearch />
 
             <ScrollView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: heightPixel(100) }}
             >
+
+                <Toolbar home={true} title={'agi spare'} isSearch />
+
                 {_getVerticalPadding(52)}
 
                 {/* Search bar */}
@@ -372,14 +374,13 @@ const localStyles = StyleSheet.create({
         marginTop: heightPixel(8),
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
     },
     categoryText: {
         color: '#1F2024',
         fontSize: heightPixel(14),
         fontWeight: '700',
-        flex: 1,
-        marginRight: widthPixel(8),
+        marginRight: widthPixel(5),
     },
     loadMore: {
         alignSelf: 'center',

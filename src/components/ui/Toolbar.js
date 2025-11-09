@@ -135,7 +135,7 @@ const Toolbar = ({ home,
                         backgroundColor: '#F4F1FB', borderRadius: 100,
                         opacity: 0.5
                     }} onPress={() => {
-                        navigation.navigate('SearchPage')
+                        // navigation.navigate('SearchPage')
                     }} >
 
                         <Heart size={widthPixel(24)} color={'#605E5E'} />
@@ -149,7 +149,9 @@ const Toolbar = ({ home,
 
                     <Ripple style={{ padding: widthPixel(8), zIndex: 100 }}
 
-                        onPress={() => navigation.navigate('AccountContainer')} >
+                        onPress={() => {
+                            // return navigation.navigate('AccountContainer');
+                        }} >
 
                         <BellIcon size={widthPixel(24)} color={'#605E5E'} />
 

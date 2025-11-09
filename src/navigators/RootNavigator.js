@@ -34,6 +34,7 @@ import SignUp from '../screens/auth/SignUp';
 import Login from '../screens/auth/Login';
 import MainNavigator from './MainNavigator';
 import LoginWithOtpScreen from '../screens/LoginWithOtpScreen';
+import EmailPasswordLogin from '../screens/auth/EmailPasswordLogin';
 const Root = createStackNavigator();
 
 export default RootNavigator = () => {
@@ -212,6 +213,13 @@ export default RootNavigator = () => {
           <Root.Screen
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
             name="Login"
+            component={EmailPasswordLogin}
+          />
+
+          {/* Keep OTP login available under a separate route for future use */}
+          <Root.Screen
+            options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
+            name="LoginOtp"
             component={LoginWithOtpScreen}
           />
         </>

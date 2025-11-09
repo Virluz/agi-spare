@@ -23,6 +23,7 @@ import ProductCard from '../../components/ui/ProductCard';
 import VerticalCarousel from '../../components/ui/VerticalCarousel';
 import BottomSheet from 'react-native-raw-bottom-sheet';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const sortOptions = [
     { value: 'TITLE', label: 'Alphabetically (A-Z)', reverse: false },
@@ -30,8 +31,8 @@ const sortOptions = [
     { value: 'PRICE', label: 'Price (Low to High)', reverse: false },
     { value: 'PRICE', label: 'Price (High to Low)', reverse: true },
     { value: 'BEST_SELLING', label: 'Best Selling', reverse: false },
-    { value: 'CREATED_AT', label: 'Newest First', reverse: true },
-    { value: 'PRODUCT_TYPE', label: 'Product Type', reverse: false },
+    // { value: 'CREATED_AT', label: 'Newest First', reverse: true },
+    // { value: 'PRODUCT_TYPE', label: 'Product Type', reverse: false },
 ];
 
 const ProductList = () => {
@@ -65,6 +66,7 @@ const ProductList = () => {
     const [selectedFilters, setSelectedFilters] = useState({});
     const [availableFilters, setAvailableFilters] = useState([]);
     const [selectedColors, setSelectedColors] = useState([]);
+    const [priceRange, setPriceRange] = useState([0, 100000]);
 
     const translateKeys = {
         notification: t('Notifications'),
@@ -96,8 +98,9 @@ const ProductList = () => {
 
             if (handle) {
                 // Use collection-specific API when handle is provided
-                const variables = { handle, first: 20 };
+                const variables = { handle, first: 20, sortKey, reverse };
                 if (endCursor) variables.after = endCursor;
+                if (query) variables.query = query;
 
                 const filterResponse = await getCollectionFilters({ handle })
                 console.log("filterResponse response", filterResponse);
@@ -157,7 +160,8 @@ const ProductList = () => {
         console.log("newPAge", hasNextPage);
 
         if (!hasNextPage) return;
-        callApi(false, endCursor);
+        // Pass current sort settings when loading more
+        callApi(false, endCursor, searchQuery, selectedSortOption.value, selectedSortOption.reverse);
     };
 
     const handleFilterChange = (filterId, values) => {
@@ -169,14 +173,27 @@ const ProductList = () => {
     };
 
     const applyFiltersToApi = async (filters) => {
-
         const filtersToSend = filters ?? selectedFilters;
-        // Build query from selected filters
+
+        // Build query with price and other filters
         let query = '';
+
+        // Add price range filter from slider
+        const [minPrice, maxPrice] = priceRange;
+        if (minPrice > 0 || maxPrice < 10000) {
+            if (minPrice > 0 && maxPrice < 10000) {
+                query += `variants.price:>=${minPrice} variants.price:<=${maxPrice} `;
+            } else if (minPrice > 0) {
+                query += `variants.price:>=${minPrice} `;
+            } else if (maxPrice < 10000) {
+                query += `variants.price:<=${maxPrice} `;
+            }
+        }
+
+        // Add other filters from filtersToSend
         Object.entries(filtersToSend).forEach(([filterId, values]) => {
             if (values && values.length > 0) {
                 values.forEach(value => {
-                    // Parse the JSON input to get the actual filter criteria
                     try {
                         const filterData = JSON.parse(value);
                         if (filterData.variantOption) {
@@ -192,16 +209,56 @@ const ProductList = () => {
                 });
             }
         });
-        console.log("QUERY", query);
 
-        // Call your API with the filter query
-        callApi(true, null, query.trim());
+        console.log("QUERY", query.trim());
+
+        // Call your API with the filter query, preserving current sort
+        callApi(true, null, query.trim(), selectedSortOption.value, selectedSortOption.reverse);
     };
 
     const handleSortChange = (option) => {
         setSelectedSortOption(option);
-        callApi(true, null, null, option.value, option.reverse);
+        // Preserve current search query and filters when sorting
+        const currentQuery = searchQuery || buildQueryFromFilters();
+        callApi(true, null, currentQuery, option.value, option.reverse);
         refSortRBSheet.current.close();
+    };
+
+    const buildQueryFromFilters = () => {
+        let query = '';
+
+        // Add price range filter from slider
+        const [minPrice, maxPrice] = priceRange;
+        if (minPrice > 0 || maxPrice < 10000) {
+            if (minPrice > 0 && maxPrice < 10000) {
+                query += `variants.price:>=${minPrice} variants.price:<=${maxPrice} `;
+            } else if (minPrice > 0) {
+                query += `variants.price:>=${minPrice} `;
+            } else if (maxPrice < 10000) {
+                query += `variants.price:<=${maxPrice} `;
+            }
+        }
+
+        // Add other filters
+        Object.entries(selectedFilters).forEach(([filterId, values]) => {
+            if (values && values.length > 0) {
+                values.forEach(value => {
+                    try {
+                        const filterData = JSON.parse(value);
+                        if (filterData.variantOption) {
+                            query += `${filterData.variantOption.name}:${filterData.variantOption.value} `;
+                        } else if (filterData.productMetafield) {
+                            query += `tag:${filterData.productMetafield.value} `;
+                        } else if (filterData.price) {
+                            query += `variants.price:>=${filterData.price.min} variants.price:<=${filterData.price.max} `;
+                        }
+                    } catch (error) {
+                        console.log('Error parsing filter:', error);
+                    }
+                });
+            }
+        });
+        return query.trim();
     };
 
     const getSortBottomSheet = () => {
@@ -249,6 +306,7 @@ const ProductList = () => {
 
     const getFilterBottomSheet = () => {
         const selectedFilter = availableFilters.find(filter => filter.label === selectedFilterCategory);
+        const isPriceFilter = selectedFilter?.id === 'filter.v.price';
 
         return (
             <BottomSheet
@@ -268,7 +326,10 @@ const ProductList = () => {
                 <View style={localStyles.bottomSheetContent}>
                     <View style={localStyles.filterSection}>
                         <Text style={styles.text_24_reg_mainTextColor2}>Filter</Text>
-                        <TouchableOpacity onPress={() => setSelectedFilters({})}>
+                        <TouchableOpacity onPress={() => {
+                            setSelectedFilters({});
+                            setPriceRange([0, 10000]);
+                        }}>
                             <Text style={[styles.text_14_semi_mainTextColor2, { textDecorationLine: 'underline' }]}>Clear All</Text>
                         </TouchableOpacity>
 
@@ -306,42 +367,117 @@ const ProductList = () => {
                         <View style={{ flex: 1.5, borderLeftWidth: 1, paddingTop: 10, paddingLeft: 10, borderColor: '#DEDEDE' }}>
                             <ScrollView>
 
-                                {selectedFilter?.values.map((value, valueIndex) => {
-                                    const isSelected = selectedFilters[selectedFilter.id]?.includes(value.input);
-                                    return (
-                                        <TouchableOpacity
-                                            key={value?.id || value?.input || `${value?.label || 'opt'}-${valueIndex}`}
-                                            style={{ padding: 5, flexDirection: 'row', gap: 5, alignItems: 'center' }}
-                                            onPress={() => {
-                                                console.log("sldhdg", selectedFilters);
+                                {isPriceFilter ? (
+                                    <View style={{ padding: 15 }}>
+                                        <Text style={[styles.text_14_semi_mainTextColor2, { marginBottom: 20 }]}>Price Range</Text>
 
-                                                const currentValues = selectedFilters[selectedFilter.id] || [];
-                                                let newValues;
-                                                if (isSelected) {
-                                                    newValues = currentValues.filter(v => v !== value.input);
-                                                } else {
-                                                    newValues = [...currentValues, value.input];
-                                                }
-                                                handleFilterChange(selectedFilter.id, newValues);
-                                            }}
-                                        >
-                                            <View style={[{
-                                                height: 16, width: 16,
-                                                borderWidth: 0.5,
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }, isSelected && {
-                                                backgroundColor: colorSet.primaryColor,
-                                                borderColor: colorSet.primaryColor,
-                                            }]}>
-                                                {/* <CheckSquare2 /> */}
-                                                {isSelected && <Check size={14} color={colorSet.white} />}
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                                            <View style={{ width: '48%' }}>
+                                                <TextInput
+                                                    style={[localStyles.priceInput, styles.text_14_reg_mainTextColor2]}
+                                                    placeholder="₹0"
+                                                    placeholderTextColor="#A0A0A0"
+                                                    keyboardType="numeric"
+                                                    value={priceRange[0].toString()}
+                                                    onChangeText={(text) => {
+                                                        const val = parseInt(text) || 0;
+                                                        if (val <= priceRange[1]) {
+                                                            setPriceRange([val, priceRange[1]]);
+                                                        }
+                                                    }}
+                                                />
                                             </View>
-                                            <Text style={styles.text_14_reg_mainTextColor2}>{value.label}</Text>
-                                        </TouchableOpacity>
-                                    );
-                                })
-                                }
+                                            <View style={{ width: '48%' }}>
+                                                <TextInput
+                                                    style={[localStyles.priceInput, styles.text_14_reg_mainTextColor2]}
+                                                    placeholder="₹10000"
+                                                    placeholderTextColor="#A0A0A0"
+                                                    keyboardType="numeric"
+                                                    value={priceRange[1].toString()}
+                                                    onChangeText={(text) => {
+                                                        const val = parseInt(text) || 10000;
+                                                        if (val >= priceRange[0]) {
+                                                            setPriceRange([priceRange[0], val]);
+                                                        }
+                                                    }}
+                                                />
+                                            </View>
+                                        </View>
+
+                                        <View style={{
+                                            // alignItems: 'center',
+                                            flex: 1,
+                                            flewWrap: 'wrap',
+                                            marginTop: 20, marginBottom: 10,
+                                            //  width: 200
+                                        }}>
+                                            <MultiSlider
+                                                values={priceRange}
+                                                min={0}
+                                                max={100000}
+                                                step={100}
+
+                                                sliderLength={180}
+                                                onValuesChange={(values) => setPriceRange(values)}
+                                                selectedStyle={{ backgroundColor: '#FF6B35' }}
+                                                unselectedStyle={{ backgroundColor: '#E0E0E0' }}
+                                                markerStyle={{
+                                                    height: 20,
+                                                    width: 20,
+                                                    backgroundColor: '#FF6B35',
+                                                    borderWidth: 2,
+                                                    borderColor: '#FFF',
+                                                    shadowColor: '#000',
+                                                    shadowOffset: { width: 0, height: 2 },
+                                                    shadowOpacity: 0.25,
+                                                    shadowRadius: 3.84,
+                                                    elevation: 5
+                                                }}
+                                            />
+                                        </View>
+
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                            <Text style={styles.text_12_reg_mainTextColor2}>₹{priceRange[0]}</Text>
+                                            <Text style={styles.text_12_reg_mainTextColor2}>₹{priceRange[1]}</Text>
+                                        </View>
+                                    </View>
+                                ) : (
+                                    selectedFilter?.values.map((value, valueIndex) => {
+                                        const isSelected = selectedFilters[selectedFilter.id]?.includes(value.input);
+                                        return (
+                                            <TouchableOpacity
+                                                key={value?.id || value?.input || `${value?.label || 'opt'}-${valueIndex}`}
+                                                style={{ padding: 5, flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                                                onPress={() => {
+                                                    console.log("sldhdg", selectedFilters);
+
+                                                    const currentValues = selectedFilters[selectedFilter.id] || [];
+                                                    let newValues;
+                                                    if (isSelected) {
+                                                        newValues = currentValues.filter(v => v !== value.input);
+                                                    } else {
+                                                        newValues = [...currentValues, value.input];
+                                                    }
+                                                    handleFilterChange(selectedFilter.id, newValues);
+                                                }}
+                                            >
+                                                <View style={[{
+                                                    height: 16, width: 16,
+                                                    borderWidth: 0.5,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }, isSelected && {
+                                                    backgroundColor: colorSet.primaryColor,
+                                                    borderColor: colorSet.primaryColor,
+                                                }]}>
+                                                    {/* <CheckSquare2 /> */}
+                                                    {isSelected && <Check size={14} color={colorSet.white} />}
+                                                </View>
+                                                <Text style={styles.text_14_reg_mainTextColor2}>{value.label}</Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })
+                                )}
                             </ScrollView>
 
                         </View>
@@ -547,24 +683,51 @@ const ProductList = () => {
 
             </View >
 
-            <TouchableOpacity
-                onPress={() => refFilterRBSheet.current.open()}
-                style={{
-                    position: 'absolute',
-                    bottom: 80,
-                    alignSelf: 'center',
-                    backgroundColor: '#1D1A44',
-                    paddingVertical: 10,
-                    paddingHorizontal: 20,
-                    borderRadius: 24,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 8
-                }}
-            >
-                <ArrowUpDown color={'#fff'} size={18} />
-                <Text style={{ color: '#fff', fontWeight: '700' }}>FILTERS</Text>
-            </TouchableOpacity>
+            <View style={{
+                position: 'absolute',
+                bottom: 80,
+                left: 0,
+                right: 0,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 12,
+                paddingHorizontal: SIDE_MARGIN,
+            }}>
+                <TouchableOpacity
+                    onPress={() => refSortRBSheet.current.open()}
+                    style={{
+                        flex: 1,
+                        backgroundColor: '#1D1A44',
+                        paddingVertical: 12,
+                        borderRadius: 24,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8
+                    }}
+                >
+                    <ArrowUpDown color={'#fff'} size={18} />
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>SORT BY</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => refFilterRBSheet.current.open()}
+                    style={{
+                        flex: 1,
+                        backgroundColor: '#F2994A',
+                        paddingVertical: 12,
+                        borderRadius: 24,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8
+                    }}
+                >
+                    <Filter color={'#fff'} size={18} />
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>FILTERS</Text>
+                </TouchableOpacity>
+            </View>
 
             {getSortBottomSheet()}
             {getFilterBottomSheet()}
@@ -678,5 +841,14 @@ const localStyles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    priceInput: {
+        width: '100%',
+        height: 40,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#FAFAFA',
     },
 })

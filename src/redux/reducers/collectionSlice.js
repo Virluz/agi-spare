@@ -12,7 +12,8 @@ export const fetchCollections = createAsyncThunk(
             const response = await storeFrontClient.request(collections_query, { first });
             console.log("collectionsQuery response", response.collections?.edges.map(edge => edge.node));
 
-            return response.collections?.edges.map(edge => edge.node);
+            //remove home page and best seller collection from list
+            return response.collections?.edges.map(edge => edge.node).filter(node => node.title !== 'Home page' && node.title !== 'Best Seller');
         } catch (error) {
             console.log("error", error);
 

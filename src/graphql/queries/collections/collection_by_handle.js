@@ -2,7 +2,7 @@
 import { gql } from "@apollo/client";
 
 const collection_by_handle = gql`
-  query GetCollectionByHandle($handle: String!, $first: Int = 20, $after:String) {
+  query GetCollectionByHandle($handle: String!, $first: Int = 20, $after:String, $sortKey: ProductCollectionSortKeys, $reverse: Boolean) {
     collection(handle: $handle) {
       id
       title
@@ -12,7 +12,7 @@ const collection_by_handle = gql`
         url
         altText
       }
-      products(first: $first,after:$after ) {
+      products(first: $first, after:$after, sortKey: $sortKey, reverse: $reverse) {
         edges {
           node {
             id

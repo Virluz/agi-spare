@@ -23,7 +23,7 @@ const ITEM_WIDTH = (DEVICE_WIDTH - SIDE_MARGIN * 2 - ITEM_SPACING * (NUM_COLUMNS
 
 const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false, MAX_VISIBLE_COLORS = 3, showColors = true, horizonal = false, showAddToCartButton = false, isWishlistItem = false, disableNavigation = false, showDetails = false }) => {
 
-    if (!item.node || item?.node === null)
+    if (!item?.node || item?.node === null)
         return (
             <View style={{
                 width: ITEM_WIDTH,
@@ -97,7 +97,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
 
                 <FastImage
-                    source={{ uri: item.node.images.edges[0].node.url }}
+                    source={{ uri: item?.node?.images?.edges[0]?.node?.url }}
                     style={{ height: 200, width: '100%', }}
                     resizeMode="cover"
 
@@ -200,7 +200,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
                 }
                 <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
-                    <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2} numberOfLines={2}>{item.node.title}</Text>
+                    <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2} numberOfLines={2}>{item?.node?.title}</Text>
 
                     {showDetails && (
                         <>
@@ -219,11 +219,11 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     {isLoggedInGlobal && (
                         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
                             <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
-                                ₹{item.node.variants.edges[0].node.price.amount}
+                                ₹{item?.node?.variants?.edges?.[0]?.node?.price?.amount}
                             </Text>
                             <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2}>
                                 <Text style={{ textDecorationLine: 'line-through', opacity: 0.6 }}>
-                                    ₹{Math.round(Number(item.node.variants.edges[0].node.price.amount) * 1.14)}
+                                    ₹{Math.round(Number(item?.node?.variants?.edges?.[0]?.node?.price?.amount) * 1.14)}
                                 </Text> 14% OFF
                             </Text>
                         </View>

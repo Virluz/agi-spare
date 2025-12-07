@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import cartCreate from './mutation/createNewCart';
 import fetch_product_by_id from './queries/products/fetch_product_by_id';
 import fetch_products from './queries/products/fetch_products';
+import search_products from './queries/products/search_products';
 import { shopifyClient, storeFrontClient } from './shopifyClient';
 import createNewCart from './mutation/createNewCart';
 import fetch_cart from './queries/cart/fetch_cart';
@@ -34,6 +35,10 @@ import CUSTOMER_ACCESS_TOKEN_CREATE_WITH_MULTIPASS from './mutation/customer/cus
 
 export const getProducts = async (params) => {
     return await storeFrontClient.request(fetch_products, params)
+}
+
+export const searchProducts = async (params) => {
+    return await storeFrontClient.request(search_products, params)
 }
 
 export const getBestSellers = async (params) => {
@@ -164,6 +169,145 @@ export const signupCustomer = async (customerData) => {
     return await storeFrontClient.request(CUSTOMER_SIGNUP, variables);
 }
 
+// Create customer with metafields for extended fields (company name, GST, etc.)
+export const createCustomerWithMetafields = async (payload) => {
+    try {
+        // Step 1: Create customer using Storefront API
+        const customerInput = {
+            email: payload.email,
+            password: payload.password,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            phone: payload.phone,
+            acceptsMarketing: payload.acceptsMarketing || false,
+        };
+
+        const createResult = await storeFrontClient.request(CUSTOMER_SIGNUP, { input: customerInput });
+
+        if (createResult.customerCreate.customerUserErrors?.length > 0) {
+            const error = createResult.customerCreate.customerUserErrors[0];
+            return { success: false, message: error.message };
+        }
+
+        const customer = createResult.customerCreate.customer;
+        const customerId = customer.id;
+
+        // Step 2: Login to get access token
+        const loginResult = await loginCustomer(payload.email, payload.password);
+
+        if (loginResult.customerAccessTokenCreate.customerUserErrors?.length > 0) {
+            const error = loginResult.customerAccessTokenCreate.customerUserErrors[0];
+            return { success: false, message: error.message };
+        }
+
+        const { accessToken, expiresAt } = loginResult.customerAccessTokenCreate.customerAccessToken;
+
+        // Step 3: Create address
+        if (payload.address1 && payload.city && payload.province && payload.zip) {
+            const addressInput = {
+                address1: payload.address1,
+                address2: payload.address2 || '',
+                city: payload.city,
+                province: payload.province,
+                zip: payload.zip,
+                country: payload.country || 'India',
+                phone: payload.phone,
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+            };
+
+            const addressResult = await createCustomerAddress(accessToken, addressInput);
+            if (addressResult.customerAddressCreate.customerUserErrors?.length === 0) {
+                const addressId = addressResult.customerAddressCreate.customerAddress?.id;
+                if (addressId) {
+                    await setCustomerDefaultAddress(accessToken, addressId);
+                }
+            }
+        }
+
+        // Step 4: Add metafields for custom fields using Admin API
+        if (payload.metafields && customerId) {
+            const metafieldsArray = [];
+
+            if (payload.metafields.companyName) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'company_name',
+                    value: payload.metafields.companyName,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (payload.metafields.gstNo) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'gst_number',
+                    value: payload.metafields.gstNo,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (payload.metafields.state) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'select_state_1',
+                    value: payload.metafields.state,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (payload.metafields.pinCode) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'pin-code',
+                    value: payload.metafields.pinCode,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (payload.metafields.areaName) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'area_name',
+                    value: payload.metafields.areaName,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (payload.metafields.username) {
+                metafieldsArray.push({
+                    namespace: 'custom',
+                    key: 'username',
+                    value: payload.metafields.username,
+                    type: 'single_line_text_field'
+                });
+            }
+
+            if (metafieldsArray.length > 0) {
+                try {
+                    await setCustomerMetafieldsAdmin(customerId, metafieldsArray);
+                } catch (metaErr) {
+                    console.warn('Metafields creation failed (non-critical):', metaErr);
+                    // Don't fail the entire registration if metafields fail
+                }
+            }
+        }
+
+        return {
+            success: true,
+            customer,
+            accessToken,
+            expiresAt,
+        };
+    } catch (error) {
+        console.error('Create customer with metafields error:', error);
+        return {
+            success: false,
+            message: error.message || 'Failed to create customer account'
+        };
+    }
+}
+
 export const createCheckoutShopify = async (variables) => {
     return await storeFrontClient.request(createCheckout, variables);
 }
@@ -240,19 +384,49 @@ export const updateCustomerFactsMetafields = async ({ customerId, gender, birthD
 export const updateCustomerMetafieldsAdmin = async (customerId, metafields) => {
     if (!customerId) throw new Error('customerId is required');
     if (!Array.isArray(metafields) || !metafields.length) return { ok: false, reason: 'no_fields' };
+
+    console.log('updateCustomerMetafieldsAdmin called with:', { customerId, metafields });
+
+    // Check if Admin token is configured
+
+
+    // Use metafieldsSet mutation instead of customerUpdate
     const mutation = `
-            mutation updateCustomerMetas($input: CustomerInput!) {
-                customerUpdate(input: $input) {
-                    customer { id }
-                    userErrors { field message }
-                }
+        mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+                metafields { id key namespace value }
+                userErrors { field message }
             }
-        `;
-    const variables = { input: { id: customerId, metafields } };
-    const res = await shopifyClient.request(mutation, variables);
-    const err = res?.customerUpdate?.userErrors?.[0];
-    if (err) throw new Error(err.message || 'customerUpdate failed');
-    return res?.customerUpdate?.customer;
+        }
+    `;
+
+    // Transform metafields to include ownerId
+    const metafieldsWithOwner = metafields.map(field => ({
+        ...field,
+        ownerId: customerId
+    }));
+
+    const variables = { metafields: metafieldsWithOwner };
+
+    console.log('Mutation variables:', JSON.stringify(variables, null, 2));
+
+    try {
+        const res = await shopifyClient.request(mutation, variables);
+        console.log('Shopify response:', JSON.stringify(res, null, 2));
+
+        const err = res?.metafieldsSet?.userErrors?.[0];
+        if (err) {
+            console.error('Shopify userError:', err);
+            throw new Error(err.message || 'metafieldsSet failed');
+        }
+        return res?.metafieldsSet?.metafields;
+    } catch (error) {
+        // Check for 401 authentication error
+        if (error?.response?.status === 401) {
+            throw new Error('Admin API authentication failed. Please verify ADMIN_TOKEN in .env has correct permissions (write_customers, write_customer_metafields).');
+        }
+        throw error;
+    }
 }
 
 export const getProductsByIds = async (productIds) => {

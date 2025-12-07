@@ -3,6 +3,7 @@ import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
 import Profile from '../screens/profile/Profile';
 import Privacy from '../screens/profile/Privacy';
+import EditProfile from '../screens/profile/EditProfile';
 
 const ProfileStack = createStackNavigator();
 
@@ -29,6 +30,10 @@ const ProfileContainer = () => {
             />
 
 
+            <ProfileStack.Screen
+                name="EditProfile"
+                component={EditProfile}
+            />
 
 
         </ProfileStack.Navigator>

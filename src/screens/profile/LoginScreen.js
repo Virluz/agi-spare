@@ -21,7 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 
 
 // Login Form Component
-const LoginForm = ({ onLoginSuccess, switchToRecovery }) => {
+const LoginForm = ({ onLoginSuccess, switchToRecovery, navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -109,6 +109,20 @@ const LoginForm = ({ onLoginSuccess, switchToRecovery }) => {
 
             <TouchableOpacity onPress={switchToRecovery} disabled={isLoading}>
                 <Text style={styles.linkText}>Forgot your password?</Text>
+            </TouchableOpacity>
+
+            <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+                style={styles.createAccountButton}
+                onPress={() => navigation.navigate('CreateAccount')}
+                disabled={isLoading}
+            >
+                <Text style={styles.createAccountButtonText}>Create New Account</Text>
             </TouchableOpacity>
         </View>
     );
@@ -229,6 +243,7 @@ const LoginScreen = () => {
                     <LoginForm
                         onLoginSuccess={handleLoginSuccess}
                         switchToRecovery={() => setIsRecoveryMode(true)}
+                        navigation={navigation}
                     />
                 )}
             </ScrollView>
@@ -320,6 +335,35 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 14,
         fontWeight: '500',
+    },
+    divider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#d1d5db',
+    },
+    dividerText: {
+        marginHorizontal: 16,
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
+    },
+    createAccountButton: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 16,
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#95bf46',
+    },
+    createAccountButtonText: {
+        color: '#95bf46',
+        fontSize: 16,
+        fontWeight: '600',
     },
     errorText: {
         color: '#ef4444',

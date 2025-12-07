@@ -11,6 +11,7 @@ import Notifications from '../screens/profile/Notifications';
 import Wishlist from '../screens/profile/Wishlist';
 import Login from '../screens/auth/Login';
 import SignUp from '../screens/auth/SignUp';
+import CreateAccount from '../screens/auth/CreateAccount';
 import ForgotPassword from '../screens/auth/ForgotPassword';
 
 import BookAndTrail from '../screens/profile/BookAndTrail';
@@ -34,6 +35,7 @@ const AccountContainer = () => {
       <AccountStack.Screen name="Wishlist" component={Wishlist} />
       <AccountStack.Screen name="Login" component={LoginScreen} />
       <AccountStack.Screen name="SignUp" component={SignUp} />
+      <AccountStack.Screen name="CreateAccount" component={CreateAccount} />
       <AccountStack.Screen name="ForgotPassword" component={ForgotPassword} />
 
       <AccountStack.Screen name="BookAndTrail" component={BookAndTrail} />

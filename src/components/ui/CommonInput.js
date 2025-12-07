@@ -87,7 +87,7 @@ const CommonInput = props => {
         }
         <TextInput
           accessibilityLabel={accessbility.label}
-          style={[appstyles.text_14_reg_mainTextColor2]}
+          style={[appstyles.text_14_reg_mainTextColor2, { width: "100%" }]}
           onChangeText={text => {
             handleOnChange(text);
           }}

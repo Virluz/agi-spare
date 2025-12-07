@@ -21,7 +21,9 @@ const NUM_COLUMNS = 2;
 const SIDE_MARGIN = widthPixel(16); // padding left/right
 const ITEM_WIDTH = (DEVICE_WIDTH - SIDE_MARGIN * 2 - ITEM_SPACING * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
-const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false, MAX_VISIBLE_COLORS = 3, showColors = true, horizonal = false, showAddToCartButton = false, isWishlistItem = false, disableNavigation = false, showDetails = false }) => {
+const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false, MAX_VISIBLE_COLORS = 3,
+    showColors = true, horizonal = false, isList = false,
+    showAddToCartButton = true, isWishlistItem = false, disableNavigation = true, showDetails = false }) => {
 
     if (!item?.node || item?.node === null)
         return (
@@ -77,10 +79,6 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     const [imageLoading, setImageLoader] = useState(true);
     const dispatch = useDispatch();
 
-
-
-
-
     return (
         <TouchableWithoutFeedback
             onPress={() => {
@@ -105,100 +103,6 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                 />
 
 
-                {showColors &&
-                    <>
-                        {_getVerticalPadding(6)}
-
-                        <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            // alignSelf: 'flex-start'
-                        }}>
-
-                            <View style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                flex: 1,
-                            }}>
-
-                                {colors?.slice(0, MAX_VISIBLE_COLORS)?.map((color, index) => {
-
-                                    return (
-                                        <View key={index}
-                                            style={{
-                                                paddingVertical: widthPixel(4),
-                                                paddingRight: widthPixel(4),
-                                            }} >
-
-                                            <FastImage
-                                                source={{ uri: color?.image }}
-                                                resizeMode='contain'
-                                                style={{
-                                                    height: widthPixel(24), width: widthPixel(24),
-                                                    borderRadius: widthPixel(32),
-                                                    borderWidth: 1,
-                                                }}
-                                            />
-
-                                        </View>
-                                    )
-                                })}
-
-                                {colors.length > MAX_VISIBLE_COLORS && (
-                                    <View style={styles.remainingCountCircle}>
-                                        <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3_campton : styles.text_12_reg_mainTextColor2_campton}>
-                                            +{colors.length - MAX_VISIBLE_COLORS}
-                                        </Text>
-                                    </View>
-                                )}
-
-                            </View>
-
-                            {quickShop ?
-                                <View style={{
-                                    borderWidth: 1,
-                                    alignItems: 'center',
-                                    padding: widthPixel(4),
-                                    justifyContent: 'center'
-                                }}>
-
-                                    <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3_secondaryFont : styles.text_10_reg_mainTextColor2_secondaryFont}>
-
-                                        {'QUICK SHOP'}
-
-                                    </Text>
-
-                                </View>
-
-                                :
-
-                                <View style={{
-                                    height: widthPixel(24),
-                                    width: widthPixel(24),
-                                    alignItems: 'flex-end',
-                                    borderWidth: 1, padding: widthPixel(3),
-                                    borderRadius: widthPixel(12),
-                                    borderColor: isDarkBackground ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.2)'
-                                }}>
-
-                                    <FastImage
-                                        style={{
-                                            height: widthPixel(18),
-                                            width: widthPixel(18),
-                                        }}
-                                        tintColor={isDarkBackground ? colorSet?.white : colorSet?.black}
-                                        resizeMode='contain'
-                                        source={require('../../../assets/images/cart.png')} />
-
-                                </View>
-                            }
-
-                        </View>
-
-                    </>
-
-                }
                 <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
                     <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2} numberOfLines={2}>{item?.node?.title}</Text>
 
@@ -267,17 +171,13 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     </View>
                 )}
 
-                <Ripple
+                {/* <Ripple
                     onPress={() => {
                         dispatch(toggleWishlistItem(item?.node?.id));
                     }}
                     style={{ position: 'absolute', zIndex: 1, top: 10, right: 10 }} >
 
-                    {/* <Heart
-                        size={widthPixel(17)}
-                        fill={isInWishlist ? colorSet?.primaryColor : 'transparent'}
-                        color={isInWishlist ? colorSet?.primaryColor : isDarkBackground ? colorSet?.white : colorSet?.black}
-                    /> */}
+
 
                     {isWishlistItem ? <X size={18} /> :
 
@@ -285,13 +185,10 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                             {...isInWishlist && { fill: 'red' }}
                         />
 
-                        // <FastImage
-                        //     source={isInWishlist ? require('../../../assets/images/home/heart_filled.png') : require('../../../assets/images/home/heart.png')}
-                        //     style={{ height: widthPixel(17), width: widthPixel(17), }}
-                        // />
+
                     }
 
-                </Ripple>
+                </Ripple> */}
             </View>
 
 

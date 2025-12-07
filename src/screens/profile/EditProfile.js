@@ -17,6 +17,45 @@ import { checkCustomerAuth } from '../../graphql/customerAuth';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+// Indian states list
+const INDIAN_STATES = [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+    'Andaman and Nicobar Islands',
+    'Chandigarh',
+    'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi',
+    'Jammu and Kashmir',
+    'Ladakh',
+    'Lakshadweep',
+    'Puducherry',
+];
 
 const EditProfile = () => {
     const { colorScheme } = useSelector(state => state.app);
@@ -32,18 +71,23 @@ const EditProfile = () => {
             dob: '',
             email: '',
             phone: '',
+            company_name: '',
+            gstNo: '',
+            username: '',
             address1: '',
             address2: '',
             city: '',
             province: '',
             zip: '',
             country: '',
+            areaName: '',
         }
     });
 
     const [isLoading, setIsLoading] = useState(false);
     const [avatarUri, setAvatarUri] = useState(null);
     const [showGenderPicker, setShowGenderPicker] = useState(false);
+    const [showStatePicker, setShowStatePicker] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const GENDER_OPTIONS = ['Male', 'Female', 'Other', 'Prefer not to say'];
@@ -93,11 +137,25 @@ const EditProfile = () => {
                     setValue('country', a.country || '');
                 }
 
-                // Prefill gender/dob: prefer facts namespace (metafields array may contain nulls)
+                // Prefill gender/dob and custom fields from metafields
                 const _metas = Array.isArray(customer.metafields) ? customer.metafields.filter(Boolean) : [];
-                const gMeta = _metas.find(m => m && m.key === 'gender')?.value; // facts.gender
-                const dMeta = _metas.find(m => m && m.key === 'birth_date')?.value; // facts.birth_date
+                const gMeta = _metas.find(m => m && m.key === 'gender')?.value;
+                const dMeta = _metas.find(m => m && m.key === 'birth_date')?.value;
+                const companyMeta = _metas.find(m => m && m.key === 'company_name')?.value;
+                const gstMeta = _metas.find(m => m && m.key === 'gst_number')?.value;
+                const usernameMeta = _metas.find(m => m && m.key === 'username')?.value;
+                const areaMeta = _metas.find(m => m && m.key === 'areaName')?.value;
+                const stateMeta = _metas.find(m => m && m.key === 'select_state_1')?.value;
+                const pinCodeMeta = _metas.find(m => m && m.key === 'pin-code')?.value;
+
                 if (gMeta) setValue('gender', gMeta);
+                if (companyMeta) setValue('company_name', companyMeta);
+                if (gstMeta) setValue('gstNo', gstMeta);
+                if (usernameMeta) setValue('username', usernameMeta);
+                if (areaMeta) setValue('areaName', areaMeta);
+                if (stateMeta) setValue('province', stateMeta);
+                if (pinCodeMeta) setValue('zip', pinCodeMeta);
+
                 if (dMeta) {
                     try {
                         const d = new Date(dMeta);
@@ -182,6 +240,7 @@ const EditProfile = () => {
 
     const onSubmit = async (data) => {
         setIsLoading(true);
+        console.log('Form data submitted:', data);
         try {
             const customerAccessToken = await AsyncStorage.getItem('customerAccessToken');
 
@@ -240,38 +299,69 @@ const EditProfile = () => {
                 }
             }
 
-            // Gender and DOB: update via Admin customerUpdate (metafields) and store locally
-            if (data.gender || data.dob) {
-                const customerForExtras = customer || (await checkCustomerAuth());
-                const customerId = customerForExtras?.id;
-                // Save to local immediately
-                await AsyncStorage.setItem('customerProfileExtras', JSON.stringify({ gender: data.gender || '', dob: data.dob || '' }));
+            // Update metafields: gender, DOB, company, GST, username, area
+            const customerForExtras = customer || (await checkCustomerAuth());
+            const customerId = customerForExtras?.id;
 
-                // Build metafields payload for Admin customerUpdate
-                const toISO = (val) => {
-                    try {
-                        if (!val) return null;
-                        if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
-                        const [mm, dd, yyyy] = String(val).split('/');
-                        const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-                        if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-                        return null;
-                    } catch { return null; }
-                };
-                const metas = [];
-                if (data.gender) metas.push({ namespace: 'facts', key: 'gender', value: String(data.gender), type: 'single_line_text_field' });
-                if (data.dob) {
-                    const iso = toISO(data.dob);
-                    if (iso) metas.push({ namespace: 'facts', key: 'birth_date', value: iso, type: 'date' });
-                    else metas.push({ namespace: 'facts', key: 'birth_date', value: String(data.dob), type: 'single_line_text_field' });
-                }
+            // Save to local immediately
+            const extrasData = {
+                gender: data.gender || '',
+                dob: data.dob || '',
+                company_name: data.company_name || '',
+                gstNo: data.gstNo || '',
+                username: data.username || '',
+                areaName: data.areaName || ''
+            };
+            await AsyncStorage.setItem('customerProfileExtras', JSON.stringify(extrasData));
+
+            // Build metafields payload for Admin customerUpdate
+            const toISO = (val) => {
                 try {
-                    if (customerId && metas.length) {
-                        await updateCustomerMetafieldsAdmin(customerId, metas);
+                    if (!val) return null;
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+                    const [mm, dd, yyyy] = String(val).split('/');
+                    const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+                    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+                    return null;
+                } catch { return null; }
+            };
+            const metas = [];
+            if (data.gender) metas.push({ namespace: 'facts', key: 'gender', value: String(data.gender), type: 'single_line_text_field' });
+            if (data.dob) {
+                const iso = toISO(data.dob);
+                if (iso) metas.push({ namespace: 'facts', key: 'birth_date', value: iso, type: 'date' });
+                else metas.push({ namespace: 'facts', key: 'birth_date', value: String(data.dob), type: 'single_line_text_field' });
+            }
+            if (data.company_name) metas.push({ namespace: 'custom', key: 'company_name', value: String(data.company_name), type: 'single_line_text_field' });
+            if (data.gstNo) metas.push({ namespace: 'custom', key: 'gst_number', value: String(data.gstNo), type: 'single_line_text_field' });
+            if (data.username) metas.push({ namespace: 'custom', key: 'username', value: String(data.username), type: 'single_line_text_field' });
+            if (data.areaName) metas.push({ namespace: 'custom', key: 'areaName', value: String(data.areaName), type: 'single_line_text_field' });
+            if (data.province) metas.push({ namespace: 'custom', key: 'select_state_1', value: String(data.province), type: 'single_line_text_field' });
+            if (data.zip) metas.push({ namespace: 'custom', key: 'pin-code', value: String(data.zip), type: 'single_line_text_field' });
+
+            console.log('Metafields to update:', metas);
+            console.log('Customer ID:', customerId);
+
+            try {
+                if (customerId && metas.length) {
+                    const result = await updateCustomerMetafieldsAdmin(customerId, metas);
+                    console.log('Metafields update result:', result);
+
+                    // Check if admin token is missing
+                    if (result?.reason === 'admin_token_missing') {
+                        console.warn('Metafields saved to local storage only - Admin API not configured');
                     }
-                } catch (e) {
-                    console.warn('Admin metafield update failed:', e?.message || e);
+                } else {
+                    console.warn('Skipping metafield update - customerId:', customerId, 'metas length:', metas.length);
                 }
+            } catch (e) {
+                console.error('Admin metafield update failed:', e?.message || e);
+                // Only show alert for actual errors, not missing token (since data is still in AsyncStorage)
+                // if (!e?.message?.includes('Admin API authentication failed')) {
+                //     Alert.alert('Warning', `Profile updated locally. Note: ${e?.message || 'Some fields may not sync to Shopify'}`);
+                // } else {
+                //     console.warn('Metafields saved locally only - Shopify sync failed:', e.message);
+                // }
             }
 
 
@@ -390,7 +480,7 @@ const EditProfile = () => {
 
                 <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
 
-                    <View style={localStyles.profileSection}>
+                    {/* <View style={localStyles.profileSection}>
                         <View style={localStyles.avatarContainer}>
                             {avatarUri ? (
                                 <Image source={{ uri: avatarUri }} style={{ width: '100%', height: '100%', borderRadius: widthPixel(50) }} />
@@ -401,7 +491,7 @@ const EditProfile = () => {
                                 <Edit size={widthPixel(15)} color={colorSet.white} />
                             </TouchableOpacity>
                         </View>
-                    </View>
+                    </View> */}
 
                     <Text style={styles.text_14_reg_mainTextColor2}>Personal Information</Text>
                     <View style={localStyles.inputContainer}>
@@ -503,6 +593,53 @@ const EditProfile = () => {
                         />
                     </View>
 
+                    <Text style={styles.text_14_reg_mainTextColor2}>Business Information</Text>
+
+                    <View style={localStyles.inputContainer}>
+                        <CommonInput
+                            name="company_name"
+                            placeholder="Company Name"
+                            label="Company Name"
+                            control={control}
+                            errors={errors}
+                            rules={{ required: false }}
+                        />
+                    </View>
+
+                    <View style={localStyles.inputContainer}>
+                        <CommonInput
+                            name="gstNo"
+                            placeholder="GST No"
+                            label="GST No"
+                            control={control}
+                            errors={errors}
+                            rules={{
+                                required: false,
+                                pattern: {
+                                    value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+                                    message: 'Invalid GST number format'
+                                }
+                            }}
+                        />
+                    </View>
+
+                    <View style={localStyles.inputContainer}>
+                        <CommonInput
+                            name="username"
+                            placeholder="Username"
+                            label="Username"
+                            control={control}
+                            errors={errors}
+                            rules={{
+                                required: false,
+                                minLength: {
+                                    value: 3,
+                                    message: 'Username must be at least 3 characters'
+                                }
+                            }}
+                        />
+                    </View>
+
                     <Text style={styles.text_14_reg_mainTextColor2}>Address</Text>
                     <View style={localStyles.inputContainer}>
                         <CommonInput
@@ -539,15 +676,26 @@ const EditProfile = () => {
                         />
                     </View>
                     <View style={localStyles.inputContainer}>
-                        <CommonInput
+                        <Text style={[styles.text_12_reg_mainTextColor2, { marginBottom: 4 }]}>Select State</Text>
+                        <Controller
                             name="province"
-                            placeholder="State/Province"
-                            label="State/Province"
                             control={control}
-                            errors={errors}
                             rules={{ required: true }}
-                            errorMessage="State/Province is required."
+                            render={({ field: { value } }) => (
+                                <TouchableOpacity
+                                    style={localStyles.pickerButton}
+                                    onPress={() => setShowStatePicker(true)}
+                                >
+                                    <Text style={[styles.text_14_reg_mainTextColor2, !value && { color: '#A0A0A0' }]}>
+                                        {value || 'Select State'}
+                                    </Text>
+                                    <ChevronDown size={widthPixel(20)} color={colorSet.dark3} />
+                                </TouchableOpacity>
+                            )}
                         />
+                        {errors?.province && (
+                            <Text style={{ color: 'red', marginTop: 4 }}>State/Province is required.</Text>
+                        )}
                     </View>
                     <View style={localStyles.inputContainer}>
                         <CommonInput
@@ -556,8 +704,26 @@ const EditProfile = () => {
                             label="ZIP/Postal Code"
                             control={control}
                             errors={errors}
-                            rules={{ required: true }}
+                            rules={{
+                                required: true,
+                                pattern: {
+                                    value: /^[1-9][0-9]{5}$/,
+                                    message: 'Invalid pin code'
+                                }
+                            }}
                             errorMessage="ZIP/Postal Code is required."
+                            keyboardType="number-pad"
+                            maxLength={6}
+                        />
+                    </View>
+                    <View style={localStyles.inputContainer}>
+                        <CommonInput
+                            name="areaName"
+                            placeholder="Area Name"
+                            label="Area Name"
+                            control={control}
+                            errors={errors}
+                            rules={{ required: false }}
                         />
                     </View>
                     <View style={localStyles.inputContainer}>
@@ -584,6 +750,34 @@ const EditProfile = () => {
                 </ScrollView>
 
             </View>
+
+            {/* State Picker Modal */}
+            <Modal visible={showStatePicker} transparent animationType="fade" onRequestClose={() => setShowStatePicker(false)}>
+                <TouchableOpacity activeOpacity={1} style={localStyles.modalOverlay} onPress={() => setShowStatePicker(false)}>
+                    <View style={localStyles.pickerContainer}>
+                        <View style={localStyles.pickerHeader}>
+                            <Text style={localStyles.pickerTitle}>Select State</Text>
+                            <TouchableOpacity onPress={() => setShowStatePicker(false)}>
+                                <Text style={[styles.text_14_bold_mainTextColor2]}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            {INDIAN_STATES.map((state) => (
+                                <TouchableOpacity
+                                    key={state}
+                                    style={localStyles.pickerOption}
+                                    onPress={() => {
+                                        setValue('province', state, { shouldValidate: true });
+                                        setShowStatePicker(false);
+                                    }}
+                                >
+                                    <Text style={styles.text_14_reg_mainTextColor2}>{state}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
 
             {/* Gender Picker Modal */}
             <Modal visible={showGenderPicker} transparent animationType="fade" onRequestClose={() => setShowGenderPicker(false)}>

@@ -33,6 +33,7 @@ export const BottomTabs = () => {
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
     const insets = useSafeAreaInsets();
+    const cart = useSelector(state => state.cart?.cart);
 
 
     useEffect(() => {
@@ -157,8 +158,8 @@ export const BottomTabs = () => {
                                         ]}>
                                             {getTabIcon(
                                                 route.name,
-                                                isFocused ? '#F27E03' : colorSet.dark3,
-                                                isFocused
+                                                isFocused,
+                                                route?.name === 'Cart' ? (cart?.lines?.edges?.reduce((sum, e) => sum + (e?.node?.quantity || 0), 0) || 0) : undefined
                                             )}
                                         </View>
                                         <Text style={[

@@ -32,9 +32,12 @@ import { loadWishlistFromStorage } from '../utils/wishlistStorage';
 import { setWishlistItems } from '../redux/reducers/wishlistSlice';
 import SignUp from '../screens/auth/SignUp';
 import Login from '../screens/auth/Login';
+import CreateAccount from '../screens/auth/CreateAccount';
 import MainNavigator from './MainNavigator';
 import LoginWithOtpScreen from '../screens/LoginWithOtpScreen';
 import EmailPasswordLogin from '../screens/auth/EmailPasswordLogin';
+import { isAuthenticated } from '../utils/customerAuth';
+import { setIsLoggedIn } from '../redux/reducers/appSlice';
 const Root = createStackNavigator();
 
 export default RootNavigator = () => {
@@ -59,6 +62,10 @@ export default RootNavigator = () => {
     const init = async () => {
       // ... initialization code
 
+
+      const authenticated = await isAuthenticated();
+
+      dispatch(setIsLoggedIn(authenticated));
       await RNBootSplash.hide({ fade: true });
     };
 
@@ -221,6 +228,12 @@ export default RootNavigator = () => {
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
             name="LoginOtp"
             component={LoginWithOtpScreen}
+          />
+
+          <Root.Screen
+            options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
+            name="CreateAccount"
+            component={CreateAccount}
           />
         </>
       </Root.Navigator>

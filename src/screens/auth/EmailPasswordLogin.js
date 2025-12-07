@@ -46,7 +46,8 @@ const EmailPasswordLogin = () => {
       await saveAuthToken(accessToken, expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString());
       dispatch(setIsLoggedIn(true));
       showSuccessMsg('Logged in successfully');
-      navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
+      navigation.goBack();
+      // navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
     } catch (e) {
       showErrorMsg(String(e?.message || e || 'Login failed'));
     } finally {
@@ -113,10 +114,19 @@ const EmailPasswordLogin = () => {
 
         {_getVerticalPadding(10)}
 
-        <TouchableOpacity onPress={handleRecover} disabled={!emailValid || recovering}>
+        {/* <TouchableOpacity onPress={handleRecover} disabled={!emailValid || recovering}>
           <Text style={[styles.text_12_reg_mainTextColor2, { textAlign: 'center', textDecorationLine: 'underline', opacity: (emailValid && !recovering) ? 1 : 0.6 }]}>
             {recovering ? 'Sending…' : 'Forgot your password?'}
           </Text>
+        </TouchableOpacity> */}
+
+
+        <TouchableOpacity
+          style={localStyles.createAccountButton}
+          onPress={() => navigation.navigate('CreateAccount')}
+        // disabled={isLoading}
+        >
+          <Text style={[styles.text_12_reg_mainTextColor2, { textDecorationLine: 'underline' }]}>Create New Account</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -126,6 +136,10 @@ const EmailPasswordLogin = () => {
 const localStyles = StyleSheet.create({
   label: {
     marginBottom: 6,
+  },
+  createAccountButton: {
+    alignSelf: 'center',
+    paddingVertical: 12,
   },
   input: {
     width: '100%',

@@ -18,7 +18,7 @@ import SwipeToArchiveItem from '../../components/functions/SwipeToArchiveItem';
 import { openSettings } from 'react-native-permissions';
 import SecureStorage from '../../utils/SecureStorage';
 import Constants from '../../utils/Constants';
-import { getCollectionByHandle, getCollectionFilters, getFilters, getProducts } from '../../graphql/graph_request';
+import { getCollectionByHandle, getCollectionFilters, getFilters, getProducts, searchProducts } from '../../graphql/graph_request';
 import ProductCard from '../../components/ui/ProductCard';
 import VerticalCarousel from '../../components/ui/VerticalCarousel';
 import BottomSheet from 'react-native-raw-bottom-sheet';
@@ -61,6 +61,7 @@ const ProductList = () => {
     const [hasNextPage, setHasNextPage] = useState(true);
     const [messages, setMessages] = useState([]);
     const [endCursor, setEndCursor] = useState(null);
+    const [collectionTitle, setCollectionTitle] = useState("");
 
     const [selectedSortOption, setSelectedSortOption] = useState(sortOptions[0]);
     const [selectedFilters, setSelectedFilters] = useState({});
@@ -84,7 +85,7 @@ const ProductList = () => {
 
     }, [isSearchView])
 
-    const callApi = async (loader = true, endCursor = null, query, sortKey = selectedSortOption.value, reverse = selectedSortOption.reverse) => {
+    const callApi = async (loader = true, endCursor = null, searchQueryParam = null, sortKey = selectedSortOption.value, reverse = selectedSortOption.reverse) => {
 
         if (loader) {
             setLoading(true)
@@ -95,50 +96,80 @@ const ProductList = () => {
         }
 
         try {
+            // Determine if we're doing a search
+            const isSearching = searchQueryParam && searchQueryParam.trim().length > 0;
 
-            if (handle) {
-                // Use collection-specific API when handle is provided
+            console.log("callApi - isSearching:", isSearching, "searchQueryParam:", searchQueryParam);
+
+            if (isSearching) {
+                // SEARCH MODE - Use searchProducts API
+                const variables = {
+                    query: searchQueryParam.trim(),
+                    first: 20,
+                    sortKey,
+                    reverse
+                };
+                if (endCursor) variables.after = endCursor;
+
+                console.log("Calling searchProducts with variables:", variables);
+                const response = await searchProducts(variables);
+                console.log("searchProducts response:", response);
+
+                if (endCursor) {
+                    setProducts(prev => [...prev, ...response.products.edges]);
+                } else {
+                    setProducts(response.products.edges);
+                }
+                setHasNextPage(response.products.pageInfo.hasNextPage);
+                setEndCursor(response.products.pageInfo.endCursor);
+
+            } else if (handle) {
+                // COLLECTION MODE - Use collection-specific API when handle is provided
                 const variables = { handle, first: 20, sortKey, reverse };
                 if (endCursor) variables.after = endCursor;
-                if (query) variables.query = query;
 
-                const filterResponse = await getCollectionFilters({ handle })
-                console.log("filterResponse response", filterResponse);
-                setAvailableFilters(filterResponse.collection.products.filters);
-                setSelectedFilterCategory(filterResponse.collection.products.filters[0]?.label)
+                // Only fetch filters on initial load (not during pagination)
+                if (!endCursor) {
+                    const filterResponse = await getCollectionFilters({ handle })
+                    console.log("filterResponse response", filterResponse);
+                    setAvailableFilters(filterResponse.collection.products.filters);
+                    setSelectedFilterCategory(filterResponse.collection.products.filters[0]?.label)
+                }
 
                 const response = await getCollectionByHandle(variables);
                 console.log("getCollectionByHandle response", response, variables);
 
                 if (endCursor) {
-                    // Append new products for pagination
                     setProducts(prev => [...prev, ...response.collection.products.edges]);
                 } else {
-                    // Initial load
                     setProducts(response.collection.products.edges);
+                }
+
+                if (response?.collection?.title) {
+                    setCollectionTitle(response.collection.title);
                 }
                 setHasNextPage(response.collection.products.pageInfo.hasNextPage);
                 setEndCursor(response.collection.products.pageInfo.endCursor);
 
             } else {
-                // Use general products API when no handle is provided
+                // ALL PRODUCTS MODE - Use general products API when no handle is provided
                 const variables = { first: 20, sortKey, reverse };
                 if (endCursor) variables.after = endCursor;
-                if (query) variables.query = query;
 
-                const filterResponse = await getFilters()
-                console.log("filterResponse response", filterResponse);
-                setAvailableFilters(filterResponse.products.filters);
-                setSelectedFilterCategory(filterResponse.products.filters[0]?.label)
+                // Only fetch filters on initial load (not during pagination)
+                if (!endCursor) {
+                    const filterResponse = await getFilters()
+                    console.log("filterResponse response", filterResponse);
+                    setAvailableFilters(filterResponse.products.filters);
+                    setSelectedFilterCategory(filterResponse.products.filters[0]?.label)
+                }
 
                 const response = await getProducts(variables);
                 console.log("getProducts response", response, variables);
 
                 if (endCursor) {
-                    // Append new products for pagination
                     setProducts(prev => [...prev, ...response.products.edges]);
                 } else {
-                    // Initial load
                     setProducts(response.products.edges);
                 }
                 setHasNextPage(response.products.pageInfo.hasNextPage);
@@ -157,10 +188,10 @@ const ProductList = () => {
 
 
     const loadMoreProducts = () => {
-        console.log("newPAge", hasNextPage);
+        console.log("loadMoreProducts - hasNextPage:", hasNextPage, "loading:", loading, "endlessLoader:", endlessLoader);
 
-        if (!hasNextPage) return;
-        // Pass current sort settings when loading more
+        if (!hasNextPage || loading || endlessLoader) return;
+        // Pass current search query when loading more
         callApi(false, endCursor, searchQuery, selectedSortOption.value, selectedSortOption.reverse);
     };
 
@@ -173,93 +204,25 @@ const ProductList = () => {
     };
 
     const applyFiltersToApi = async (filters) => {
-        const filtersToSend = filters ?? selectedFilters;
+        // Note: Filters work with collections, not with search
+        // So we clear the search query when applying filters
+        setSearchQuery('');
+        setEndCursor(null);
 
-        // Build query with price and other filters
-        let query = '';
-
-        // Add price range filter from slider
-        const [minPrice, maxPrice] = priceRange;
-        if (minPrice > 0 || maxPrice < 10000) {
-            if (minPrice > 0 && maxPrice < 10000) {
-                query += `variants.price:>=${minPrice} variants.price:<=${maxPrice} `;
-            } else if (minPrice > 0) {
-                query += `variants.price:>=${minPrice} `;
-            } else if (maxPrice < 10000) {
-                query += `variants.price:<=${maxPrice} `;
-            }
-        }
-
-        // Add other filters from filtersToSend
-        Object.entries(filtersToSend).forEach(([filterId, values]) => {
-            if (values && values.length > 0) {
-                values.forEach(value => {
-                    try {
-                        const filterData = JSON.parse(value);
-                        if (filterData.variantOption) {
-                            query += `${filterData.variantOption.name}:${filterData.variantOption.value} `;
-                        } else if (filterData.productMetafield) {
-                            query += `tag:${filterData.productMetafield.value} `;
-                        } else if (filterData.price) {
-                            query += `variants.price:>=${filterData.price.min} variants.price:<=${filterData.price.max} `;
-                        }
-                    } catch (error) {
-                        console.log('Error parsing filter:', error);
-                    }
-                });
-            }
-        });
-
-        console.log("QUERY", query.trim());
-
-        // Call your API with the filter query, preserving current sort
-        callApi(true, null, query.trim(), selectedSortOption.value, selectedSortOption.reverse);
+        // For now, just reload the collection without filters since the filter
+        // implementation needs to be handled differently in collections
+        callApi(true, null, null, selectedSortOption.value, selectedSortOption.reverse);
     };
 
     const handleSortChange = (option) => {
         setSelectedSortOption(option);
-        // Preserve current search query and filters when sorting
-        const currentQuery = searchQuery || buildQueryFromFilters();
-        callApi(true, null, currentQuery, option.value, option.reverse);
+        setEndCursor(null);
+        // Preserve current search query when sorting
+        callApi(true, null, searchQuery, option.value, option.reverse);
         refSortRBSheet.current.close();
     };
 
-    const buildQueryFromFilters = () => {
-        let query = '';
 
-        // Add price range filter from slider
-        const [minPrice, maxPrice] = priceRange;
-        if (minPrice > 0 || maxPrice < 10000) {
-            if (minPrice > 0 && maxPrice < 10000) {
-                query += `variants.price:>=${minPrice} variants.price:<=${maxPrice} `;
-            } else if (minPrice > 0) {
-                query += `variants.price:>=${minPrice} `;
-            } else if (maxPrice < 10000) {
-                query += `variants.price:<=${maxPrice} `;
-            }
-        }
-
-        // Add other filters
-        Object.entries(selectedFilters).forEach(([filterId, values]) => {
-            if (values && values.length > 0) {
-                values.forEach(value => {
-                    try {
-                        const filterData = JSON.parse(value);
-                        if (filterData.variantOption) {
-                            query += `${filterData.variantOption.name}:${filterData.variantOption.value} `;
-                        } else if (filterData.productMetafield) {
-                            query += `tag:${filterData.productMetafield.value} `;
-                        } else if (filterData.price) {
-                            query += `variants.price:>=${filterData.price.min} variants.price:<=${filterData.price.max} `;
-                        }
-                    } catch (error) {
-                        console.log('Error parsing filter:', error);
-                    }
-                });
-            }
-        });
-        return query.trim();
-    };
 
     const getSortBottomSheet = () => {
         return (
@@ -515,7 +478,7 @@ const ProductList = () => {
             <Toolbar
                 leftIcon={ArrowLeft}
                 onLeftPress={() => navigation.goBack()}
-                title={title ?? "Product List"}
+                title={collectionTitle}
             // rightIcons={[
             //     {
             //         icon: Heart,
@@ -585,10 +548,22 @@ const ProductList = () => {
                                         placeholderTextColor={'#8E8E8E'}
                                         value={searchQuery}
                                         onChangeText={setSearchQuery}
-                                        onSubmitEditing={() => callApi(true, null, searchQuery)}
+                                        onSubmitEditing={() => {
+                                            setEndCursor(null);
+                                            callApi(true, null, searchQuery);
+                                        }}
                                         style={{ flex: 1, marginLeft: 8, color: colorSet.black }}
                                         returnKeyType="search"
                                     />
+                                    {searchQuery.length > 0 && (
+                                        <TouchableOpacity onPress={() => {
+                                            setSearchQuery('');
+                                            setEndCursor(null);
+                                            callApi(true, null, '');
+                                        }}>
+                                            <X size={20} color={'#8E8E8E'} />
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
 
                                 {/* Category chips */}
@@ -658,6 +633,9 @@ const ProductList = () => {
                                 refreshing={refreshing}
                                 onRefresh={() => {
                                     setSelectedFilters({});
+                                    setSearchQuery('');
+                                    setPriceRange([0, 10000]);
+                                    setEndCursor(null);
                                     callApi();
                                 }}
                             />
@@ -685,7 +663,7 @@ const ProductList = () => {
 
             <View style={{
                 position: 'absolute',
-                bottom: 80,
+                bottom: 10,
                 left: 0,
                 right: 0,
                 flexDirection: 'row',

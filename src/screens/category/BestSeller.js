@@ -44,7 +44,12 @@ const BestSeller = () => {
         <FlatList
           data={items}
           renderItem={({ item, index }) => (
-            <ProductCard item={item} index={index} />
+            <ProductCard
+              item={item} index={index}
+              disableNavigation={true}
+              showAddToCartButton={true}
+              showDetails={true}
+            />
           )}
           keyExtractor={(item, index) => item?.node?.id?.toString?.() || String(index)}
           numColumns={2}

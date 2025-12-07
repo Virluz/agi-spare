@@ -7,19 +7,21 @@ import {
     FlatList,
     Image,
     TextInput,
-    ScrollView
+    ScrollView,
+    ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AppStyles from '../../styles/AppStyles';
 import Toolbar from '../../components/ui/Toolbar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux';
-import { getProducts } from '../../graphql/graph_request';
+import { searchProducts } from '../../graphql/graph_request';
 import { ArrowLeft, Camera, CameraIcon, Clock, Search as SearchIcon, X } from 'lucide-react-native';
 import { _getVerticalPadding } from '../../utils/Helper';
 import FastImage from '@d11/react-native-fast-image';
 import { heightPixel } from '../../utils/fonts';
 import axios from 'axios';
+import ProductCard from '../../components/ui/ProductCard';
 
 const RECENT_KEY = 'recentSearches';
 
@@ -50,7 +52,6 @@ const SearchPage = () => {
     const [search, setSearch] = useState('');
     const [recent, setRecent] = useState([]);
     const [results, setResults] = useState([]);
-    const [categories, setCategories] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const debounceRef = useRef();
@@ -63,13 +64,7 @@ const SearchPage = () => {
             } catch { }
         })();
 
-        loadCategories();
     }, []);
-
-    const loadCategories = async () => {
-        const res = await axios.get(`https://searchserverapi1.com/getresults?api_key=4L6R2W4G3E&suggestions=true&categories=true`);
-        setCategories(res?.data?.categories || []);
-    }
 
 
     const saveRecent = async (term) => {
@@ -91,29 +86,26 @@ const SearchPage = () => {
     };
 
     const runSearch = async (term) => {
-        const q = term?.trim();
-        if (!q) { setResults([]); return; }
-        setLoading(true);
+        if (!term?.trim()) {
+            setResults([]);
+            return;
+        }
+
         try {
-            // Build a Shopify search query across title/product_type/tag
-            const query = `title:*${q}* OR product_type:*${q}* OR tag:*${q}*`;
+            setLoading(true);
+            const response = await searchProducts({
+                query: term.trim(),
+                first: 20
+            });
 
-
-            // const res = await getProducts({ first: 20, query });
-
-            const res = await axios.get(`https://searchserverapi1.com/getresults?api_key=4L6R2W4G3E&queryBy[title]=${q}&suggestions=true&categories=true`);
-
-            console.log("Search API Response", res);
-            const edges = res?.data?.items || [];
-            const items = edges.map(e => ({
-                id: e?.product_id,
-                title: e?.title,
-                image: e?.image_link,
-                variantImage: e?.node?.variants?.edges?.[0]?.node?.image?.url,
-                handle: e?.node?.handle,
-            }));
-            setResults(items);
-        } catch (e) {
+            if (response?.products?.edges) {
+                // Keep the data in the same format as ProductCard expects (with node structure)
+                setResults(response.products.edges);
+            } else {
+                setResults([]);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
             setResults([]);
         } finally {
             setLoading(false);
@@ -131,30 +123,6 @@ const SearchPage = () => {
     const onSubmit = async () => {
         await saveRecent(search);
         runSearch(search);
-    };
-
-    const openProduct = async (id) => {
-        // Ensure current term is saved when navigating to a product
-        if (search?.trim()) {
-            await saveRecent(search);
-        }
-        navigation.navigate('ProductDetails', { productId: `gid://shopify/Product/${id}` });
-    };
-
-    const Highlighted = ({ text, query }) => {
-        if (!query) return <Text style={styles.text_12_reg_mainTextColor2} numberOfLines={1}>{text}</Text>;
-        const q = query.trim();
-        if (!q) return <Text style={styles.text_12_reg_mainTextColor2} numberOfLines={1}>{text}</Text>;
-        const parts = text.split(new RegExp(`(${q})`, 'i'));
-        return (
-            <Text style={styles.text_12_reg_mainTextColor2} numberOfLines={1}>
-                {parts.map((part, i) => (
-                    part.toLowerCase() === q.toLowerCase()
-                        ? <Text key={i} style={styles.text_12_semi_mainTextColor2}>{part}</Text>
-                        : <Text key={i}>{part}</Text>
-                ))}
-            </Text>
-        );
     };
 
     return (
@@ -182,58 +150,46 @@ const SearchPage = () => {
                         <X size={18} color={'#888'} />
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={() => { /* camera search placeholder */ }} style={localStyles.headerIconBtn}>
+                {/* <TouchableOpacity onPress={() => { }} style={localStyles.headerIconBtn}>
                     <Camera size={20} color={'#222'} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
-            <View style={styles.container}>
+            <View style={{ flex: 1 }}>
 
                 {search?.trim()?.length ? (
-                    // Results view with right-side suggestions
-                    <View style={{ flex: 1, flexDirection: 'row' }}>
-                        <View style={{ flex: 2.5 }}>
-                            <FlatList
-                                data={results}
-                                keyExtractor={(item) => item.id}
-                                keyboardShouldPersistTaps="handled"
-                                ListEmptyComponent={!loading && (
-                                    <Text style={[styles.text_14_reg_mainTextColor2, { padding: 16 }]}>No results</Text>
-                                )}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity style={localStyles.resultRow} onPress={() => openProduct(item.id)}>
-                                        <Image source={{ uri: item.image || item.variantImage }} style={localStyles.resultThumb} />
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.text_14_semi_mainTextColor2]} numberOfLines={1}>{item.title}</Text>
-                                            {/* simple keyword emphasis */}
-                                            {!!search && (
-                                                <Highlighted text={item.title} query={search} />
-                                            )}
-                                        </View>
-                                    </TouchableOpacity>
-                                )}
-                            />
-                        </View>
-                        <View style={{ width: 1, backgroundColor: '#EFEFEF' }} />
-                        <View style={{ flex: 1, paddingTop: 12 }}>
-                            <Text style={[styles.text_14_semi_mainTextColor2, { paddingHorizontal: 12, marginBottom: 8 }]}>Suggested</Text>
-                            <ScrollView>
-                                {SUGGESTED_SEARCHES.filter(s => s.toLowerCase().includes(search.toLowerCase())).map(s => (
-                                    <TouchableOpacity
-                                        key={s}
-                                        onPress={async () => { setSearch(s); await saveRecent(s); runSearch(s); }}
-                                        style={localStyles.suggestRow}
-                                    >
-                                        <SearchIcon size={16} color={'#444'} style={{ marginRight: 4 }} />
-                                        <Text style={[styles.text_14_reg_mainTextColor2]} numberOfLines={1}>{s}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
-                        </View>
+                    // Results view in grid
+                    <View style={{ flex: 1 }}>
+                        <FlatList
+                            data={results}
+                            numColumns={2}
+                            keyExtractor={(item, index) => item?.node?.id || index.toString()}
+                            keyboardShouldPersistTaps="handled"
+                            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
+                            columnWrapperStyle={{ justifyContent: 'space-between' }}
+                            ListEmptyComponent={
+                                loading ? (
+                                    <View style={{ padding: 32, alignItems: 'center' }}>
+                                        <ActivityIndicator size="large" color={colorSet.primaryColor} />
+                                    </View>
+                                ) : (
+                                    <Text style={[styles.text_14_reg_mainTextColor2, { padding: 16, textAlign: 'center' }]}>No results found</Text>
+                                )
+                            }
+                            renderItem={({ item, index }) => (
+                                <ProductCard
+                                    item={item}
+                                    index={index}
+                                    showColors={true}
+                                    showDetails={true}
+                                    isList={true}
+                                />
+                            )}
+                        />
                     </View>
                 ) : (
                     // Default state with history and suggestions
-                    <ScrollView keyboardShouldPersistTaps="handled">
+                    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
                         <View style={localStyles.sectionRow}>
                             <Text style={[styles.text_14_semi_mainTextColor2]}>History</Text>
                             <TouchableOpacity onPress={clearAllRecent}>
@@ -256,48 +212,10 @@ const SearchPage = () => {
                             </TouchableOpacity>
                         ))}
                         <View style={localStyles.divider} />
-                        <Text style={[styles.text_14_semi_mainTextColor2]}>Suggested Searches</Text>
-                        {_getVerticalPadding(8)}
-                        {SUGGESTED_SEARCHES.map((item) => (
-                            <TouchableOpacity
-                                key={item}
-                                onPress={async () => { setSearch(item); await saveRecent(item); runSearch(item); }}
-                                style={localStyles.suggestRow}
-                            >
-                                {/* <SearchIcon size={16} color={'#444'} style={{ marginLeft: 16, marginRight: 8 }} /> */}
-                                <Text style={[styles.text_14_reg_mainTextColor2]}>{item}</Text>
-                            </TouchableOpacity>
-                        ))}
-                        <View style={localStyles.divider} />
-                        <Text style={[styles.text_14_semi_mainTextColor2]}>Categories</Text>
-                        <FlatList
-                            data={categories}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            keyExtractor={(item) => item.label}
-                            contentContainerStyle={localStyles.categoryList}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={localStyles.categoryItem}
-                                    onPress={async () => {
-                                        navigation.navigate('ProductList', { title: item.title, handle: item?.link.split('/').pop() });
-                                        // setSearch(item.title); 
-                                        // await saveRecent(item.label); runSearch(item.label);
-                                    }}
-                                >
-                                    <FastImage
-                                        source={{ uri: item?.image_link }}
-                                        style={localStyles.categoryImage}
-                                    />
-                                    <Text style={[styles.text_12_reg_mainTextColor2, { textAlign: 'center' }]}>{item.title}</Text>
-                                </TouchableOpacity>
-                            )}
-                        />
-                        {/* <Text style={[styles.text_14_semi_mainTextColor2]}>For Men's</Text> */}
-                        {/* Add men's categories FlatList here if needed */}
+
                     </ScrollView>
                 )}
-            </View>
+            </View >
 
 
         </>

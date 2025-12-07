@@ -25,9 +25,10 @@ import { Minus, Plus } from "lucide-react-native";
 
 const Cart = () => {
     const [loading, setLoading] = useState(false);
-    const { colorScheme } = useSelector(state => state.app);
+    const { colorScheme, isLoggedInGlobal } = useSelector(state => state.app);
     const appStyles = AppStyles.getAllStyles(colorScheme)
     const cart = useSelector((state) => state.cart.cart);
+    const cartStatus = useSelector((state) => state.cart.status);
     const user = useSelector((state) => state.user?.user);
     const navigation = useNavigation();
     const [checkout, setCheckout] = useState(null);
@@ -46,6 +47,8 @@ const Cart = () => {
     // Free delivery config
     const FREE_THRESHOLD = 1699;
     const DELIVERY_FEE = 99;
+
+    const hasAnyLineLoading = useMemo(() => Object.values(lineLoading).some(Boolean), [lineLoading]);
 
 
     // Update quantity
@@ -372,6 +375,27 @@ const Cart = () => {
         );
     }
 
+    if (!isLoggedInGlobal) {
+        return (
+            <View style={styles.center}>
+
+                <PrimaryButton
+
+                    title={"Go To Login"}
+                    onPress={() => navigation.navigate('Login')}
+                />
+
+                <Text style={appStyles.text_18_bold_mainTextColor2}>
+
+                    Please log in to view your cart.
+
+                </Text>
+
+
+            </View>
+        )
+    }
+
     // if (!cart || cart?.lines?.edges?.length === 0) {
     //     return (
     //         <View style={styles.center}>
@@ -379,9 +403,6 @@ const Cart = () => {
     //         </View>
     //     );
     // }
-
-    const cartStatus = useSelector((state) => state.cart.status);
-    const hasAnyLineLoading = useMemo(() => Object.values(lineLoading).some(Boolean), [lineLoading]);
 
     return (
         <>

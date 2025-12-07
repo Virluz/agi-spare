@@ -46,7 +46,7 @@ const toSentenceCase = (str) => {
     return word?.charAt(0)?.toUpperCase() + word?.slice(1);
   })?.join(' ');
 }
-const getTabIcon = (name, color, focused, onPress) => {
+const getTabIcon = (name, focused, badgeCount) => {
 
 
   const translateKeys = {
@@ -54,6 +54,9 @@ const getTabIcon = (name, color, focused, onPress) => {
   }
 
   let iconView;
+
+  const showBadge = name === 'Cart' && Number(badgeCount) > 0;
+  const displayCount = Number(badgeCount) > 99 ? '99+' : String(badgeCount || '');
 
   switch (name) {
     case 'Home':
@@ -109,7 +112,39 @@ const getTabIcon = (name, color, focused, onPress) => {
       break;
   }
 
-  return iconView;
+  return <>
+    {iconView}
+
+    {showBadge
+      && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            right: widthPixel(-5),
+            top: heightPixel(-2),
+            minWidth: widthPixel(16),
+            height: heightPixel(16),
+            paddingHorizontal: widthPixel(4),
+            borderRadius: heightPixel(8),
+            backgroundColor: '#FF3B30',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{
+            color: '#FFFFFF',
+            fontSize: heightPixel(10),
+            fontFamily: AppStyles.fontFamily.semiBoldFont,
+            includeFontPadding: false,
+          }}>
+            {displayCount}
+          </Text>
+        </View>
+      )}
+
+
+  </>
 };
 
 const _getFilePicker = async () => {

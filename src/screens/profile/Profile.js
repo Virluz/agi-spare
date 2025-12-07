@@ -2,7 +2,7 @@ import { Appearance, Image, Linking, ScrollView, StyleSheet, Switch, Text, useCo
 import React, { useCallback, useEffect, useState } from 'react'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import SecureStorage from '../../utils/SecureStorage'
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native'
+import { CommonActions, useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native'
 import { changeLanguage, IMLocalized } from '../../service/i18n.config'
 import { BottomSheet } from '../../components/ui/BottomSheet'
 import { useForm } from 'react-hook-form'
@@ -19,6 +19,9 @@ import Loader from '../../widgets/Loader'
 import AlertModel from '../../components/models/AlertModel'
 import { getLocationTrackingSetting, updateFirebaseToken } from '../../api/requests'
 import { Bell, ChevronRight, LogOut, Phone, Shield, User2, Wrench, Info, RotateCcw } from 'lucide-react-native'
+import { clearAuthToken } from '../../utils/customerAuth'
+import { setIsLoggedIn } from '../../redux/reducers/appSlice'
+import { checkCustomerAuth } from '../../graphql/customerAuth'
 
 const colorModes = [
     {
@@ -40,13 +43,15 @@ const colorModes = [
 ]
 
 const Profile = () => {
-    const { colorScheme, appSettings, apiCredentials } = useSelector(state => state.app);
+    const { colorScheme, appSettings, apiCredentials, isLoggedInGlobal } = useSelector(state => state.app);
     const colorSet = AppStyles.colorSet[colorScheme];
     const [loading, setLoading] = useState(false);
     const [showConfirmation, setshowConfirmation] = useState(false);
     const [notifEnabled, setNotifEnabled] = useState(true);
+    const [customerData, setCustomerData] = useState(null);
 
     const styles = AppStyles.getAllStyles(colorScheme);
+    const isFocused = useIsFocused();
 
     const {
         control,
@@ -56,6 +61,16 @@ const Profile = () => {
     const navigation = useNavigation();
 
     const handleLogoutFunction = async () => {
+        try {
+            await clearAuthToken();
+            dispatch(setIsLoggedIn(false));
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+            });
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
         return;
         setLoading(true);
         handleLogout();
@@ -73,45 +88,28 @@ const Profile = () => {
     const dispatch = useDispatch();
 
 
-    const translateKeys = {
-        Profile: IMLocalized('Profile'),
-        select_color: IMLocalized('Select App Theme'),
-    }
 
-    const onLanguageChange = () => {
-        changeLanguage('MR')
-    }
 
-    const getMenuButton = (title, onPress) => {
-        return (
-            <Ripple style={{
-                marginTop: heightPixel(8),
-                height: heightPixel(56), borderRadius: widthPixel(12),
-                borderWidth: 0.5, borderColor: '#C5C6CC', alignItems: 'center',
-                justifyContent: 'space-between', flexDirection: 'row',
-                paddingHorizontal: widthPixel(16)
-            }} onPress={onPress}>
-
-                <Text style={styles.text_14_bold_mainTextColor2}>
-
-                    {title}
-
-                </Text>
-
-                <ChevronRight color={colorSet.black} />
-
-            </Ripple>
-        )
-    }
-
-    const openAppSettings = () => {
-        openSettings().catch((error) => console.log("error", error));
-    }
 
     useFocusEffect(useCallback(() => {
         handleUpdateFirebaseToken();
     }, []));
 
+
+    useEffect(() => {
+
+        checkAuthStatus();
+    }, [isFocused]);
+
+    const checkAuthStatus = async () => {
+        try {
+            const customer = await checkCustomerAuth();
+            setCustomerData(customer);
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            setCustomerData(null);
+        }
+    };
 
 
     const handleUpdateFirebaseToken = async () => {
@@ -130,6 +128,28 @@ const Profile = () => {
         }
     }
 
+    if (!isLoggedInGlobal) {
+
+        return (
+            <View style={styles.containerCenter}>
+
+                <PrimaryButton
+
+                    title={"Go To Login"}
+                    onPress={() => navigation.navigate('Login')}
+                />
+
+                <Text style={styles.text_18_bold_mainTextColor2}>
+
+                    Please log in to view your profile.
+
+                </Text>
+
+
+            </View>
+        )
+    }
+
     return (
         <>
             {loading && <Loader />}
@@ -139,13 +159,13 @@ const Profile = () => {
                 <View style={{ paddingTop: heightPixel(24), paddingBottom: heightPixel(20), alignItems: 'center' }}>
                     <View style={{ width: 96, height: 96, borderRadius: 48, overflow: 'hidden', borderWidth: 2, borderColor: '#fff' }}>
                         <Image
-                            source={{ uri: 'https://i.pravatar.cc/200?img=11' }}
+                            source={require('../../../assets/images/user.png')}
                             style={{ width: '100%', height: '100%' }}
                             resizeMode="cover"
                         />
                     </View>
-                    <Text style={[styles.text_18_bold_white, { marginTop: 10 }]}>Hello, Eric</Text>
-                    <Text style={[styles.text_12_reg_white, { opacity: 0.9 }]}>eric@example.com</Text>
+                    <Text style={[styles.text_18_bold_white, { marginTop: 10 }]}>{`${customerData?.firstName} ${customerData?.lastName}`}</Text>
+                    <Text style={[styles.text_12_reg_mainTextColor3, { opacity: 0.9 }]}>{customerData?.email}</Text>
                 </View>
 
                 {/* White sheet with sections */}
@@ -155,23 +175,23 @@ const Profile = () => {
                             {/* Account section */}
                             <Text style={styles.text_16_bold_mainTextColor2}>Account</Text>
                             <View style={s.card}>
-                                <RowItem icon={<User2 size={18} color={colorSet.dark3} />} title="Edit profile" onPress={() => { }} />
+                                <RowItem icon={<User2 size={18} color={colorSet.dark3} />} title="Edit profile" onPress={() => { navigation.navigate("EditProfile") }} />
                                 <RowItem
                                     icon={<Bell size={18} color={colorSet.dark3} />}
                                     title="Notifications"
                                     right={<Switch value={notifEnabled} onValueChange={setNotifEnabled} />}
                                 />
-                                <RowItem icon={<Wrench size={18} color={colorSet.dark3} />} title="Services" onPress={() => { }} />
+                                <RowItem icon={<Wrench size={18} color={colorSet.dark3} />} title="Services" onPress={() => { navigation.navigate("WebViewScreen", { url: 'https://www.agispares.com/service', title: 'Services' }) }} />
                             </View>
 
                             {/* Help & Support section */}
                             <Text style={[styles.text_16_bold_mainTextColor2, { marginTop: 20 }]}>Help & Support</Text>
                             <View style={s.card}>
-                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { }} />
-                                <RowItem icon={<Shield size={18} color={colorSet.dark3} />} title="Disclaimer" onPress={() => { }} />
-                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { }} />
-                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { }} />
-                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { }} />
+                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/contact', title: 'Contact Us' }) }} />
+                                <RowItem icon={<Shield size={18} color={colorSet.dark3} />} title="Disclaimer" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/disclaimer', title: 'Disclaimer' }) }} />
+                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/return', title: 'Return Policy' }) }} />
+                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/return', title: 'Return Policy' }) }} />
+                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/about', title: 'About Us' }) }} />
                             </View>
 
                             {/* Logout button */}

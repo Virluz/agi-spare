@@ -110,25 +110,26 @@ const Home = () => {
     return (
         <>
 
+            <Toolbar home={true} title={'agi spare'} isSearch />
+
             <ScrollView
                 style={{ flex: 1 }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: heightPixel(100) }}
             >
 
-                <Toolbar home={true} title={'agi spare'} isSearch />
 
-                {_getVerticalPadding(52)}
+                {_getVerticalPadding(12)}
 
                 {/* Search bar */}
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     activeOpacity={0.9}
                     onPress={() => navigation.navigate('SearchPage')}
                     style={localStyles.searchContainer}
                 >
                     <SearchIcon size={20} color={'#605E5E'} />
                     <Text style={localStyles.searchPlaceholder}>Find perfect spare part…</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {/* Hero banner */}
                 <BannerCarousel />

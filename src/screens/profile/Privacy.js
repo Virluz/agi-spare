@@ -36,7 +36,7 @@ const Privacy = ({ navigation }) => {
         <>
             {loading && <Loader />}
 
-            {/* <Toolbar title={"Checkout"} /> */}
+            <Toolbar title={"Checkout"} />
             <View style={styles.container}>
 
                 {error && <Text> Something went wrong! Please try again</Text>}

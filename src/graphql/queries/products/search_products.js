@@ -55,6 +55,31 @@ const search_products = gql`
         }
       }
     }
+    predictiveSearch(query: $query, limit: 10, types: [PRODUCT, QUERY]) {
+      queries {
+        text
+        styledText
+      }
+      products {
+        id
+        title
+        handle
+        featuredImage {
+          url(transform: {
+            maxWidth: 100,
+            maxHeight: 100,
+            crop: CENTER,
+            scale: 2
+          })
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+    }
   }
 `;
 

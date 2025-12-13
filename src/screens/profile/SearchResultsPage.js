@@ -26,16 +26,18 @@ import ProductCard from '../../components/ui/ProductCard';
 
 const RECENT_KEY = 'recentSearches';
 
-const SearchPage = () => {
+
+
+const SearchResultsPage = ({ route }) => {
     const navigation = useNavigation();
     const { colorScheme } = useSelector(state => state.app);
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
-    const [search, setSearch] = useState('');
+    const queryParam = route?.params?.query || '';
+    const [search, setSearch] = useState(queryParam);
     const [recent, setRecent] = useState([]);
     const [results, setResults] = useState([]);
     const [suggestions, setSuggestions] = useState({ queries: [], products: [] });
-    const [showResults, setShowResults] = useState(false); // Toggle between suggestions and results view
     const [sortBy, setSortBy] = useState('RELEVANCE');
     const [showSortModal, setShowSortModal] = useState(false);
     const [showFilterModal, setShowFilterModal] = useState(false);
@@ -50,8 +52,15 @@ const SearchPage = () => {
                 if (raw) setRecent(JSON.parse(raw));
             } catch { }
         })();
-
     }, []);
+
+    useEffect(() => {
+        if (queryParam) {
+            setSearch(queryParam);
+            runSearch(queryParam);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queryParam]);
 
 
     const saveRecent = async (term) => {
@@ -72,7 +81,7 @@ const SearchPage = () => {
         } catch { }
     };
 
-    const runSearch = async (term, sort = sortBy, isSubmit = false) => {
+    const runSearch = async (term, sort = sortBy) => {
         if (!term?.trim()) {
             setResults([]);
             setSuggestions({ queries: [], products: [] });
@@ -84,33 +93,30 @@ const SearchPage = () => {
             let sortKey = 'RELEVANCE';
             let reverse = false;
 
-            // Apply sorting only when showing results
-            if (isSubmit) {
-                switch (sort) {
-                    case 'PRICE_LOW_HIGH':
-                        sortKey = 'PRICE';
-                        reverse = false;
-                        break;
-                    case 'PRICE_HIGH_LOW':
-                        sortKey = 'PRICE';
-                        reverse = true;
-                        break;
-                    case 'NEWEST':
-                        sortKey = 'CREATED';
-                        reverse = true;
-                        break;
-                    case 'BEST_SELLING':
-                        sortKey = 'BEST_SELLING';
-                        reverse = false;
-                        break;
-                    default:
-                        sortKey = 'RELEVANCE';
-                }
+            switch (sort) {
+                case 'PRICE_LOW_HIGH':
+                    sortKey = 'PRICE';
+                    reverse = false;
+                    break;
+                case 'PRICE_HIGH_LOW':
+                    sortKey = 'PRICE';
+                    reverse = true;
+                    break;
+                case 'NEWEST':
+                    sortKey = 'CREATED';
+                    reverse = true;
+                    break;
+                case 'BEST_SELLING':
+                    sortKey = 'BEST_SELLING';
+                    reverse = false;
+                    break;
+                default:
+                    sortKey = 'RELEVANCE';
             }
 
             const response = await searchProducts({
                 query: term.trim(),
-                first: isSubmit ? 50 : 20,
+                first: 50,
                 sortKey: sortKey,
                 reverse: reverse
             });
@@ -142,51 +148,18 @@ const SearchPage = () => {
         }
     };
 
-    // Debounce searches for better UX - only when not showing results
+    // Re-run search when sort changes
     useEffect(() => {
-        if (!showResults) {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-            debounceRef.current = setTimeout(() => runSearch(search, sortBy, false), 350);
-            return () => debounceRef.current && clearTimeout(debounceRef.current);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, showResults]);
-
-    // Re-run search when sort changes (only in results view)
-    useEffect(() => {
-        if (showResults && search?.trim()) {
-            runSearch(search, sortBy, true);
+        if (search?.trim()) {
+            runSearch(search, sortBy);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sortBy]);
 
-    // When user starts typing again, switch back to suggestions view
-    const handleSearchChange = (text) => {
-        setSearch(text);
-        if (showResults) {
-            setShowResults(false);
-        }
-    };
-
     const onSubmit = async () => {
         if (!search?.trim()) return;
         await saveRecent(search.trim());
-        setShowResults(true);
-        runSearch(search.trim(), sortBy, true);
-    };
-
-    const handleSuggestionClick = async (queryText) => {
-        await saveRecent(queryText);
-        setSearch(queryText);
-        setShowResults(true);
-        runSearch(queryText, sortBy, true);
-    };
-
-    const handleHistoryClick = async (item) => {
-        await saveRecent(item);
-        setSearch(item);
-        setShowResults(true);
-        runSearch(item, sortBy, true);
+        runSearch(search.trim());
     };
 
     const sortOptions = [
@@ -203,35 +176,28 @@ const SearchPage = () => {
 
     return (
         <>
-
             <View style={localStyles.searchBarRow}>
-                <TouchableOpacity onPress={() => {
-                    setSearch('')
-                    return navigation.goBack();
-                }} style={localStyles.headerIconBtn}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={localStyles.headerIconBtn}>
                     <ArrowLeft size={22} color={'#222'} />
                 </TouchableOpacity>
+
                 <TextInput
                     style={[localStyles.searchInput, styles.text_14_reg_dark3]}
                     placeholder="What are you looking for..."
                     value={search}
-                    onChangeText={handleSearchChange}
+                    onChangeText={setSearch}
                     onSubmitEditing={onSubmit}
                     placeholderTextColor="#A0A0A0"
                     returnKeyType="search"
-                    autoFocus
                 />
                 {!!search && (
                     <TouchableOpacity onPress={() => setSearch('')} style={localStyles.headerIconBtn}>
                         <X size={18} color={'#888'} />
                     </TouchableOpacity>
                 )}
-                {/* <TouchableOpacity onPress={() => { }} style={localStyles.headerIconBtn}>
-                    <Camera size={20} color={'#222'} />
-                </TouchableOpacity> */}
             </View>
 
-            {showResults && search?.trim()?.length > 0 && (
+            {search?.trim()?.length > 0 && (
                 <View style={localStyles.filterSortBar}>
                     <TouchableOpacity
                         style={localStyles.filterButton}
@@ -251,128 +217,36 @@ const SearchPage = () => {
 
             <View style={{ flex: 1 }}>
 
-                {showResults && search?.trim()?.length ? (
-                    // Results view in grid (after pressing enter)
-                    <View style={{ flex: 1 }}>
-                        <FlatList
-                            key="results-grid"
-                            data={results}
-                            numColumns={2}
-                            keyExtractor={(item, index) => item?.node?.id || index.toString()}
-                            keyboardShouldPersistTaps="handled"
-                            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
-                            columnWrapperStyle={{ justifyContent: 'space-between' }}
-                            ListEmptyComponent={
-                                loading ? (
-                                    <View style={{ padding: 32, alignItems: 'center' }}>
-                                        <ActivityIndicator size="large" color={colorSet.primaryColor} />
-                                    </View>
-                                ) : (
-                                    <Text style={[styles.text_14_reg_mainTextColor2, { padding: 16, textAlign: 'center' }]}>No results found for "{search}"</Text>
-                                )
-                            }
-                            renderItem={({ item, index }) => (
-                                <ProductCard
-                                    item={item}
-                                    index={index}
-                                    showColors={true}
-                                    showDetails={true}
-                                    isList={false}
-                                />
-                            )}
-                        />
-                    </View>
-                ) : search?.trim()?.length ? (
-                    // Suggestions view (while typing)
-                    <View style={{ flex: 1 }}>
-                        <FlatList
-                            key="suggestions-list"
-                            data={results}
-                            keyExtractor={(item, index) => item?.node?.id || index.toString()}
-                            keyboardShouldPersistTaps="handled"
-                            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
-                            // columnWrapperStyle={{ justifyContent: 'space-between' }}
-                            ListHeaderComponent={
-                                (suggestions.queries.length > 0 || suggestions.products.length > 0) ? (
-                                    <View style={localStyles.suggestionsContainer}>
-                                        {suggestions.queries.length > 0 && (
-                                            <View style={localStyles.suggestionsSection}>
-                                                <View style={localStyles.sectionHeader}>
-                                                    <Text style={localStyles.sectionTitle}>SUGGESTIONS</Text>
-                                                </View>
-                                                {suggestions.queries.map((query, idx) => (
-                                                    <TouchableOpacity
-                                                        key={idx}
-                                                        style={localStyles.suggestionQueryRow}
-                                                        onPress={() => handleSuggestionClick(query.text)}
-                                                    >
-                                                        <Text style={localStyles.suggestionQueryText}>{query.text}</Text>
-                                                    </TouchableOpacity>
-                                                ))}
-                                            </View>
-                                        )}
-                                        {suggestions.products.length > 0 && (
-                                            <View style={localStyles.suggestionsSection}>
-                                                <View style={localStyles.sectionHeader}>
-                                                    <Text style={localStyles.sectionTitle}>PRODUCTS</Text>
-                                                </View>
-                                                {suggestions.products.map((product) => (
-                                                    <TouchableOpacity
-                                                        key={product.id}
-                                                        style={localStyles.suggestionProductRow}
-                                                        onPress={() => navigation.navigate('PdpMain', { handle: product.handle })}
-                                                    >
-                                                        <FastImage
-                                                            source={{ uri: product.featuredImage?.url }}
-                                                            style={localStyles.suggestionProductImage}
-                                                            resizeMode="cover"
-                                                        />
-                                                        <Text style={localStyles.suggestionProductText} numberOfLines={2}>{product.title}</Text>
-                                                    </TouchableOpacity>
-                                                ))}
-                                            </View>
-                                        )}
-                                    </View>
-                                ) : null
-                            }
-                            ListEmptyComponent={
-                                loading ? (
-                                    <View style={{ padding: 32, alignItems: 'center' }}>
-                                        <ActivityIndicator size="large" color={colorSet.primaryColor} />
-                                    </View>
-                                ) : null
-                            }
-                            renderItem={() => null}
-                        />
-                    </View>
-                ) : (
-                    // Default state with history and suggestions
-                    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
-                        <View style={localStyles.sectionRow}>
-                            <Text style={[styles.text_14_semi_mainTextColor2]}>History</Text>
-                            <TouchableOpacity onPress={clearAllRecent}>
-                                <Text style={localStyles.clearAll}>Clear All</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {_getVerticalPadding(8)}
-
-                        {recent.length === 0 && (
-                            <Text style={[styles.text_12_reg_mainTextColor2,]}>No recent searches</Text>
+                <View style={{ flex: 1 }}>
+                    <FlatList
+                        data={results}
+                        numColumns={2}
+                        keyExtractor={(item, index) => item?.node?.id || index.toString()}
+                        keyboardShouldPersistTaps="handled"
+                        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
+                        columnWrapperStyle={{ justifyContent: 'space-between' }}
+                        ListEmptyComponent={
+                            loading ? (
+                                <View style={{ padding: 32, alignItems: 'center' }}>
+                                    <ActivityIndicator size="large" color={colorSet.primaryColor} />
+                                </View>
+                            ) : search?.trim() ? (
+                                <Text style={[styles.text_14_reg_mainTextColor2, { padding: 16, textAlign: 'center' }]}>No results found for "{search}"</Text>
+                            ) : (
+                                <Text style={[styles.text_14_reg_mainTextColor2, { padding: 16, textAlign: 'center' }]}>Enter a search term to see results</Text>
+                            )
+                        }
+                        renderItem={({ item, index }) => (
+                            <ProductCard
+                                item={item}
+                                index={index}
+                                showColors={true}
+                                showDetails={true}
+                                isList={false}
+                            />
                         )}
-                        {recent.map((item) => (
-                            <TouchableOpacity
-                                key={item}
-                                style={localStyles.historyRow}
-                                onPress={() => handleHistoryClick(item)}
-                            >
-                                <Text style={[styles.text_14_reg_mainTextColor2]}>{item}</Text>
-                                <FastImage source={require('../../../assets/images/search/up.png')} style={localStyles.clockIcon} resizeMode="contain" />
-                            </TouchableOpacity>
-                        ))}
-                        <View style={localStyles.divider} />
-
-                    </ScrollView>
-                )}
+                    />
+                </View>
             </View>
 
             {/* Sort Modal */}
@@ -665,4 +539,4 @@ const localStyles = StyleSheet.create({
     },
 });
 
-export default SearchPage;
+export default SearchResultsPage;

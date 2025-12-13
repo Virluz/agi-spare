@@ -123,7 +123,7 @@ products`, `Click to save your products`, require('../../../assets/images/cart/e
                 }}
                 ListEmptyComponent={renderEmptyState}
                 showsVerticalScrollIndicator={false}
-                ListFooterComponent={<BetterTogether />}
+            // ListFooterComponent={<BetterTogether />}
             />
         </View>
     );

@@ -683,13 +683,14 @@ const OrderDetailsScreen = ({ navigation, route }) => {
                           <View key={`${groupIndex}-${itemIndex}-${item.id}`} style={styles.shipmentItem}>
                             <TouchableOpacity
                               activeOpacity={0.8}
-                              onPress={() => {
-                                if (itemProductId) {
-                                  navigation.navigate('ProductDetails', { productId: itemProductId });
-                                } else {
-                                  Alert.alert('Unavailable', 'Could not open product page.');
-                                }
-                              }}
+                              // onPress={() => {
+                              //   if (itemProductId) {
+                              //     navigation.navigate('ProductDetails', { productId: itemProductId });
+                              //   } else {
+                              //     Alert.alert('Unavailable', 'Could not open product page.');
+                              //   }
+                              // }}
+                              disabled={true}
                               style={styles.itemTouchable}
                             >
                               <View style={styles.productInfoContainer}>
@@ -743,13 +744,14 @@ const OrderDetailsScreen = ({ navigation, route }) => {
                   <TouchableOpacity
                     key={`item-${index}`}
                     activeOpacity={0.8}
-                    onPress={() => {
-                      if (itemProductId) {
-                        navigation.navigate('ProductDetails', { productId: itemProductId });
-                      } else {
-                        Alert.alert('Unavailable', 'Could not open product page.');
-                      }
-                    }}
+                    // onPress={() => {
+                    //   if (itemProductId) {
+                    //     navigation.navigate('ProductDetails', { productId: itemProductId });
+                    //   } else {
+                    //     Alert.alert('Unavailable', 'Could not open product page.');
+                    //   }
+                    // }}
+                    disabled={true}
                     style={{ marginBottom: 12 }}
                   >
                     <View style={styles.productInfoContainer}>

@@ -700,7 +700,7 @@ const Cart = () => {
 
 
                 <PrimaryButton
-
+                    loading={loading}
                     onPress={() => {
                         if (cart?.lines?.edges.length === 0) {
                             navigation.navigate('Home')

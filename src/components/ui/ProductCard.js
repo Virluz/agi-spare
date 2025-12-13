@@ -25,6 +25,8 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     showColors = true, horizonal = false, isList = false,
     showAddToCartButton = true, isWishlistItem = false, disableNavigation = true, showDetails = false }) => {
 
+    const [quantity, setQuantity] = useState(1);
+
     if (!item?.node || item?.node === null)
         return (
             <View style={{
@@ -125,15 +127,23 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
                     {_getVerticalPadding(6)}
                     {isLoggedInGlobal && (
-                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
                             <Text style={isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2}>
                                 ₹{item?.node?.variants?.edges?.[0]?.node?.price?.amount}
                             </Text>
-                            <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2}>
-                                <Text style={{ textDecorationLine: 'line-through', opacity: 0.6 }}>
-                                    ₹{Math.round(Number(item?.node?.variants?.edges?.[0]?.node?.price?.amount) * 1.14)}
-                                </Text> 14% OFF
+                            <Text style={[isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2, { textDecorationLine: 'line-through', opacity: 0.6 }]}>
+                                ₹{Math.round(Number(item?.node?.variants?.edges?.[0]?.node?.price?.amount) * 1.14)}
                             </Text>
+                            <View style={{
+                                backgroundColor: '#22C55E',
+                                paddingHorizontal: 6,
+                                paddingVertical: 2,
+                                borderRadius: 4
+                            }}>
+                                <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '600' }}>
+                                    14% OFF
+                                </Text>
+                            </View>
                         </View>
                     )}
 
@@ -141,6 +151,50 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
                 {showAddToCartButton && isLoggedInGlobal &&
                     <View style={{ width: '100%', paddingTop: -widthPixel(8) }}>
+                        {/* Quantity Selector */}
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: 8,
+                            gap: 12
+                        }}>
+                            <TouchableOpacity
+                                onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: colorSet?.primaryColor || '#F2994A',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>−</Text>
+                            </TouchableOpacity>
+
+                            <Text style={[
+                                isDarkBackground ? styles.text_16_semi_mainTextColor3 : styles.text_16_semi_mainTextColor2,
+                                { minWidth: 30, textAlign: 'center' }
+                            ]}>
+                                {quantity}
+                            </Text>
+
+                            <TouchableOpacity
+                                onPress={() => setQuantity(quantity + 1)}
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: colorSet?.primaryColor || '#F2994A',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         <PrimaryButton title={'Add to Cart'} color={'#F2994A'} onPress={async () => {
                             try {
                                 const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
@@ -148,8 +202,8 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                                     showErrorMsg('Variant unavailable');
                                     return;
                                 }
-                                await dispatch(addOrUpdateCartLine({ variantId, quantity: 1 })).unwrap();
-                                showSuccessMsg('Added to cart');
+                                await dispatch(addOrUpdateCartLine({ variantId, quantity: quantity })).unwrap();
+                                showSuccessMsg(`Added ${quantity} item(s) to cart`);
                             } catch (e) {
                                 showErrorMsg(String(e?.message || 'Failed to add to cart'));
                             }
@@ -175,24 +229,26 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     </View>
                 )}
 
-                {/* <Ripple
-                    onPress={() => {
-                        dispatch(toggleWishlistItem(item?.node?.id));
-                    }}
-                    style={{ position: 'absolute', zIndex: 1, top: 10, right: 10 }} >
+                {isLoggedInGlobal &&
+                    <Ripple
+                        onPress={() => {
+                            dispatch(toggleWishlistItem(item?.node?.id));
+                        }}
+                        style={{ position: 'absolute', zIndex: 1, top: 10, right: 10 }} >
 
 
 
-                    {isWishlistItem ? <X size={18} /> :
+                        {isWishlistItem ? <X size={18} /> :
 
-                        <HeartIcon color={isInWishlist ? 'red' : 'black'}
-                            {...isInWishlist && { fill: 'red' }}
-                        />
+                            <HeartIcon color={isInWishlist ? 'red' : 'black'}
+                                {...isInWishlist && { fill: 'red' }}
+                            />
 
 
-                    }
+                        }
 
-                </Ripple> */}
+                    </Ripple>
+                }
             </View>
 
 

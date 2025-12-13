@@ -89,8 +89,8 @@ const Toolbar = ({ home,
     if (home) {
         return (
             <View style={{
-                position: 'absolute',
-                zIndex: 10,
+                // position: 'absolute',
+                // zIndex: 10,
                 width: '100%',
                 height: heightPixel(48),
                 // backgroundColor: colorSet.mainThemeBackgroundColor,
@@ -127,6 +127,22 @@ const Toolbar = ({ home,
 
                 }}>
 
+                    <Ripple style={{
+                        padding: widthPixel(8),
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        // backgroundColor: '#F4F1FB',
+                        borderRadius: 100,
+                        opacity: 0.5
+                    }} onPress={() => {
+                        navigation.navigate('SearchPage')
+                    }} >
+
+                        <SearchIcon size={widthPixel(24)} color={colorSet.black} />
+
+
+                    </Ripple>
+
 
                     <Ripple style={{
                         padding: widthPixel(8),
@@ -135,7 +151,7 @@ const Toolbar = ({ home,
                         backgroundColor: '#F4F1FB', borderRadius: 100,
                         opacity: 0.5
                     }} onPress={() => {
-                        // navigation.navigate('SearchPage')
+                        navigation.navigate('Wishlist')
                     }} >
 
                         <Heart size={widthPixel(24)} color={'#605E5E'} />
@@ -150,7 +166,7 @@ const Toolbar = ({ home,
                     <Ripple style={{ padding: widthPixel(8), zIndex: 100 }}
 
                         onPress={() => {
-                            // return navigation.navigate('AccountContainer');
+                            return navigation.navigate('Notifications');
                         }} >
 
                         <BellIcon size={widthPixel(24)} color={'#605E5E'} />

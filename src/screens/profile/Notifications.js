@@ -7,32 +7,14 @@ import Toolbar from '../../components/ui/Toolbar';
 import FastImage from '@d11/react-native-fast-image';
 import { heightPixel, widthPixel } from '../../utils/fonts';
 import { Settings } from 'lucide-react-native';
+import { noDataView } from '../../utils/Helper';
 
 const Notifications = () => {
 
     const navigation = useNavigation();
 
     const [notifications, setNotifications] = useState([
-        {
-            title: 'Ashok, Your new looks starts here🔥',
-            message: 'Your new looks starts here🔥',
-            time: '10:00 AM',
-            isRead: false,
-            image: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-        },
-        {
-            title: 'Ashok, Your new looks starts here🔥',
-            message: 'Your new looks starts here🔥',
-            time: '10:00 AM',
-            isRead: false,
-            image: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-        }, {
-            title: 'Ashok, Your new looks starts here🔥',
-            message: 'Your new looks starts here🔥',
-            time: '10:00 AM',
-            isRead: false,
-            image: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-        }
+
     ]);
     const { colorScheme, } = useSelector(state => state.app);
 
@@ -43,10 +25,11 @@ const Notifications = () => {
     return (
         <>
             <Toolbar title="Notifications" isFilter
-                filerIcon={
-                    <FastImage
-                        source={require('../../../assets/images/account/setting.png')}
-                        style={{ width: widthPixel(18), height: widthPixel(18), }} />} />
+            // filerIcon={
+            //     <FastImage
+            //         source={require('../../../assets/images/account/setting.png')}
+            //         style={{ width: widthPixel(18), height: widthPixel(18), }} />} 
+            />
             <View style={styles.container}>
                 <FlatList
                     data={notifications}
@@ -62,7 +45,15 @@ const Notifications = () => {
 
                         </View>
                     )}
+                    ListEmptyComponent={(!notifications || notifications.length === 0) && <>
+
+                        {noDataView(colorScheme, "Your bag looks empty", 'Let’s fill it up', require('../../../assets/images/cart/empty_cart.png'))}
+
+
+                    </>
+                    }
                 />
+
             </View>
         </>
 

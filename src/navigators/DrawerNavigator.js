@@ -18,6 +18,9 @@ const Drawer = createDrawerNavigator();
 import { getMenu } from '../graphql/queries/menu/menuQuery';
 import Loader from '../widgets/Loader';
 import WebPage from '../screens/drawer/WebPage';
+import SearchResultsPage from '../screens/profile/SearchResultsPage';
+import Wishlist from '../screens/profile/Wishlist';
+import Notifications from '../screens/profile/Notifications';
 
 // Custom drawer content component
 const CustomDrawerContent = (props) => {
@@ -199,12 +202,39 @@ const DrawerNavigator = () => {
 
 
       <Drawer.Screen
+        name="SearchResultsPage"
+        component={SearchResultsPage}
+        options={{
+          drawerItemStyle: { display: 'none' }
+        }}
+      />
+
+
+      <Drawer.Screen
         name="WebViewScreen"
         component={WebPage}
         options={{
           drawerItemStyle: { display: 'none' }
         }}
       />
+
+
+      <Drawer.Screen
+        name="Wishlist"
+        component={Wishlist}
+        options={{
+          drawerItemStyle: { display: 'none' }
+        }}
+      />
+
+      <Drawer.Screen
+        name="Notifications"
+        component={Notifications}
+        options={{
+          drawerItemStyle: { display: 'none' }
+        }}
+      />
+
 
 
     </Drawer.Navigator>

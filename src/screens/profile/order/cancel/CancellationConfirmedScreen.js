@@ -1,21 +1,69 @@
-import React from 'react';
+import React, { use } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AppStyles from '../../../../styles/AppStyles';
 import Toolbar from '../../../../components/ui/Toolbar';
+import { useSelector } from 'react-redux';
+import { X } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const CancellationConfirmedScreen = ({ navigation }) => {
+const CancellationConfirmedScreen = ({ }) => {
+  const { colorScheme, } = useSelector(state => state.app);
+
+  const appStyles = AppStyles.getAllStyles(colorScheme);
+
+  const navigation = useNavigation();
+
+  const insets = useSafeAreaInsets();
+
+
   return (
-    <View style={AppStyles.container}>
-      <Toolbar title={'Cancellation Confirmed'} />
-      <View style={styles.contentContainer}>
-        <Text style={styles.confirmationText}>Cancellation Confirmed</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.buttonText}>Keep Shopping</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ProfileStack', { screen: 'OrderDetailsScreen' })}>
-          <Text style={styles.buttonText}>View All Orders</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={appStyles.container}>
+
+      <TouchableOpacity style={{
+        marginTop: insets.top + 10,
+      }} onPress={() => {
+        navigation.navigate('MyOrders')
+      }}>
+
+        <X />
+
+      </TouchableOpacity>
+      <Text style={appStyles.text_20_semi_mainTextColor2}>Cancellation Confirmed</Text>
+
+      <TouchableOpacity style={{
+        height: 43, width: '100%', flexDirection: 'row', justifyContent: 'space-between',
+        alignItems: 'center', marginTop: 20,
+        // marginBottom: 20,
+        borderBottomWidth: 0.5,
+
+      }}
+        onPress={() => {
+          //reset the navigation stack to HomeDrawer
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeDrawer' }],
+          });
+        }}
+      >
+        <Text style={appStyles.text_16_reg_mainTextColor2}>Keep Shopping</Text>
+
+
+      </TouchableOpacity>
+      <TouchableOpacity style={{
+        height: 43, width: '100%', flexDirection: 'row', justifyContent: 'space-between',
+        alignItems: 'center', marginTop: 20,
+        marginBottom: 20,
+        borderBottomWidth: 0.5,
+
+      }}
+        onPress={() => {
+          navigation.navigate('MyOrders')
+        }}
+      >
+
+        <Text style={appStyles.text_16_reg_mainTextColor2}>View All Orders</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -23,8 +71,9 @@ const CancellationConfirmedScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'red',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     padding: 20,
   },
   confirmationText: {

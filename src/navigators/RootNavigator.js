@@ -38,6 +38,7 @@ import LoginWithOtpScreen from '../screens/LoginWithOtpScreen';
 import EmailPasswordLogin from '../screens/auth/EmailPasswordLogin';
 import { isAuthenticated } from '../utils/customerAuth';
 import { setIsLoggedIn } from '../redux/reducers/appSlice';
+import FullScreenImage from '../components/ui/FullScreenImage';
 const Root = createStackNavigator();
 
 export default RootNavigator = () => {
@@ -75,7 +76,7 @@ export default RootNavigator = () => {
   useEffect(() => {
     const decideStart = async () => {
       const seen = await SecureStorage.getHasSeenOnboard();
-      setInitialRoute(seen ? 'MainStack' : 'OnboardCarousel');
+      setInitialRoute('MainStack');
       setLoading(false);
     };
     decideStart();
@@ -211,11 +212,7 @@ export default RootNavigator = () => {
 
           />
 
-          <Root.Screen
-            options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
-            name="OnboardCarousel"
-            component={OnboardCarousel}
-          />
+
 
           <Root.Screen
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
@@ -234,6 +231,12 @@ export default RootNavigator = () => {
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
             name="CreateAccount"
             component={CreateAccount}
+          />
+
+          <Root.Screen
+            options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
+            name="FullScreenImage"
+            component={FullScreenImage}
           />
         </>
       </Root.Navigator>

@@ -7,13 +7,19 @@ const FETCH_ORDER_BY_ID = gql`
       ... on Order {
         id
         name
+        orderNumber
         processedAt
         canceledAt
         financialStatus
         fulfillmentStatus
-  subtotalPriceV2 { amount currencyCode }
-        totalShippingPriceV2 { amount currencyCode }
-        totalPriceV2 { amount currencyCode }
+        statusUrl
+        email
+        phone
+        currencyCode
+        totalPrice { amount currencyCode }
+        subtotalPrice { amount currencyCode }
+        totalShippingPrice { amount currencyCode }
+        totalTax { amount currencyCode }
         shippingAddress {
           firstName
           lastName
@@ -25,12 +31,66 @@ const FETCH_ORDER_BY_ID = gql`
           country
           phone
         }
-        lineItems(first: 5) {
+        billingAddress {
+          firstName
+          lastName
+          address1
+          address2
+          city
+          province
+          zip
+          country
+          phone
+        }
+        successfulFulfillments(first: 100) {
+          trackingInfo {
+            number
+            url
+          }
+        }
+        discountApplications(first: 10) {
+          edges {
+            node {
+              __typename
+              ... on DiscountCodeApplication {
+                code
+                applicable
+              }
+              ... on ManualDiscountApplication {
+                title
+              }
+              ... on ScriptDiscountApplication {
+                title
+              }
+            }
+          }
+        }
+        lineItems(first: 100) {
           edges {
             node {
               title
               quantity
-              variant { image { url } }
+              variant {
+                id
+                title
+                sku
+                barcode
+                metafield(namespace: "custom", key: "custom_variant_image") {
+                  value
+                  reference {
+                    __typename
+                    ... on MediaImage { image { url altText } }
+                    ... on GenericFile { url }
+                  }
+                }
+                image { url altText }
+                product { 
+                  id
+                  title
+                  vendor
+                  productType
+                }
+              }
             }
           }
         }

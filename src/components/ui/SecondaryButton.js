@@ -68,9 +68,8 @@ const getStyles = (colorScheme) => {
             backgroundColor: AppStyles.colorSet[colorScheme].static_white,
             alignItems: 'center',
             justifyContent: 'center',
-            // borderRadius: widthPixel(12),
+            borderRadius: widthPixel(100),
             borderColor: AppStyles.colorSet[colorScheme].primaryColor,
-
             borderWidth: 1,
             // elevation: 2,
             marginHorizontal: widthPixel(16),

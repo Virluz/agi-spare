@@ -29,7 +29,7 @@ const WebPage = ({ navigation }) => {
 
     return (
         <>
-            {loading && <Loader />}
+            {/* {loading && <Loader />} */}
             <Toolbar title={title} />
             {error ? (
                 <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>

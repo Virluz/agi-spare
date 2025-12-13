@@ -54,6 +54,7 @@ const AlertModel = ({ onPress, title, description, onCancel }) => {
                     <PrimaryButton
                         title={"Yes"}
                         onPress={onPress}
+                        fullWidth={true}
                     />
 
                     <SecondaryButton

@@ -14,12 +14,12 @@ import Constants from '../../utils/Constants';
 import AppStyles from '../../styles/AppStyles';
 import { useSelector } from 'react-redux';
 
-export const PrimaryButton = ({ disabled, onPress, iconStyle, iconSource, title, loading, color, showNextArrows = false }) => {
+export const PrimaryButton = ({ disabled, onPress, fullWidth, iconSource, title, loading, color, showNextArrows = false }) => {
   const { colorScheme } = useSelector(state => state.app);
 
   const appStyles = AppStyles.getAllStyles(colorScheme);
 
-  const styles = getStyles(colorScheme, color, disabled);
+  const styles = getStyles(colorScheme, color, disabled, fullWidth);
   const colorSet = AppStyles.colorSet[colorScheme];
 
   const accessbility = getAccessbility(
@@ -70,7 +70,7 @@ export const PrimaryButton = ({ disabled, onPress, iconStyle, iconSource, title,
   );
 };
 
-const getStyles = (colorScheme, color, disabled) => {
+const getStyles = (colorScheme, color, disabled, fullWidth) => {
   const backgroundColor = color ? color : disabled ? AppStyles.colorSet[colorScheme].dark7 : AppStyles.colorSet[colorScheme].primaryColor
   return StyleSheet.create({
     mainContainer: {
@@ -81,7 +81,7 @@ const getStyles = (colorScheme, color, disabled) => {
     container: {
       margin: fonts._10,
       height: heightPixel(35),
-      // width: '100%',
+      width: fullWidth ? '100%' : 'auto',
       paddingHorizontal: widthPixel(16),
       borderRadius: widthPixel(100),
       // paddingHorizontal: widthPixel(32),

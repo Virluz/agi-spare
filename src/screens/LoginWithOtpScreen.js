@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Platform, Clipboard } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import LinearGradient from 'react-native-linear-gradient';
 import AppStyles from '../styles/AppStyles';
@@ -17,6 +17,9 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import { LoginManager, AccessToken, Profile, Settings } from 'react-native-fbsdk-next';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import eventBus from '../service/EventBus';
+import { GOOGLE_WEB_CLIENT_ID, SHOPIFY_URL, LOGIN_API_KEY, FACEBOOK_APP_ID, FACEBOOK_CLIENT_TOKEN } from '@env';
+import Toolbar from '../components/ui/Toolbar';
 
 // Screen that matches the provided mock: phone entry on the page, OTP via bottom sheet only
 const LoginWithOtpScreen = ({
@@ -53,32 +56,40 @@ const LoginWithOtpScreen = ({
                 const seen = await AsyncStorage.getItem(key);
                 if (!seen) {
                     setShowSkip(true);
-                    await AsyncStorage.setItem(key, 'true');
+                    // await AsyncStorage.setItem(key, 'true');
                 }
             } catch (_) { }
         })();
     }, []);
 
-    // Configure Google Sign-In SDK once (requires GOOGLE_WEB_CLIENT_ID env or inline string)
-    useEffect(() => {
-        try {
-            const cfg = { offlineAccess: false };
-            if (process.env.GOOGLE_WEB_CLIENT_ID) {
-                cfg.webClientId = process.env.GOOGLE_WEB_CLIENT_ID;
-            }
-            GoogleSignin.configure(cfg);
-            // Configure Facebook SDK if env is available
-            try {
-                if (process.env.FACEBOOK_APP_ID) {
-                    Settings.setAppID(process.env.FACEBOOK_APP_ID);
-                }
-                if (process.env.FACEBOOK_CLIENT_TOKEN) {
-                    Settings.setClientToken(process.env.FACEBOOK_CLIENT_TOKEN);
-                }
-                Settings.initializeSDK();
-            } catch (_) { }
-        } catch (_) { /* ignore config errors in dev */ }
-    }, []);
+    // Configure Google Sign-In SDK once (requires GOOGLE_WEB_CLIENT_ID from .env)
+    // useEffect(() => {
+    //     try {
+    //         const webClientId = '692399450274-ona7hbpn91cv6bpfeb04aa7u7mekqee6.apps.googleusercontent.com';
+    //         console.log('🔵 Google Web Client ID:', webClientId ? '✅ Loaded' : '❌ Missing');
+
+    //         if (webClientId) {
+    //             GoogleSignin.configure({
+    //                 offlineAccess: false,
+    //                 webClientId,
+    //             });
+    //             console.log('✅ GoogleSignin configured successfully');
+    //         } else {
+    //             // Configure without webClientId to avoid invalid config; we'll block sign-in later
+    //             GoogleSignin.configure({ offlineAccess: false });
+    //             console.warn('⚠️ GOOGLE_WEB_CLIENT_ID is missing. Set it in .env to enable Google Sign-In.');
+    //         }
+
+    //         // Configure Facebook SDK if env is available
+    //         try {
+    //             if (FACEBOOK_APP_ID) Settings.setAppID(FACEBOOK_APP_ID);
+    //             if (FACEBOOK_CLIENT_TOKEN) Settings.setClientToken(FACEBOOK_CLIENT_TOKEN);
+    //             Settings.initializeSDK();
+    //         } catch (_) { }
+    //     } catch (error) {
+    //         console.error('Google Sign-In configuration error:', error);
+    //     }
+    // }, []);
 
     // Optional: clear success when user edits phone
     useEffect(() => {
@@ -93,8 +104,8 @@ const LoginWithOtpScreen = ({
         try {
             const payload = {
                 mobile: `+91${phone}`,
-                api_key: process.env.LOGIN_API_KEY,
-                modifiedShopURL: process.env.SHOPIFY_URL,
+                api_key: LOGIN_API_KEY,
+                modifiedShopURL: SHOPIFY_URL,
             };
             const res = await sendOtpMobile(payload);
             if (res?.success === false) {
@@ -116,8 +127,8 @@ const LoginWithOtpScreen = ({
             const payload = {
                 mobile: `+91${p}`,
                 otp: code,
-                api_key: process.env.LOGIN_API_KEY,
-                modifiedShopURL: process.env.SHOPIFY_URL,
+                api_key: LOGIN_API_KEY,
+                modifiedShopURL: SHOPIFY_URL,
             };
             const res = await validateOtpMobile(payload);
 
@@ -169,10 +180,20 @@ const LoginWithOtpScreen = ({
             if (!accessToken) throw new Error('Failed to retrieve access token');
 
             await saveAuthToken(accessToken, expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString());
+
+            // Publish login success event so credentials are reloaded
+
             dispatch(setIsLoggedIn(true));
             showSuccessMsg('Logged in successfully');
+
+            // Log login event
+
+
             otpRef.current?.close?.();
             navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
+
+            eventBus.publish('login_success');
+
 
         } catch (err) {
             showErrorMsg(String(err?.message || err || 'Login failed'));
@@ -183,8 +204,8 @@ const LoginWithOtpScreen = ({
         try {
             const payload = {
                 mobile: `+91${p}`,
-                api_key: process.env.LOGIN_API_KEY,
-                modifiedShopURL: process.env.SHOPIFY_URL,
+                api_key: LOGIN_API_KEY,
+                modifiedShopURL: SHOPIFY_URL,
             };
             const res = await sendOtpMobile(payload);
             if (res?.success === false) {
@@ -200,6 +221,12 @@ const LoginWithOtpScreen = ({
     // Google login handler – retrieves email from SDK
     const handleGoogleLogin = async () => {
         try {
+            if (!GOOGLE_WEB_CLIENT_ID) {
+                showErrorMsg('Google Sign-In not configured: GOOGLE_WEB_CLIENT_ID missing');
+                console.error('GOOGLE_WEB_CLIENT_ID is not set');
+                return;
+            }
+
             if (Platform.OS === 'android') {
                 const hasPlay = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
                 if (!hasPlay) {
@@ -207,7 +234,12 @@ const LoginWithOtpScreen = ({
                     return;
                 }
             }
+
+            console.log('🔵 Starting Google Sign-In...');
             const result = await GoogleSignin.signIn();
+            console.log('✅ Google Sign-In successful');
+            console.log('📧 Email:', result?.user?.email);
+
             const email = result?.user?.email;
             if (!email) {
                 showErrorMsg('No email returned from Google');
@@ -216,18 +248,24 @@ const LoginWithOtpScreen = ({
             // Exchange email via social auth endpoint to get login payload
             const payload = {
                 email,
-                modifiedShopURL: process.env.SHOPIFY_URL,
-                api_key: process.env.LOGIN_API_KEY,
+                modifiedShopURL: SHOPIFY_URL,
+                api_key: LOGIN_API_KEY,
             };
             const res = await validateSocialAuthToken(payload);
             if (res?.success === false) {
                 showErrorMsg(res?.message || 'Social login failed');
                 return;
             }
+
+            // Log Google login event
+
+
             await completeLoginFromResponse(res);
         } catch (e) {
+            console.error('Google Sign-In error:', e?.code, e?.message);
             if (e?.code === statusCodes.DEVELOPER_ERROR) {
                 showErrorMsg('Google Sign-In DEVELOPER_ERROR: Check package name, SHA-1 and Web Client ID');
+                console.error('DEVELOPER_ERROR details:', e);
                 return;
             }
             if (e?.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -271,14 +309,17 @@ const LoginWithOtpScreen = ({
             }
             const payload = {
                 email,
-                modifiedShopURL: process.env.SHOPIFY_URL,
-                api_key: process.env.LOGIN_API_KEY,
+                modifiedShopURL: SHOPIFY_URL,
+                api_key: LOGIN_API_KEY,
             };
             const res = await validateSocialAuthToken(payload);
             if (res?.success === false) {
                 showErrorMsg(res?.message || 'Social login failed');
                 return;
             }
+
+
+
             await completeLoginFromResponse(res);
         } catch (e) {
             showErrorMsg(e?.message || 'Facebook Sign-In failed');
@@ -330,10 +371,33 @@ const LoginWithOtpScreen = ({
                 showErrorMsg(res?.message || 'Social login failed');
                 return;
             }
+
+            // Log Apple login event
+
+
             await completeLoginFromResponse(res);
         } catch (e) {
             const msg = e?.message || String(e) || 'Apple Sign-In failed';
             showErrorMsg(msg);
+        }
+    };
+
+    const checkAndPasteOtp = async () => {
+        try {
+            const clipboardContent = await Clipboard.getString();
+            // Check if clipboard contains a number matching OTP_LENGTH
+            const otpMatch = clipboardContent.match(/\b\d{4,6}\b/);
+            if (otpMatch) {
+                const otpCode = otpMatch[0].slice(0, OTP_LENGTH);
+                if (otpCode.length === OTP_LENGTH) {
+                    const otpArray = otpCode.split('');
+                    setOtp(otpArray);
+                    // Auto-focus last input
+                    setTimeout(() => inputsRef.current[OTP_LENGTH - 1]?.focus?.(), 100);
+                }
+            }
+        } catch (e) {
+            // Ignore clipboard errors
         }
     };
 
@@ -345,7 +409,10 @@ const LoginWithOtpScreen = ({
                 closeOnDragDown={true}
                 closeOnPressMask={true}
                 closeOnPressBack
-                onOpen={() => setTimeout(() => inputsRef.current[0]?.focus?.(), 100)}
+                onOpen={() => {
+                    checkAndPasteOtp();
+                    setTimeout(() => inputsRef.current[0]?.focus?.(), 100);
+                }}
                 customStyles={{ container: { borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, }, }}>
 
                 <View style={{ alignItems: 'center', }}>
@@ -365,15 +432,32 @@ const LoginWithOtpScreen = ({
                             key={idx}
                             style={localStyles.otpInput}
                             keyboardType="number-pad"
-                            maxLength={1}
+                            maxLength={OTP_LENGTH}
                             value={digit}
                             autoCorrect={false}
                             onChangeText={(val) => {
-                                const clean = val.replace(/[^0-9]/g, '').slice(0, 1);
-                                const next = [...otp];
-                                next[idx] = clean;
-                                setOtp(next);
-                                if (clean && idx < OTP_LENGTH - 1) inputsRef.current[idx + 1]?.focus?.();
+                                const clean = val.replace(/[^0-9]/g, '');
+
+                                // If multiple digits pasted, distribute across all inputs
+                                if (clean.length > 1) {
+                                    const otpArray = clean.slice(0, OTP_LENGTH).split('');
+                                    const next = [...otp];
+                                    otpArray.forEach((digit, i) => {
+                                        if (idx + i < OTP_LENGTH) {
+                                            next[idx + i] = digit;
+                                        }
+                                    });
+                                    setOtp(next);
+                                    // Focus last filled input or last input
+                                    const lastIdx = Math.min(idx + otpArray.length, OTP_LENGTH - 1);
+                                    setTimeout(() => inputsRef.current[lastIdx]?.focus?.(), 10);
+                                } else {
+                                    // Single digit entry
+                                    const next = [...otp];
+                                    next[idx] = clean.slice(0, 1);
+                                    setOtp(next);
+                                    if (clean && idx < OTP_LENGTH - 1) inputsRef.current[idx + 1]?.focus?.();
+                                }
                             }}
                             onKeyPress={({ nativeEvent }) => {
                                 if (nativeEvent.key === 'Backspace' && !otp[idx] && idx > 0) {
@@ -405,28 +489,10 @@ const LoginWithOtpScreen = ({
     return (
         <>
 
+            <Toolbar title={"Login"} isSearch={false} />
+
             <ScrollView contentContainerStyle={{ paddingBottom: 24 }} bounces={false}>
-                <View style={localStyles.headerWrap}>
-                    {/* Mesh overlay */}
-                    <Image
-                        source={require('../../assets/images/account/mesh.png')}
-                        style={localStyles.headerMesh}
-                        resizeMode="cover"
-                        pointerEvents="none"
-                    />
-                    <Image
-                        source={require('../../assets/images/account/login_bg.png')}
-                        style={localStyles.headerMain}
-                        resizeMode="contain"
-                        pointerEvents="none"
-                    />
-                    <Image
-                        source={require('../../assets/images/account/bg.png')}
-                        style={localStyles.headerCurve}
-                        // resizeMode='contain'
-                        pointerEvents="none"
-                    />
-                </View>
+
 
                 {_getVerticalPadding(16)}
 
@@ -454,10 +520,23 @@ const LoginWithOtpScreen = ({
                                 />
 
                                 {_getVerticalPadding(8)}
-                                <Text style={styles.text_12_reg_mainTextColor2}>
-                                    By Continuing, you agree to our <Text style={localStyles.link}>Privacy Policy</Text> and{' '}
-                                    <Text style={localStyles.link}>Terms & Condition</Text>.
-                                </Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+                                    <Text style={styles.text_12_reg_mainTextColor2}>By continuing, you agree to our </Text>
+                                    <Text
+                                        style={[styles.text_12_reg_mainTextColor2, localStyles.link]}
+                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://styleunion.in/pages/privacy-policy', title: 'Policies' })}
+                                    >
+                                        Privacy Policy
+                                    </Text>
+                                    <Text style={styles.text_12_reg_mainTextColor2}>{' '}and{' '}</Text>
+                                    <Text
+                                        style={[styles.text_12_reg_mainTextColor2, localStyles.link]}
+                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://styleunion.in/pages/terms-condition', title: 'Terms & Conditions' })}
+                                    >
+                                        Terms & Conditions
+                                    </Text>
+                                    <Text style={styles.text_12_reg_mainTextColor2}>.</Text>
+                                </View>
 
                                 {_getVerticalPadding(8)}
                             </>
@@ -486,35 +565,34 @@ const LoginWithOtpScreen = ({
                         />
                     )}
 
-                    <View style={{ alignItems: 'center' }}>
+                    {/* <View style={{ alignItems: 'center' }}>
 
 
                         <Text style={styles.text_14_reg_mainTextColor2}>or log in with</Text>
                         {_getVerticalPadding(8)}
                         <View style={localStyles.socialRow}>
-                            {/* Replace images below with brand assets if available */}
-                            <TouchableOpacity style={localStyles.socialIcon} onPress={handleFacebookLogin}>
-                                <Image source={require('../../assets/images/account/facebook.png')}
-                                    style={{ width: 24, height: 24 }}
-                                    resizeMode="contain"
 
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={localStyles.socialIcon} onPress={handleGoogleLogin}>
-                                <Image source={require('../../assets/images/account/google.png')}
-                                    style={{ width: 24, height: 24 }}
-                                    resizeMode="contain"
 
-                                />
-                            </TouchableOpacity>
-                            {Platform.OS === 'ios' && DeviceInfo.isEmulatorSync?.() !== true && (
-                                <TouchableOpacity style={localStyles.socialIcon} onPress={handleAppleLogin}>
-                                    <Image source={require('../../assets/images/account/apple.png')}
-                                        style={{ width: 24, height: 24 }}
-                                        resizeMode="contain"
-                                    />
-                                </TouchableOpacity>
-                            )}
+                            {Platform.OS === 'ios' ?
+                                (
+                                    <TouchableOpacity style={localStyles.socialIcon} onPress={handleAppleLogin}>
+                                        <Image source={require('../../assets/images/account/apple.png')}
+                                            style={{ width: 24, height: 24 }}
+                                            resizeMode="contain"
+                                        />
+                                    </TouchableOpacity>
+                                )
+                                :
+                                (
+                                    <TouchableOpacity style={localStyles.socialIcon} onPress={handleGoogleLogin}>
+                                        <Image source={require('../../assets/images/account/google.png')}
+                                            style={{ width: 24, height: 24 }}
+                                            resizeMode="contain"
+
+                                        />
+                                    </TouchableOpacity>
+                                )
+                            }
                         </View>
 
                         {showSkip && (
@@ -527,14 +605,14 @@ const LoginWithOtpScreen = ({
                                 <Text style={localStyles.skipText}>Skip</Text>
                             </TouchableOpacity>
                         )}
-                    </View>
+                    </View> */}
 
                 </View>
-            </ScrollView>
+            </ScrollView >
 
             {success && (
                 <View style={localStyles.successPanel}>
-                    <Text style={localStyles.successLogo}>AGI SPARE</Text>
+                    <Text style={localStyles.successLogo}>STYLE UNION</Text>
                     <Text style={localStyles.successText}>You are successfully Logged In</Text>
                     <TouchableOpacity style={localStyles.startBtn} onPress={onStartStyling}>
                         <Text style={localStyles.startBtnText}>Start Styling</Text>
@@ -574,7 +652,9 @@ const localStyles = StyleSheet.create({
         position: 'absolute',
         width: '100%',
         zIndex: 101,
-        height: 352,
+        // marginTop: -0,
+        // backgroundColor: 'red'
+        height: 265,
     },
     headerCurve: {
         position: 'absolute',

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native';
 import AppStyles from '../../../../styles/AppStyles';
 import Toolbar from '../../../../components/ui/Toolbar';
 import { fetchOrderById, isOrderCancelable, cancelOrderAdmin } from '../../../../graphql/graph_request';
+import { cancelOrderExternal } from '../../../../api/requests';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from '../../../../utils/Constants';
 
 const RequestCancellationScreen = ({ navigation, route }) => {
   const { orderDetails } = route.params; // Assuming orderDetails is passed via navigation params
@@ -10,15 +13,14 @@ const RequestCancellationScreen = ({ navigation, route }) => {
   const [customReason, setCustomReason] = useState('');
 
   const cancellationReasons = [
-    'I want to change the payment option',
-    'I\'m worried about the ratings/reviews',
-    'I want to change the size/color/type',
-    'Price of the product has now decreased',
-    'My reason is not listed here',
-    'I want to change the delivery address',
-    'I was hoping for a shorter delivery time',
-    'I want to change the contact details',
-    'I want to change the delivery date',
+    'Ordered the wrong product',
+    'Ordered the wrong size',
+    'Changed my mind ',
+    'Found a better price elsewhere',
+    'Need to change delivery address / details',
+    'Delivery date is too long',
+    'Payment or technical issue',
+    'Other reason'
   ];
 
   const mapReasonToAdminReason = (label) => {
@@ -33,34 +35,156 @@ const RequestCancellationScreen = ({ navigation, route }) => {
     return 'OTHER';
   };
 
+  const createRefundForOrder = async (orderId) => {
+    try {
+      // Create refund mutation for Shopify Admin API
+      const mutation = `
+        mutation refundCreate($input: RefundInput!) {
+          refundCreate(input: $input) {
+            refund {
+              id
+              totalRefundedSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        input: {
+          orderId: orderId,
+          notify: true,
+          note: 'Refund for cancelled order'
+        }
+      };
+
+      const { shopifyClient } = require('../../../../graphql/shopifyClient');
+      const result = await shopifyClient.request(mutation, variables);
+
+      if (result?.refundCreate?.userErrors?.length > 0) {
+        console.warn('Refund errors:', result.refundCreate.userErrors);
+        return { ok: false, errors: result.refundCreate.userErrors };
+      }
+
+      return { ok: true, refund: result?.refundCreate?.refund };
+    } catch (error) {
+      console.error('Refund creation error:', error);
+      return { ok: false, error: error.message };
+    }
+  };
+
   const handleSubmit = async () => {
     const uiReason = selectedReason || 'Other';
-    const adminReason = mapReasonToAdminReason(uiReason);
-    const id = orderDetails?.id; // Expecting Admin GID: gid://shopify/Order/...
+    const finalReason = selectedReason === 'My reason is not listed here' ? customReason : uiReason;
+    const orderId = orderDetails?.id; // Expecting Admin GID: gid://shopify/Order/...
+
+    if (!orderId) {
+      Alert.alert('Error', 'Missing orderId for cancellation.');
+      return;
+    }
+
+    if (selectedReason === 'My reason is not listed here' && !customReason?.trim()) {
+      Alert.alert('Error', 'Please enter your reason.');
+      return;
+    }
+
     try {
-      // Optional: fetch order for eligibility
-      const res = await fetchOrderById(id);
+      // Fetch order for eligibility check
+      const res = await fetchOrderById(orderId);
       const node = res?.node?.__typename === 'Order' ? res.node : null;
       const check = isOrderCancelable(node);
+
       if (!check.ok) {
-        alert('Order cannot be cancelled: ' + (check.reason || 'Not eligible'));
+        Alert.alert('Cannot Cancel', `Order cannot be cancelled: ${check.reason || 'Not eligible'}`);
         return;
       }
-      const cancelled = await cancelOrderAdmin({ id, reason: adminReason, restock: true, notifyCustomer: true });
-      if (cancelled?.canceledAt) {
-        navigation.navigate('CancellationConfirmedScreen', { reason: uiReason });
+
+      // Map user-friendly reason to Admin API reason enum
+      const adminReason = mapReasonToAdminReason(selectedReason);
+
+      console.log('Canceling order:', orderId, 'Reason:', adminReason);
+
+      // Step 1: Cancel the order using Admin API
+      const cancelResult = await cancelOrderAdmin({
+        orderId: orderId,
+        reason: adminReason,
+        restock: true,
+        notifyCustomer: true
+      });
+
+      if (cancelResult?.userErrors?.length > 0) {
+        const errorMsg = cancelResult.userErrors.map(e => e.message).join(', ');
+        Alert.alert('Cancellation Failed', errorMsg);
         return;
       }
-      alert('Could not cancel order.');
+
+      console.log('Order cancelled successfully:', cancelResult);
+
+      // Step 2: Create refund for the cancelled order
+      console.log('Creating refund for order:', orderId);
+      const refundResult = await createRefundForOrder(orderId);
+
+      if (refundResult?.ok) {
+        console.log('Refund created successfully:', refundResult.refund);
+      } else {
+        console.warn('Refund creation failed:', refundResult.error || refundResult.errors);
+        // Don't block the cancellation flow if refund fails
+      }
+
+      // Step 3: Also update external system if needed
+      try {
+        const accessToken = await AsyncStorage.getItem('customerAccessToken') || 'accessToken';
+        const orderNumber = orderId.split('/').pop();
+        const firstLineItem = node?.lineItems?.edges?.[0]?.node;
+        const itemId = firstLineItem?.variant?.id?.split('/').pop() || '12943539255';
+
+        const cancelPayload = {
+          source: Constants.ORDER_CANCELLATION.SOURCE,
+          orderId: orderNumber,
+          itemIds: [itemId],
+          status: "CANCELLED",
+          reason: finalReason,
+          createdAt: Date.now(),
+          metadata: Constants.ORDER_CANCELLATION.METADATA
+        };
+
+        // await cancelOrderExternal(cancelPayload, accessToken);
+      } catch (externalError) {
+        console.warn('External cancellation update failed:', externalError);
+        // Don't block the flow if external update fails
+      }
+
+      Alert.alert(
+        'Success',
+        refundResult?.ok
+          ? 'Order cancelled and refund initiated successfully!'
+          : 'Order cancelled successfully! Refund will be processed separately.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('CancellationConfirmedScreen', { reason: finalReason })
+          }
+        ]
+      );
+
     } catch (e) {
-      alert(e?.message || 'Cancel failed');
+      console.error('Cancel order error:', e);
+      Alert.alert('Error', e?.message || 'Failed to cancel order. Please try again.');
     }
   };
 
   return (
     <View style={AppStyles.container}>
 
-      <Toolbar title={'Request Cancellation'} />
+      <Toolbar title={'Request Cancellation'} isSearch={false} />
 
       <ScrollView style={styles.scrollViewContent}>
         <View style={styles.productInfoContainer}>

@@ -176,6 +176,7 @@ const Profile = () => {
                             <Text style={styles.text_16_bold_mainTextColor2}>Account</Text>
                             <View style={s.card}>
                                 <RowItem icon={<User2 size={18} color={colorSet.dark3} />} title="Edit profile" onPress={() => { navigation.navigate("EditProfile") }} />
+                                <RowItem icon={<User2 size={18} color={colorSet.dark3} />} title="My Orders" onPress={() => { navigation.navigate("MyOrders") }} />
                                 <RowItem
                                     icon={<Bell size={18} color={colorSet.dark3} />}
                                     title="Notifications"

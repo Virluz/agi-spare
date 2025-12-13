@@ -31,6 +31,7 @@ import { CUSTOMER_QUERY } from './queries/customer/customerQuery';
 import GET_DELIVERY_OPTIONS from './queries/cart/get_delivery_options';
 import CART_SELECTED_DELIVERY_OPTIONS_UPDATE from './mutation/cart/cartSelectedDeliveryOptionsUpdate';
 import CUSTOMER_ACCESS_TOKEN_CREATE_WITH_MULTIPASS from './mutation/customer/customerAccessTokenCreateWithMultipass';
+import FETCH_ORDER_LINE_ITEMS_ADMIN from './queries/customer/fetch_order_line_items_admin';
 
 
 export const getProducts = async (params) => {
@@ -472,19 +473,18 @@ export const isOrderCancelable = (order) => {
 }
 
 // Admin: Cancel order using Admin GraphQL
-export const cancelOrderAdmin = async ({ id, reason = 'CUSTOMER', restock = true, notifyCustomer = true }) => {
+export const cancelOrderAdmin = async ({ orderId, reason = 'CUSTOMER', restock = true, notifyCustomer = true }) => {
     const mutation = `
-        mutation CancelOrder($id: ID!, $notifyCustomer: Boolean, $reason: OrderCancelReason, $restock: Boolean) {
-          orderCancel(id: $id, notifyCustomer: $notifyCustomer, reason: $reason, restock: $restock) {
-            order { id canceledAt cancelReason name }
-            userErrors { field message }
-          }
-        }
-    `;
-    const res = await shopifyClient.request(mutation, { id, reason, restock, notifyCustomer });
-    const err = res?.orderCancel?.userErrors?.[0];
-    if (err) throw new Error(err.message || 'orderCancel failed');
-    return res?.orderCancel?.order;
+                mutation CancelOrder($orderId: ID!, $notifyCustomer: Boolean, $reason: OrderCancelReason!, $restock: Boolean!) {
+                    orderCancel(orderId: $orderId, notifyCustomer: $notifyCustomer, reason: $reason, restock: $restock) {
+                        userErrors { field message }
+                        job { id }
+                    }
+                }
+        `;
+    const variables = { orderId, reason, restock, notifyCustomer };
+    const res = await shopifyClient.request(mutation, variables);
+    return res?.orderCancel;
 }
 
 // Cancel order via your backend (Admin API required). Configure CANCEL_ORDER_ENDPOINT.
@@ -570,3 +570,47 @@ export const setCartDeliveryOption = async ({ cartId, deliveryGroupId, deliveryO
     if (err) throw new Error(err.message || 'Failed to set delivery option');
     return res?.cartSelectedDeliveryOptionsUpdate?.cart;
 }
+
+export const fetchOrderLineItemsAdmin = async (orderId) => {
+    try {
+        const response = await shopifyClient.request(FETCH_ORDER_LINE_ITEMS_ADMIN, { id: orderId });
+        return response?.order || null;
+    } catch (error) {
+        console.error('Failed to fetch line item fulfillment status from Admin API:', error);
+        return null;
+    }
+}
+
+export const mergeOrderDataWithLineItemStatus = (storefrontOrder, adminOrder) => {
+    if (!storefrontOrder || !adminOrder) return storefrontOrder;
+
+    // Build map using VARIANT IDs
+    const adminMap = {};
+    adminOrder.lineItems.edges.forEach(({ node }) => {
+        const variantId = node.variant?.id;
+        if (variantId) {
+            adminMap[variantId] = {
+                fulfillmentStatus: node.fulfillmentStatus || null,
+            };
+        }
+    });
+
+    const enhancedEdges = storefrontOrder.lineItems.edges.map(({ node }) => {
+        const variantId = node.variant?.id;
+
+        return {
+            node: {
+                ...node,
+                fulfillmentStatus: adminMap[variantId]?.fulfillmentStatus || null,
+            },
+        };
+    });
+
+    return {
+        ...storefrontOrder,
+        lineItems: {
+            edges: enhancedEdges,
+        },
+        fulfillments: adminOrder.fulfillments,
+    };
+};

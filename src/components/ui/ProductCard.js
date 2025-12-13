@@ -82,9 +82,13 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     return (
         <TouchableWithoutFeedback
             onPress={() => {
+
+
                 if (disableNavigation) return;
                 navigation.navigate('ProductDetails', { productId: item?.node?.id });
                 return;
+                navigation.navigate('FullScreenImage', { productId: item?.node?.id });
+
             }}>
             <View style={{
                 width: ITEM_WIDTH,

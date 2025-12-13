@@ -4,6 +4,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Profile from '../screens/profile/Profile';
 import Privacy from '../screens/profile/Privacy';
 import EditProfile from '../screens/profile/EditProfile';
+import MyOrdersScreen from '../screens/profile/order/MyOrdersScreen';
+import OrderDetailsScreen from '../screens/profile/order/OrderDetailsScreen';
+import RequestCancellationScreen from '../screens/profile/order/cancel/RequestCancellationScreen';
+import CancellationConfirmedScreen from '../screens/profile/order/cancel/CancellationConfirmedScreen';
 
 const ProfileStack = createStackNavigator();
 
@@ -29,10 +33,25 @@ const ProfileContainer = () => {
                 component={Privacy}
             />
 
+            <ProfileStack.Screen name="MyOrders" component={MyOrdersScreen} />
+
+
+            <ProfileStack.Screen name="OrderDetails" component={OrderDetailsScreen} />
+
 
             <ProfileStack.Screen
                 name="EditProfile"
                 component={EditProfile}
+            />
+
+
+            <ProfileStack.Screen
+                name="RequestCancellationScreen"
+                component={RequestCancellationScreen}
+            />
+            <ProfileStack.Screen
+                name="CancellationConfirmedScreen"
+                component={CancellationConfirmedScreen}
             />
 
 

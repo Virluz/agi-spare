@@ -11,7 +11,12 @@ export const CUSTOMER_QUERY = gql`
       acceptsMarketing
       metafields(identifiers: [
         { namespace: "facts", key: "gender" },
-        { namespace: "facts", key: "birth_date" }
+        { namespace: "facts", key: "birth_date" },
+        { namespace: "custom", key: "company_name" },
+        { namespace: "custom", key: "gst_number" },
+        { namespace: "custom", key: "username" },
+        { namespace: "custom", key: "area_name" },
+        { namespace: "custom", key: "pin-code" }
       ]) {
         key
         value

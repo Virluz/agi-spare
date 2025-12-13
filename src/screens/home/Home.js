@@ -3,7 +3,7 @@ import { View, Text, Image, ScrollView, Dimensions, StyleSheet, TouchableOpacity
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCollections } from '../../redux/reducers/collectionSlice';
-import AppStyles from '../../styles/AppStyles';
+import AppStyles, { fontFamily } from '../../styles/AppStyles';
 import Toolbar from '../../components/ui/Toolbar';
 import { _getVerticalPadding, DEVICE_WIDTH } from '../../utils/Helper';
 import { heightPixel, widthPixel } from '../../utils/fonts';
@@ -14,8 +14,29 @@ import { SearchIcon, ArrowRight, Instagram, Youtube, Facebook } from 'lucide-rea
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import ProductCard from '../../components/ui/ProductCard';
 import BestSeller from '../category/BestSeller';
+import Carousel from 'react-native-reanimated-carousel';
 
 const height = Dimensions.get('window').height - heightPixel(140);
+
+// Success stories data
+const successStories = [
+    {
+        quote: "Our company placed an order for JLG Load pin, product was available and we got an immediate delivery with superior quality, as compared to other suppliers they have good speed & flexibility, Also the website and app is very user friendly.",
+        author: "Manufacturing Company"
+    },
+    {
+        quote: "Excellent service and fast delivery! We needed urgent spare parts for our construction equipment, and AGI Spare delivered within 24 hours. The quality is outstanding and their customer support is exceptional.",
+        author: "Construction Ltd."
+    },
+    {
+        quote: "We've been partnering with AGI Spare for over two years now. Their extensive inventory and competitive pricing have helped us reduce downtime significantly. Highly recommended!",
+        author: "Industrial Services Inc."
+    },
+    {
+        quote: "The platform is incredibly easy to use, and the product quality is consistently excellent. AGI Spare has become our go-to supplier for all heavy equipment spare parts.",
+        author: "Heavy Equipment Corp."
+    }
+];
 
 // Simple local image carousel for the hero banner
 const BannerCarousel = () => {
@@ -235,17 +256,31 @@ const Home = () => {
                     </View>
                 </View>
 
-                {/* Success Story */}
+                {/* Success Story Carousel */}
                 <View style={localStyles.successSection}>
                     <Text style={localStyles.successTitle}>Our Success Story</Text>
                     <Text style={localStyles.successSubtitle}>Brand that set the standard</Text>
 
-                    <View style={localStyles.quoteCard}>
-                        <Text style={localStyles.quoteMark}>“</Text>
-                        <Text style={localStyles.quoteText}>
-                            Our company placed an order for JLG Load pin, product was available and we got an immediate delivery with superior quality, as compared to other suppliers they have good speed & flexibility, Also the website and app is very user friendly.
-                        </Text>
-                    </View>
+                    <Carousel
+                        loop
+                        width={DEVICE_WIDTH}
+                        // height={heightPixel(140)}
+                        autoPlay={true}
+                        autoPlayInterval={3000}
+                        scrollAnimationDuration={1000}
+                        data={successStories}
+                        renderItem={({ item }) => (
+                            <View style={localStyles.quoteCard}>
+                                <Text style={localStyles.quoteMark}>"</Text>
+                                <Text style={localStyles.quoteText}>
+                                    {item.quote}
+                                </Text>
+                                {item.author && (
+                                    <Text style={localStyles.quoteAuthor}>— {item.author}</Text>
+                                )}
+                            </View>
+                        )}
+                    />
                 </View>
 
                 {/* Socials */}
@@ -321,19 +356,21 @@ const localStyles = StyleSheet.create({
     },
     welcomeTitle: {
         fontSize: heightPixel(20),
-        fontWeight: '800',
+        fontFamily: fontFamily.boldFont,
         color: '#4A4A68',
         textAlign: 'center',
         marginBottom: heightPixel(6),
     },
     welcomeSubtitle: {
         fontSize: heightPixel(14),
+        fontFamily: fontFamily.semiBoldFont,
         color: '#4A4A68',
         textAlign: 'center',
         marginBottom: heightPixel(10),
     },
     welcomeBody: {
         fontSize: heightPixel(12),
+        fontFamily: fontFamily.regularFont,
         color: '#605E5E',
         textAlign: 'left',
         lineHeight: heightPixel(18),
@@ -499,7 +536,8 @@ const localStyles = StyleSheet.create({
         backgroundColor: '#F7F7FB',
         marginHorizontal: widthPixel(16),
         borderRadius: widthPixel(12),
-        padding: widthPixel(16)
+        padding: widthPixel(16),
+        minHeight: heightPixel(120)
     },
     quoteMark: {
         fontSize: heightPixel(24),
@@ -510,6 +548,13 @@ const localStyles = StyleSheet.create({
         color: '#4A4A68',
         fontSize: heightPixel(12),
         lineHeight: heightPixel(18)
+    },
+    quoteAuthor: {
+        color: '#2C2B49',
+        fontSize: heightPixel(11),
+        fontWeight: '600',
+        marginTop: heightPixel(8),
+        fontStyle: 'italic'
     },
 
     // Socials

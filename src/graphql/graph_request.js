@@ -248,15 +248,6 @@ export const createCustomerWithMetafields = async (payload) => {
                 });
             }
 
-            if (payload.metafields.state) {
-                metafieldsArray.push({
-                    namespace: 'custom',
-                    key: 'select_state_1',
-                    value: payload.metafields.state,
-                    type: 'single_line_text_field'
-                });
-            }
-
             if (payload.metafields.pinCode) {
                 metafieldsArray.push({
                     namespace: 'custom',

@@ -110,7 +110,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
 
                 <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
-                    <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2} numberOfLines={2}>{item?.node?.title}</Text>
+                    <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_primaryTwo} numberOfLines={2}>{item?.node?.title}</Text>
 
                     {showDetails && (
                         <>

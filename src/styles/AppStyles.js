@@ -56,6 +56,7 @@ const lightColorSet = {
   red4: '#E14345',
   red5: '#FFEEEE',
   primaryColor: '#F27E03',
+  primaryColorTwo: '#4A4A68',
 
   urgent: '#D12122',
   red: '#F00000',
@@ -139,6 +140,7 @@ const darkColorSet = {
   red4: '#E14345',
   red5: '#FFEEEE',
   primaryColor: '#F27E03',
+  primaryColorTwo: '#4A4A68',
 
 
   urgent: '#D12122',
@@ -191,9 +193,9 @@ export const fontFamily = {
   // semiBoldFont: 'Metropolis-SemiBold',
   // regularFont: 'Metropolis-Regular',
 
-  boldFont: 'NeueMontreal-Bold',
-  semiBoldFont: 'NeueMontreal-Medium',
-  regularFont: 'NeueMontreal-Regular',
+  boldFont: 'Inter-Bold',
+  semiBoldFont: 'Inter-SemiBold',
+  regularFont: 'Inter-Medium',
 
 
   // boldFont: 'Campton-Book',
@@ -380,6 +382,12 @@ const getAllStyles = (schemeFromParent) => {
       lineHeight: fontPixel(16),
       fontSize: fontPixel(12),
       color: colorSet[scheme].mainTextColor2,
+      fontFamily: fontFamily.regularFont,
+    },
+    text_12_reg_primaryTwo: {
+      lineHeight: fontPixel(16),
+      fontSize: fontPixel(12),
+      color: colorSet[scheme].primaryColorTwo,
       fontFamily: fontFamily.regularFont,
     },
 
@@ -1112,6 +1120,12 @@ const getAllStyles = (schemeFromParent) => {
       letterSpacing: 0.5,
       fontSize: fontPixel(24),
       color: colorSet[scheme].primaryColor,
+      fontFamily: fontFamily.boldFont,
+    },
+    text_24_bold_primaryTwo: {
+      letterSpacing: 0.5,
+      fontSize: fontPixel(24),
+      color: colorSet[scheme].primaryColorTwo,
       fontFamily: fontFamily.boldFont,
     },
     text_24_bold_red4: {

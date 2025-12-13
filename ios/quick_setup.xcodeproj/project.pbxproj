@@ -30,6 +30,14 @@
 		D0B8A70C417E40B784C5516B /* Metropolis-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 349C5411008C4C8F8E0BAAFF /* Metropolis-Bold.ttf */; };
 		D71A66D7D105439AABD428A0 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F6335A73C5A4F8F8EEA54C0 /* BootSplash.storyboard */; };
 		E589BDBA75BF6950B08FDFF6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		CF43E49F47094D61BD0D7FFE /* Campton-Book.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A9E4ECF08DE349868645241D /* Campton-Book.ttf */; };
+		10878F0FC4C94707AC25AA02 /* Campton-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4172BEC5732F4959ACF1648C /* Campton-Medium.ttf */; };
+		12BA1F6598804C4E9C1524A4 /* Campton-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4E01D257BBC140A690135A0A /* Campton-SemiBold.ttf */; };
+		008994F0F3D24A3EABBB261B /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2E104F16961C43928F525991 /* Inter-Medium.ttf */; };
+		465624C09C7B4238B20277B3 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C317CAFFC6424AB79C8784FA /* Inter-Regular.ttf */; };
+		CAA24CA24158428799C276BA /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 214B0D5E23514E7794FD7A10 /* Inter-SemiBold.ttf */; };
+		E9C5600338FF49F9B20E49F8 /* Kino.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 69E9CDE259BC459F91133841 /* Kino.ttf */; };
+		5C677F36747F4A25A899107F /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70CBA3CE416546949B0AE6D1 /* Inter-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +74,14 @@
 		D7D3EB07F5A94CAD8A241119 /* Satoshi-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Satoshi-Regular.ttf"; path = "../assets/fonts/Satoshi-Regular.ttf"; sourceTree = "<group>"; };
 		EA864562C9D94B7AB79AD7FE /* Metropolis-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Metropolis-SemiBold.ttf"; path = "../assets/fonts/Metropolis-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		A9E4ECF08DE349868645241D /* Campton-Book.ttf */ = {isa = PBXFileReference; name = "Campton-Book.ttf"; path = "../assets/fonts/Campton-Book.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4172BEC5732F4959ACF1648C /* Campton-Medium.ttf */ = {isa = PBXFileReference; name = "Campton-Medium.ttf"; path = "../assets/fonts/Campton-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4E01D257BBC140A690135A0A /* Campton-SemiBold.ttf */ = {isa = PBXFileReference; name = "Campton-SemiBold.ttf"; path = "../assets/fonts/Campton-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		2E104F16961C43928F525991 /* Inter-Medium.ttf */ = {isa = PBXFileReference; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C317CAFFC6424AB79C8784FA /* Inter-Regular.ttf */ = {isa = PBXFileReference; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		214B0D5E23514E7794FD7A10 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		69E9CDE259BC459F91133841 /* Kino.ttf */ = {isa = PBXFileReference; name = "Kino.ttf"; path = "../assets/fonts/Kino.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		70CBA3CE416546949B0AE6D1 /* Inter-Bold.ttf */ = {isa = PBXFileReference; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +182,14 @@
 				C8F41B12BAF342608B94F2FC /* Satoshi-Bold.ttf */,
 				CE834E16187C40878C761FCD /* Satoshi-Medium.ttf */,
 				D7D3EB07F5A94CAD8A241119 /* Satoshi-Regular.ttf */,
+				A9E4ECF08DE349868645241D /* Campton-Book.ttf */,
+				4172BEC5732F4959ACF1648C /* Campton-Medium.ttf */,
+				4E01D257BBC140A690135A0A /* Campton-SemiBold.ttf */,
+				2E104F16961C43928F525991 /* Inter-Medium.ttf */,
+				C317CAFFC6424AB79C8784FA /* Inter-Regular.ttf */,
+				214B0D5E23514E7794FD7A10 /* Inter-SemiBold.ttf */,
+				69E9CDE259BC459F91133841 /* Kino.ttf */,
+				70CBA3CE416546949B0AE6D1 /* Inter-Bold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -244,6 +268,14 @@
 				31CF3ECE13E44002ADEEE96B /* Satoshi-Regular.ttf in Resources */,
 				D71A66D7D105439AABD428A0 /* BootSplash.storyboard in Resources */,
 				18D5A9B939EB47C0BAB736B9 /* Colors.xcassets in Resources */,
+				CF43E49F47094D61BD0D7FFE /* Campton-Book.ttf in Resources */,
+				10878F0FC4C94707AC25AA02 /* Campton-Medium.ttf in Resources */,
+				12BA1F6598804C4E9C1524A4 /* Campton-SemiBold.ttf in Resources */,
+				008994F0F3D24A3EABBB261B /* Inter-Medium.ttf in Resources */,
+				465624C09C7B4238B20277B3 /* Inter-Regular.ttf in Resources */,
+				CAA24CA24158428799C276BA /* Inter-SemiBold.ttf in Resources */,
+				E9C5600338FF49F9B20E49F8 /* Kino.ttf in Resources */,
+				5C677F36747F4A25A899107F /* Inter-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

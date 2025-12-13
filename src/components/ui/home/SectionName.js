@@ -23,7 +23,7 @@ const SectionName = ({ title, width = 0, size = null }) => {
             justifyContent: 'center'
         }, width && { width }]}>
 
-            <Text style={[styles.text_20_secondaryFont_mainTextColor2, { textAlign: 'center', }, size && { fontSize: size }]} >
+            <Text style={[styles.text_24_bold_primaryTwo, { textAlign: 'center', }, size && { fontSize: size }]} >
 
                 {title}
 

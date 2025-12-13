@@ -144,8 +144,7 @@ const EditProfile = () => {
                 const companyMeta = _metas.find(m => m && m.key === 'company_name')?.value;
                 const gstMeta = _metas.find(m => m && m.key === 'gst_number')?.value;
                 const usernameMeta = _metas.find(m => m && m.key === 'username')?.value;
-                const areaMeta = _metas.find(m => m && m.key === 'areaName')?.value;
-                const stateMeta = _metas.find(m => m && m.key === 'select_state_1')?.value;
+                const areaMeta = _metas.find(m => m && m.key === 'area_name')?.value;
                 const pinCodeMeta = _metas.find(m => m && m.key === 'pin-code')?.value;
 
                 if (gMeta) setValue('gender', gMeta);
@@ -153,7 +152,6 @@ const EditProfile = () => {
                 if (gstMeta) setValue('gstNo', gstMeta);
                 if (usernameMeta) setValue('username', usernameMeta);
                 if (areaMeta) setValue('areaName', areaMeta);
-                if (stateMeta) setValue('province', stateMeta);
                 if (pinCodeMeta) setValue('zip', pinCodeMeta);
 
                 if (dMeta) {
@@ -335,8 +333,7 @@ const EditProfile = () => {
             if (data.company_name) metas.push({ namespace: 'custom', key: 'company_name', value: String(data.company_name), type: 'single_line_text_field' });
             if (data.gstNo) metas.push({ namespace: 'custom', key: 'gst_number', value: String(data.gstNo), type: 'single_line_text_field' });
             if (data.username) metas.push({ namespace: 'custom', key: 'username', value: String(data.username), type: 'single_line_text_field' });
-            if (data.areaName) metas.push({ namespace: 'custom', key: 'areaName', value: String(data.areaName), type: 'single_line_text_field' });
-            if (data.province) metas.push({ namespace: 'custom', key: 'select_state_1', value: String(data.province), type: 'single_line_text_field' });
+            if (data.areaName) metas.push({ namespace: 'custom', key: 'area_name', value: String(data.areaName), type: 'single_line_text_field' });
             if (data.zip) metas.push({ namespace: 'custom', key: 'pin-code', value: String(data.zip), type: 'single_line_text_field' });
 
             console.log('Metafields to update:', metas);
@@ -345,7 +342,7 @@ const EditProfile = () => {
             try {
                 if (customerId && metas.length) {
                     const result = await updateCustomerMetafieldsAdmin(customerId, metas);
-                    console.log('Metafields update result:', result);
+                    console.log('Metafields update result:', JSON.stringify(result, null, 2));
 
                     // Check if admin token is missing
                     if (result?.reason === 'admin_token_missing') {
@@ -356,12 +353,8 @@ const EditProfile = () => {
                 }
             } catch (e) {
                 console.error('Admin metafield update failed:', e?.message || e);
-                // Only show alert for actual errors, not missing token (since data is still in AsyncStorage)
-                // if (!e?.message?.includes('Admin API authentication failed')) {
-                //     Alert.alert('Warning', `Profile updated locally. Note: ${e?.message || 'Some fields may not sync to Shopify'}`);
-                // } else {
-                //     console.warn('Metafields saved locally only - Shopify sync failed:', e.message);
-                // }
+                console.error('Full error:', e);
+                Alert.alert('Warning', `Metafield update error: ${e?.message || 'Unknown error'}`);
             }
 
 

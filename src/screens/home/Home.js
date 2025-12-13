@@ -40,37 +40,38 @@ const successStories = [
 
 // Simple local image carousel for the hero banner
 const BannerCarousel = () => {
-    const scrollRef = useRef(null);
     const [index, setIndex] = useState(0);
     const images = [
-        require('../../../assets/images/home/spare.png'),
+        'https://agi-spare.myshopify.com/cdn/shop/files/Tire_Banner_Website_View.jpg?v=1764931402',
+        "https://agi-spare.myshopify.com/cdn/shop/files/Engine_Parts_Website_View.jpg?v=1764931289",
+        "https://agi-spare.myshopify.com/cdn/shop/files/All_Parts_Website_View.jpg?v=1764931236",
+        "https://agi-spare.myshopify.com/cdn/shop/files/Hydraulic_Parts_Website_View.jpg?v=1764931456"
     ];
-
-    const onScroll = (e) => {
-        const page = Math.round(e.nativeEvent.contentOffset.x / DEVICE_WIDTH);
-        if (page !== index) setIndex(page);
-    };
 
     return (
         <View style={{ marginTop: heightPixel(8) }}>
-            <ScrollView
-                ref={scrollRef}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={onScroll}
-                scrollEventThrottle={16}
-                style={{ borderRadius: widthPixel(12) }}
-            >
-                {images.map((src, i) => (
+            <Carousel
+                loop
+                width={DEVICE_WIDTH}
+                height={heightPixel(160)}
+                autoPlay={true}
+                autoPlayInterval={3000}
+                scrollAnimationDuration={800}
+                data={images}
+                onSnapToItem={(idx) => setIndex(idx)}
+                renderItem={({ item }) => (
                     <FastImage
-                        key={i}
-                        source={src}
-                        style={{ width: DEVICE_WIDTH - widthPixel(32), height: heightPixel(160), marginHorizontal: widthPixel(16), borderRadius: widthPixel(12) }}
+                        source={{ uri: item }}
+                        style={{
+                            width: DEVICE_WIDTH - widthPixel(32),
+                            height: heightPixel(160),
+                            marginHorizontal: widthPixel(16),
+                            borderRadius: widthPixel(12)
+                        }}
                         resizeMode={FastImage.resizeMode.cover}
                     />
-                ))}
-            </ScrollView>
+                )}
+            />
 
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: heightPixel(8) }}>
                 {images.map((_, i) => (

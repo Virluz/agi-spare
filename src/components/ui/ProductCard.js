@@ -165,7 +165,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                                     width: 32,
                                     height: 32,
                                     borderRadius: 16,
-                                    backgroundColor: colorSet?.primaryColor || '#F2994A',
+                                    backgroundColor: colorSet?.primaryColorTwo,
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}
@@ -186,7 +186,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                                     width: 32,
                                     height: 32,
                                     borderRadius: 16,
-                                    backgroundColor: colorSet?.primaryColor || '#F2994A',
+                                    backgroundColor: colorSet?.primaryColorTwo,
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}

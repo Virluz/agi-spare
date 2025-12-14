@@ -144,7 +144,7 @@ const LoginWithOtpScreen = ({
             if (res?.type === 'REGISTER') {
                 // Use standalone SignUp screen
                 otpRef.current?.close?.();
-                navigation.navigate('SignUp', { mobile: `+91${p}`, otp: code });
+                navigation.navigate('CreateAccount', { mobile: `+91${p}`, otp: code });
                 return;
             }
 
@@ -364,7 +364,7 @@ const LoginWithOtpScreen = ({
             const payload = {
                 email,
                 modifiedShopURL: process.env.SHOPIFY_URL,
-                api_key: process.env.LOGIN_API_KEY,
+                api_key: "a1ce8163-5dcd-4d4f-b418-77337dc7c1c2" // process.env.LOGIN_API_KEY,
             };
             const res = await validateSocialAuthToken(payload);
             if (res?.success === false) {

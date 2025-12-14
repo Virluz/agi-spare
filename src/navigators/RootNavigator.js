@@ -217,7 +217,7 @@ export default RootNavigator = () => {
           <Root.Screen
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
             name="Login"
-            component={EmailPasswordLogin}
+            component={LoginWithOtpScreen}
           />
 
           {/* Keep OTP login available under a separate route for future use */}

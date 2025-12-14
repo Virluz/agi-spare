@@ -702,7 +702,11 @@ const Cart = () => {
                 <PrimaryButton
                     loading={loading}
                     onPress={() => {
-                        if (cart?.lines?.edges.length === 0) {
+                        console.log("cart", cart);
+
+                        if (cart === null || cart?.lines?.edges?.length === 0) {
+                            console.log("cart", cart);
+
                             navigation.navigate('Home')
                             return
                         }

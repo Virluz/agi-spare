@@ -605,3 +605,28 @@ export const mergeOrderDataWithLineItemStatus = (storefrontOrder, adminOrder) =>
         fulfillments: adminOrder.fulfillments,
     };
 };
+
+export const mapFulfillmentDisplayStatus = (displayStatus) => {
+    const statusMap = {
+        'ATTEMPTED_DELIVERY': { label: 'Attempted delivery', icon: '⚠️' },
+        'CANCELED': { label: 'Canceled', icon: '❌' },
+        'CARRIER_PICKED_UP': { label: 'Picked up by carrier', icon: '🚚' },
+        'CONFIRMED': { label: 'Confirmed', icon: '✓' },
+        'DELAYED': { label: 'Delayed', icon: '⏸️' },
+        'DELIVERED': { label: 'Delivered', icon: '✓' },
+        'FAILURE': { label: 'Failure', icon: '❌' },
+        'FULFILLED': { label: 'Fulfilled', icon: '✓' },
+        'IN_TRANSIT': { label: 'In transit', icon: '🚚' },
+        'LABEL_PRINTED': { label: 'Label printed', icon: '🏷️' },
+        'LABEL_PURCHASED': { label: 'Label purchased', icon: '🏷️' },
+        'LABEL_VOIDED': { label: 'Label voided', icon: '❌' },
+        'MARKED_AS_FULFILLED': { label: 'Marked as fulfilled', icon: '✓' },
+        'NOT_DELIVERED': { label: 'Not delivered', icon: '❌' },
+        'OUT_FOR_DELIVERY': { label: 'Out for delivery', icon: '🚚' },
+        'PICKED_UP': { label: 'Picked up', icon: '📦' },
+        'READY_FOR_PICKUP': { label: 'Ready for pickup', icon: '📦' },
+        'SUBMITTED': { label: 'Submitted', icon: '📤' },
+    };
+
+    return statusMap[displayStatus] || { label: displayStatus || 'Processing', icon: '🔄' };
+}

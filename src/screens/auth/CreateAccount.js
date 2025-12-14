@@ -216,8 +216,9 @@ const CreateAccount = () => {
         },
         passwordToggle: {
             position: 'absolute',
+            height: '100%',
+            justifyContent: 'center',
             right: widthPixel(12),
-            top: heightPixel(35),
             padding: widthPixel(4),
         },
         buttonContainer: {

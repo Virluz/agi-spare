@@ -106,18 +106,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
   }
 
   private func addBlur() {
-    guard let window = window, blurView == nil else { return }
-    let blur = UIBlurEffect(style: .systemChromeMaterialDark)
-    let view = UIVisualEffectView(effect: blur)
-    view.frame = window.bounds
-    view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-    window.addSubview(view)
-    blurView = view
+    // guard let window = window, blurView == nil else { return }
+    // let blur = UIBlurEffect(style: .systemChromeMaterialDark)
+    // let view = UIVisualEffectView(effect: blur)
+    // view.frame = window.bounds
+    // view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    // window.addSubview(view)
+    // blurView = view
   }
 
   private func removeBlur() {
-    blurView?.removeFromSuperview()
-    blurView = nil
+    // blurView?.removeFromSuperview()
+    // blurView = nil
   }
 
   public func isDeviceJailbroken() -> Bool {

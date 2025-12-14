@@ -26,10 +26,10 @@ class MainActivity : ReactActivity() {
         super.onCreate(null)
         
         // Enable FLAG_SECURE to block screenshots and screen recording
-        window.setFlags(
-                WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE
-        )
+        // window.setFlags(
+        //         WindowManager.LayoutParams.FLAG_SECURE,
+        //         WindowManager.LayoutParams.FLAG_SECURE
+        // )
 
         // if (RootDetection.isRooted(this)) {
         //     showRootedDialog()

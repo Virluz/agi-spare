@@ -77,20 +77,20 @@ const CreateAccount = () => {
 
     const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
-            name: 'Test User',
-            company_name: 'test company',
-            gstNo: '27AAECS1234F1Z5',
-            mobile: '9876543210',
-            email: 'test@example.com',
-            buildingName: 'test building',
-            streetName: 'test street',
-            state: 'Maharashtra',
-            cityName: 'mumbai',
-            areaName: 'test',
-            pinCode: '400104',
-            username: 'tester',
-            password: 'App@12345',
-            confirmPassword: 'App@12345',
+            // name: 'Test User',
+            // company_name: 'test company',
+            // gstNo: '27AAECS1234F1Z5',
+            // mobile: '9876543210',
+            // email: 'test@example.com',
+            // buildingName: 'test building',
+            // streetName: 'test street',
+            // state: 'Maharashtra',
+            // cityName: 'mumbai',
+            // areaName: 'test',
+            // pinCode: '400104',
+            // username: 'tester',
+            // password: 'App@12345',
+            // confirmPassword: 'App@12345',
         }
     });
 

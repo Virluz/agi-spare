@@ -48,6 +48,9 @@ const ProductList = () => {
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
     const navigation = useNavigation();
+
+    const collections = useSelector(state => state?.collections?.collections);
+
     const [isSearchView, setIsSearchView] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
@@ -565,6 +568,62 @@ const ProductList = () => {
                                         </TouchableOpacity>
                                     )}
                                 </View>
+
+
+
+
+                                <View
+
+                                    style={{
+                                        flexDirection: 'row', gap: 8, flexWrap: 'wrap',
+
+                                    }}
+                                >
+                                    {collections
+                                        .slice()
+                                        .sort((a, b) => {
+                                            // Sort so current collection appears first
+                                            if (a.handle === handle) return -1;
+                                            if (b.handle === handle) return 1;
+                                            return 0;
+                                        })
+                                        .map((collection, index) => {
+                                            const isCurrentCollection = collection.handle === handle;
+                                            return (
+                                                <TouchableOpacity
+                                                    key={collection?.id || `collection-${index}`}
+                                                    style={{
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        paddingHorizontal: 8,
+                                                        paddingVertical: 6,
+                                                        backgroundColor: isCurrentCollection ? '#F2994A' : '#1D1A44',
+                                                        borderRadius: 20,
+                                                        gap: 6,
+                                                    }}
+                                                    onPress={() => {
+                                                        navigation.navigate('ProductList', {
+                                                            handle: collection.handle,
+                                                            title: collection.title,
+                                                        });
+                                                    }}
+                                                >
+                                                    <Text style={[
+                                                        styles.text_14_semi_mainTextColor2,
+                                                        { color: '#fff' }
+                                                    ]}>
+                                                        {collection.title}
+                                                    </Text>
+                                                    {/* <ArrowRightIcon size={16} color={'#fff'} /> */}
+                                                </TouchableOpacity>
+                                            );
+                                        })
+                                    }
+                                </View>
+
+
+
 
                                 {/* Category chips */}
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: SIDE_MARGIN, paddingBottom: ITEM_SPACING }}>

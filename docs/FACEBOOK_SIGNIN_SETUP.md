@@ -5,8 +5,8 @@
 - Add Facebook Login product → Android
 
 ## 2) Package name and default activity
-- Package name: `com.app.latest`
-- Default Activity Class Name: `com.app.latest.MainActivity`
+- Package name: `com.algyas.agispares`
+- Default Activity Class Name: `com.algyas.agispares.MainActivity`
 
 ## 3) Key hashes
 - Debug key hash: generate from debug.keystore

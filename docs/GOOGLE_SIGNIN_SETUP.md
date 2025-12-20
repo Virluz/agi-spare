@@ -4,7 +4,7 @@ Use this guide to resolve `DEVELOPER_ERROR` and ensure Google Sign-In returns th
 
 ## 1) Confirm your Android app identity
 
-- Package name (applicationId): `com.app.latest` (from `android/app/build.gradle`)
+- Package name (applicationId): `com.algyas.agispares` (from `android/app/build.gradle`)
 - Keystore: This project uses the debug keystore for both debug and release buildTypes.
 
 Generate the SHA-1 that Google needs:
@@ -23,7 +23,7 @@ SHA1: 5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25
 
 - Open Google Cloud Console → APIs & Services → Credentials
 - Android OAuth client:
-  - Package name: `com.app.latest`
+  - Package name: `com.algyas.agispares`
   - SHA-1 certificate fingerprint: paste the SHA1 above
   - Save
 - Web OAuth client:
@@ -57,7 +57,7 @@ Tap the Google icon. You should see a toast with the user email on success.
 
 ## Troubleshooting
 
-- `DEVELOPER_ERROR`: Package name/SHA-1 mismatch or wrong Web Client ID; ensure the Android client has `com.app.latest` and the SHA-1 from the step above, and that the Web Client ID is from the same Google project.
+- `DEVELOPER_ERROR`: Package name/SHA-1 mismatch or wrong Web Client ID; ensure the Android client has `com.algyas.agispares` and the SHA-1 from the step above, and that the Web Client ID is from the same Google project.
 - `PLAY_SERVICES_NOT_AVAILABLE`: Update Google Play Services on the device.
 - `SIGN_IN_CANCELLED`: User closed the sheet.
 - No email returned: Ensure you used the Web Client ID, not iOS client or an unrelated project.

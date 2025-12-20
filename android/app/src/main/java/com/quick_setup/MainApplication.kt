@@ -1,4 +1,4 @@
-package com.app.latest
+package com.algyas.agispares
 
 import android.app.Application
 import com.facebook.react.PackageList

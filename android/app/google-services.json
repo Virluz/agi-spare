@@ -1,42 +1,49 @@
 {
   "project_info": {
-    "project_number": "37119502853",
-    "project_id": "style-union-35de2",
-    "storage_bucket": "style-union-35de2.firebasestorage.app"
+    "project_number": "793612694158",
+    "project_id": "agi-spares",
+    "storage_bucket": "agi-spares.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:37119502853:android:c706dd256cb1c2cab48a6c",
+        "mobilesdk_app_id": "1:793612694158:android:b94818e58d7c939638cfdf",
         "android_client_info": {
-          "package_name": "com.app.latest"
+          "package_name": "com.algyas.agispares"
         }
       },
       "oauth_client": [
         {
-          "client_id": "37119502853-04tk07g4b0ooavgfhsfkvud76t2dgiev.apps.googleusercontent.com",
+          "client_id": "793612694158-p95qbb265hna5vqa9489qlg0tlel29ts.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.app.latest",
+            "package_name": "com.algyas.agispares",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {
-          "client_id": "37119502853-a1sgb9osdnac1jve61d9mcjgk3tjec93.apps.googleusercontent.com",
+          "client_id": "793612694158-ds5n3o1ajl36op7k22ss5essebs728jg.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBPJ0hmIT67mKPYjBMS7m9zjL_UC_xUb94"
+          "current_key": "AIzaSyBnMnuHmlOfKRhw9Eyyyv80Axj2D4xS0Uc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "37119502853-a1sgb9osdnac1jve61d9mcjgk3tjec93.apps.googleusercontent.com",
+              "client_id": "793612694158-ds5n3o1ajl36op7k22ss5essebs728jg.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "793612694158-j7h9kufn2u7gme9j0stjgkjo9lm2vrnb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.algyas.agispares"
+              }
             }
           ]
         }

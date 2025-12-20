@@ -1,4 +1,4 @@
-package com.app.latest
+package com.algyas.agispares
 
 
 import com.facebook.react.ReactPackage

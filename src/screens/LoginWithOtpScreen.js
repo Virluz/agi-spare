@@ -63,33 +63,33 @@ const LoginWithOtpScreen = ({
     }, []);
 
     // Configure Google Sign-In SDK once (requires GOOGLE_WEB_CLIENT_ID from .env)
-    // useEffect(() => {
-    //     try {
-    //         const webClientId = '692399450274-ona7hbpn91cv6bpfeb04aa7u7mekqee6.apps.googleusercontent.com';
-    //         console.log('🔵 Google Web Client ID:', webClientId ? '✅ Loaded' : '❌ Missing');
+    useEffect(() => {
+        try {
+            const webClientId = '793612694158-ds5n3o1ajl36op7k22ss5essebs728jg.apps.googleusercontent.com';
+            console.log('🔵 Google Web Client ID:', webClientId ? '✅ Loaded' : '❌ Missing');
 
-    //         if (webClientId) {
-    //             GoogleSignin.configure({
-    //                 offlineAccess: false,
-    //                 webClientId,
-    //             });
-    //             console.log('✅ GoogleSignin configured successfully');
-    //         } else {
-    //             // Configure without webClientId to avoid invalid config; we'll block sign-in later
-    //             GoogleSignin.configure({ offlineAccess: false });
-    //             console.warn('⚠️ GOOGLE_WEB_CLIENT_ID is missing. Set it in .env to enable Google Sign-In.');
-    //         }
+            // if (webClientId) {
+            GoogleSignin.configure({
+                offlineAccess: false,
+                webClientId,
+            });
+            console.log('✅ GoogleSignin configured successfully');
+            // } else {
+            //     // Configure without webClientId to avoid invalid config; we'll block sign-in later
+            //     GoogleSignin.configure({ offlineAccess: false });
+            //     console.warn('⚠️ GOOGLE_WEB_CLIENT_ID is missing. Set it in .env to enable Google Sign-In.');
+            // }
 
-    //         // Configure Facebook SDK if env is available
-    //         try {
-    //             if (FACEBOOK_APP_ID) Settings.setAppID(FACEBOOK_APP_ID);
-    //             if (FACEBOOK_CLIENT_TOKEN) Settings.setClientToken(FACEBOOK_CLIENT_TOKEN);
-    //             Settings.initializeSDK();
-    //         } catch (_) { }
-    //     } catch (error) {
-    //         console.error('Google Sign-In configuration error:', error);
-    //     }
-    // }, []);
+            // Configure Facebook SDK if env is available
+            // try {
+            //     if (FACEBOOK_APP_ID) Settings.setAppID(FACEBOOK_APP_ID);
+            //     if (FACEBOOK_CLIENT_TOKEN) Settings.setClientToken(FACEBOOK_CLIENT_TOKEN);
+            //     Settings.initializeSDK();
+            // } catch (_) { }
+        } catch (error) {
+            console.error('Google Sign-In configuration error:', error);
+        }
+    }, []);
 
     // Optional: clear success when user edits phone
     useEffect(() => {
@@ -221,11 +221,11 @@ const LoginWithOtpScreen = ({
     // Google login handler – retrieves email from SDK
     const handleGoogleLogin = async () => {
         try {
-            if (!GOOGLE_WEB_CLIENT_ID) {
-                showErrorMsg('Google Sign-In not configured: GOOGLE_WEB_CLIENT_ID missing');
-                console.error('GOOGLE_WEB_CLIENT_ID is not set');
-                return;
-            }
+            // if (!GOOGLE_WEB_CLIENT_ID) {
+            //     showErrorMsg('Google Sign-In not configured: GOOGLE_WEB_CLIENT_ID missing');
+            //     console.error('GOOGLE_WEB_CLIENT_ID is not set');
+            //     return;
+            // }
 
             if (Platform.OS === 'android') {
                 const hasPlay = await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -565,7 +565,7 @@ const LoginWithOtpScreen = ({
                         />
                     )}
 
-                    {/* <View style={{ alignItems: 'center' }}>
+                    <View style={{ alignItems: 'center' }}>
 
 
                         <Text style={styles.text_14_reg_mainTextColor2}>or log in with</Text>
@@ -595,7 +595,7 @@ const LoginWithOtpScreen = ({
                             }
                         </View>
 
-                        {showSkip && (
+                        {/* {showSkip && (
                             <TouchableOpacity style={localStyles.skipBtn}
                                 onPress={() => {
                                     navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
@@ -604,8 +604,8 @@ const LoginWithOtpScreen = ({
                             >
                                 <Text style={localStyles.skipText}>Skip</Text>
                             </TouchableOpacity>
-                        )}
-                    </View> */}
+                        )} */}
+                    </View>
 
                 </View>
             </ScrollView >

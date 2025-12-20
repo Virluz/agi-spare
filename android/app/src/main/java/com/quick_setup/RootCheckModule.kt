@@ -1,4 +1,4 @@
-package com.app.latest
+package com.algyas.agispares
 
 import android.app.Activity
 import android.view.WindowManager
@@ -10,7 +10,7 @@ import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import com.app.latest.BuildConfig;
+import com.algyas.agispares.BuildConfig;
 
 class RootCheckModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 

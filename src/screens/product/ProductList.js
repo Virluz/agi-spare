@@ -579,6 +579,33 @@ const ProductList = () => {
 
                                     }}
                                 >
+                                    {/* All button */}
+                                    <TouchableOpacity
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            paddingHorizontal: 8,
+                                            paddingVertical: 6,
+                                            backgroundColor: !handle ? '#F2994A' : '#1D1A44',
+                                            borderRadius: 20,
+                                            gap: 6,
+                                        }}
+                                        onPress={() => {
+                                            navigation.navigate('ProductList', {
+                                                handle: null,
+                                                title: 'All Products',
+                                            });
+                                        }}
+                                    >
+                                        <Text style={[
+                                            styles.text_12_reg_mainTextColor2,
+                                            { color: !handle ? '#1D1A44' : '#fff' }
+                                        ]}>
+                                            All
+                                        </Text>
+                                    </TouchableOpacity>
+
                                     {collections
                                         .slice()
                                         .sort((a, b) => {
@@ -610,8 +637,8 @@ const ProductList = () => {
                                                     }}
                                                 >
                                                     <Text style={[
-                                                        styles.text_14_semi_mainTextColor2,
-                                                        { color: '#fff' }
+                                                        styles.text_12_reg_mainTextColor2,
+                                                        { color: isCurrentCollection ? '#1D1A44' : '#fff' }
                                                     ]}>
                                                         {collection.title}
                                                     </Text>

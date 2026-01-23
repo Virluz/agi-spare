@@ -36,7 +36,7 @@ const { width: DEVICE_WIDTH } = Dimensions.get('window');
 const IMAGE_HEIGHT = heightPixel(380);
 
 const ProductDetails = () => {
-    const { colorScheme } = useSelector((state) => state.app);
+    const { colorScheme, isLoggedInGlobal } = useSelector((state) => state.app);
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
     const navigation = useNavigation();
@@ -64,53 +64,6 @@ const ProductDetails = () => {
     const [selectedStore, setSelectedStore] = useState(null);
     const storeSheetRef = useRef();
 
-    const checkPincodeAvailability = async () => {
-        if (pincode.length >= 6) {
-            const request = {
-                "location": pincode,
-                "deliveryMode": [
-                    "standard"
-                ],
-                "storePickup": "YES",
-                "items": [
-                    {
-                        "eoisSkuId": null,
-                        "skuId": selectedVariant.id.split("/").pop(),
-                        "quantity": quantity
-                    }
-                ]
-            }
-
-
-            console.log("checkServiceability request", request);
-
-
-
-            const response = await checkServiceability(
-                request
-            );
-            console.log("checkServiceability response", request, response);
-            const availableStore = response?.NearByStores?.[selectedVariant.id.split("/").pop()];
-
-            if (availableStore?.length > 0) {
-                setAvailableStores(availableStore)
-            }
-
-            if (response.items[0].deliverymodes.length > 0) {
-                setPincodeChecked(true);
-
-            } else {
-                setPincodeChecked(false);
-
-            }
-            // In a real app, you would make an API call to check pincode availability
-            // For now, we'll just simulate a successful check
-
-        } else {
-            showErrorMsg('Please enter a valid pincode');
-            setPincodeChecked(false);
-        }
-    };
 
     const [colorVariants, setColorVariants] = useState([]);
 
@@ -527,15 +480,17 @@ const ProductDetails = () => {
 
                         <Text style={styles.text_16_semi_mainTextColor2}>{product?.title}</Text>
 
-                        <Text style={styles.text_24_semi_mainTextColor2}>
-                            ₹{selectedVariant?.price?.amount}
-                            {selectedVariant?.compareAtPrice?.amount && (
-                                <Text style={localStyles.originalPrice}>
-                                    {' '}
-                                    ₹{selectedVariant.compareAtPrice.amount}
-                                </Text>
-                            )}
-                        </Text>
+                        {isLoggedInGlobal && (
+                            <Text style={styles.text_24_semi_mainTextColor2}>
+                                ₹{selectedVariant?.price?.amount}
+                                {selectedVariant?.compareAtPrice?.amount && (
+                                    <Text style={localStyles.originalPrice}>
+                                        {' '}
+                                        ₹{selectedVariant.compareAtPrice.amount}
+                                    </Text>
+                                )}
+                            </Text>
+                        )}
 
                         {_getVerticalPadding(12)}
 
@@ -635,39 +590,6 @@ const ProductDetails = () => {
 
 
 
-                        {/* Pincode Check */}
-                        <View style={localStyles.pincodeContainer}>
-                            <Text style={styles.text_14_reg_mainTextColor2}>Check Pin code for delivery</Text>
-                            <View style={localStyles.pincodeInputContainer}>
-                                <TextInput
-                                    style={[localStyles.pincodeInput, styles.text_14_reg_mainTextColor2]}
-                                    placeholder="831004"
-                                    keyboardType="numeric"
-                                    value={pincode}
-                                    onChangeText={(text) => {
-                                        setPincodeChecked(null);
-                                        setPincode(text)
-                                    }}
-                                    maxLength={6}
-                                />
-                                <TouchableOpacity style={localStyles.checkButton} onPress={checkPincodeAvailability}>
-                                    <Text style={styles.text_14_reg_mainTextColor3}>CHECK</Text>
-                                </TouchableOpacity>
-                            </View>
-                            {pincodeChecked === true ? (
-                                <View style={localStyles.pincodeResult}>
-                                    <Text style={localStyles.pincodeAvailable}>
-                                        <Text style={{ fontWeight: 'bold' }}>ⓘ</Text> Delivery available on this pincode
-                                    </Text>
-                                </View>
-                            ) : pincodeChecked === false ? (
-                                <View style={localStyles.pincodeResult}>
-                                    <Text style={[localStyles.pincodeAvailable, { color: 'red' }]}>
-                                        <Text style={{ fontWeight: 'bold' }}>ⓘ</Text> Delivery not available on this pincode
-                                    </Text>
-                                </View>
-                            ) : null}
-                        </View>
 
                         {/* Buy Online Pick-In Store */}
                         {
@@ -745,74 +667,41 @@ const ProductDetails = () => {
                         </View> */}
 
                         {/* Quantity Selector */}
-                        <View style={localStyles.quantityContainer}>
-                            <Text style={styles.text_14_semi_mainTextColor2}>Select Quantity</Text>
-                            <View style={localStyles.quantityControls}>
-                                <TouchableOpacity
-                                    style={localStyles.quantityButton}
-                                    onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                                    disabled={quantity <= 1}
-                                >
-                                    <Minus size={14} />
-                                    {/* <Text style={localStyles.quantityText}>-</Text> */}
-                                </TouchableOpacity>
-                                <Text style={styles.text_16_semi_mainTextColor2}>{quantity}</Text>
-                                <TouchableOpacity
-                                    style={localStyles.quantityButton}
-                                    onPress={() => setQuantity(Math.min(availableQty || 1, quantity + 1))}
-                                    disabled={quantity >= availableQty}
-                                >
-                                    <Plus size={14} color={quantity >= availableQty ? '#d5d5d5' : '#000'} />
 
-                                </TouchableOpacity>
+                        {isLoggedInGlobal &&
+                            <View style={localStyles.quantityContainer}>
+                                <Text style={styles.text_14_semi_mainTextColor2}>Select Quantity</Text>
+                                <View style={localStyles.quantityControls}>
+                                    <TouchableOpacity
+                                        style={localStyles.quantityButton}
+                                        onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                                        disabled={quantity <= 1}
+                                    >
+                                        <Minus size={14} />
+                                        {/* <Text style={localStyles.quantityText}>-</Text> */}
+                                    </TouchableOpacity>
+                                    <Text style={styles.text_16_semi_mainTextColor2}>{quantity}</Text>
+                                    <TouchableOpacity
+                                        style={localStyles.quantityButton}
+                                        onPress={() => setQuantity(Math.min(availableQty || 1, quantity + 1))}
+                                        disabled={quantity >= availableQty}
+                                    >
+                                        <Plus size={14} color={quantity >= availableQty ? '#d5d5d5' : '#000'} />
+
+                                    </TouchableOpacity>
+                                </View>
+                                {outOfStock ? (
+                                    <Text style={[styles.text_12_reg_mainTextColor2, { color: '#C1272D', marginTop: 6 }]}>Out of stock</Text>
+                                ) : (
+                                    availableQty > 0 && availableQty < 5 && (
+                                        <Text style={[styles.text_12_reg_mainTextColor2, { color: '#8a8a8a', marginTop: 6 }]}>Only {availableQty} left</Text>
+                                    )
+                                )}
                             </View>
-                            {outOfStock ? (
-                                <Text style={[styles.text_12_reg_mainTextColor2, { color: '#C1272D', marginTop: 6 }]}>Out of stock</Text>
-                            ) : (
-                                availableQty > 0 && availableQty < 5 && (
-                                    <Text style={[styles.text_12_reg_mainTextColor2, { color: '#8a8a8a', marginTop: 6 }]}>Only {availableQty} left</Text>
-                                )
-                            )}
-                        </View>
+                        }
 
                         {_getVerticalPadding(16)}
-                        {/* Shipping Information */}
-                        <View style={localStyles.shippingInfoContainer}>
 
-                            {[{
-                                title: 'Free Shipping',
-                                desc: 'Free shipping on orders above ₹1,699',
-                                image: require('../../../assets/images/pdp/shipping.png')
-                            },
-                            {
-                                title: 'Easy Returns',
-                                desc: '100% refund guaranteed within 7 days',
-                                image: require('../../../assets/images/pdp/returns.png')
-                            },
-                            {
-                                title: 'Same Day Delivery',
-                                desc: 'Orders delivered within 24 hours',
-                                image: require('../../../assets/images/pdp/exchange.png')
-                            }].map((item, index) => {
-                                return (
-                                    <View style={localStyles.shippingCard} key={index}>
-                                        <FastImage
-                                            style={{ height: 30, width: 40 }}
-                                            resizeMode='contain'
-                                            source={item.image}
-                                        />
-
-                                        {_getVerticalPadding(8)}
-                                        {/* <Text style={localStyles.shippingIcon}>🚚</Text> */}
-                                        <Text style={[styles.text_12_semi_mainTextColor2, { textAlign: "center" }]}>{item.title}</Text>
-                                        <Text style={[styles.text_12_reg_mainTextColor2, { textAlign: "center" }]}>{item.desc}</Text>
-                                    </View>
-                                )
-                            })}
-
-
-
-                        </View>
 
                         {/* Description */}
                         <View style={localStyles.descriptionContainer}>
@@ -820,6 +709,7 @@ const ProductDetails = () => {
 
                             {/* Accordion for Details */}
                             <TouchableOpacity
+                                disabled
                                 style={localStyles.accordionHeader}
                                 onPress={() => setAccordionState({ ...accordionState, details: !accordionState.details })}
                             >
@@ -827,36 +717,18 @@ const ProductDetails = () => {
 
                                 {accordionState?.details ? <Minus size={14} /> : <Plus size={14} />}
                             </TouchableOpacity>
-                            {accordionState.details && (
-                                <View style={localStyles.accordionContent}>
-                                    <RenderHtml
-                                        contentWidth={'100%'}
-                                        tagsStyles={tagStyles}
-                                        source={{ html: product?.descriptionHtml }}
-                                    />
-                                </View>
-                            )}
 
-                            {/* Accordion for More Information */}
-                            <TouchableOpacity
-                                style={localStyles.accordionHeader}
-                                onPress={() => setAccordionState({ ...accordionState, moreInfo: !accordionState.moreInfo })}
-                            >
-                                <Text style={styles.text_12_semi_mainTextColor2}>More information</Text>
-                                {accordionState?.moreInfo ? <Minus size={14} /> : <Plus size={14} />}
-                            </TouchableOpacity>
-                            {accordionState.moreInfo && (
-                                <View style={localStyles.accordionContent}>
-                                    <RenderHtml
-                                        contentWidth={'100%'}
-                                        tagsStyles={tagStyles}
-                                        source={{ html: product?.metafields.find((item) => item.key === 'more_details')?.value }}
-                                    />
-                                </View>
-                            )}
+                            <View style={localStyles.accordionContent}>
+                                <RenderHtml
+                                    contentWidth={'100%'}
+                                    tagsStyles={tagStyles}
+                                    source={{ html: product?.descriptionHtml }}
+                                />
+                            </View>
+
 
                             {/* Accordion for Rating & Review */}
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 style={localStyles.accordionHeader}
                                 onPress={() => setAccordionState({ ...accordionState, reviews: !accordionState.reviews })}
                             >
@@ -869,45 +741,48 @@ const ProductDetails = () => {
                                         No reviews yet. Be the first to review this product.
                                     </Text>
                                 </View>
-                            )}
+                            )} */}
                         </View>
                     </View>
 
                 </ScrollView>
 
                 {/* Add to Cart Button */}
-                <View style={localStyles.footer}>
+                <View style={[localStyles.footer, { paddingHorizontal: widthPixel(16) }]}>
 
-                    <View style={{ flex: 1, }}>
+                    {isLoggedInGlobal ? (
+                        <>
+                            <View style={{ flex: 1, marginRight: widthPixel(8) }}>
+                                <SecondaryButton
+                                    title={'Buy Now'}
+                                    onPress={handleBuyNow}
+                                    disabled={buying || selectedVariant == null || outOfStock || qtyExceeds}
+                                />
+                            </View>
 
-
-                        <SecondaryButton
-                            title={'Buy Now'}
-                            onPress={handleBuyNow}
-                            disabled={buying || selectedVariant == null || outOfStock || qtyExceeds}
-                        />
-                    </View>
-
-                    <View style={{ flex: 1, }}>
-
-                        <PrimaryButton
-                            onPress={handleAddToCart}
-                            title={'Add to cart'}
-                            disabled={selectedVariant == null || outOfStock || qtyExceeds}
-                        />
-
-                    </View>
-                    {/* <TouchableOpacity
-                        style={[
-                            localStyles.addToCartButton,
-                            { backgroundColor: colorSet.primaryColor },
-                        ]}
-                        onPress={handleAddToCart}
-                        disabled={selectedVariant == null}
-                    >
-                        <ShoppingCart color={colorSet.white} size={20} />
-                        <Text style={localStyles.addToCartText}>Add to Cart</Text>
-                    </TouchableOpacity> */}
+                            <View style={{ flex: 1, marginLeft: widthPixel(8) }}>
+                                <PrimaryButton
+                                    onPress={handleAddToCart}
+                                    title={'Add to cart'}
+                                    disabled={selectedVariant == null || outOfStock || qtyExceeds}
+                                />
+                            </View>
+                        </>
+                    ) : (
+                        <View style={{ flex: 1 }}>
+                            <PrimaryButton
+                                title={'Know More'}
+                                color={colorSet?.primaryColor || '#3B82F6'}
+                                onPress={() => {
+                                    try {
+                                        navigation.navigate('Login');
+                                    } catch (e) {
+                                        try { navigation.navigate('Profile'); } catch { }
+                                    }
+                                }}
+                            />
+                        </View>
+                    )}
                 </View>
             </View>
             {/* Store selection Bottom Sheet */}

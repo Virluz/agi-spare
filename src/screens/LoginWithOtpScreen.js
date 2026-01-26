@@ -258,6 +258,7 @@ const LoginWithOtpScreen = ({
             }
 
             // Log Google login event
+            console.log("resonse ", res);
 
 
             await completeLoginFromResponse(res);

@@ -146,7 +146,13 @@ const CreateAccount = () => {
                 dispatch(setIsLoggedIn(true));
 
                 Alert.alert('Success', 'Account created successfully!', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
+                    {
+                        text: 'OK', onPress: () => {
+                            navigation.goBack();
+
+                            navigation.goBack();
+                        }
+                    }
                 ]);
             } else {
                 Alert.alert('Error', result.message || 'Failed to create account');

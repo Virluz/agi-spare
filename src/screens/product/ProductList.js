@@ -71,6 +71,7 @@ const ProductList = () => {
     const [availableFilters, setAvailableFilters] = useState([]);
     const [selectedColors, setSelectedColors] = useState([]);
     const [priceRange, setPriceRange] = useState([0, 100000]);
+    const [showAllCollections, setShowAllCollections] = useState(false);
 
     const translateKeys = {
         notification: t('Notifications'),
@@ -517,7 +518,7 @@ const ProductList = () => {
             </View> */}
 
 
-            < View style={{
+            <View style={{
                 flex: 1,
                 // paddingBottom: heightPixel(100),
                 backgroundColor: colorSet.mainThemeBackgroundColor,
@@ -570,8 +571,6 @@ const ProductList = () => {
                                 </View>
 
 
-
-
                                 <View
 
                                     style={{
@@ -607,14 +606,15 @@ const ProductList = () => {
                                     </TouchableOpacity>
 
                                     {collections
-                                        .slice()
-                                        .sort((a, b) => {
+                                        ?.slice()
+                                        ?.sort((a, b) => {
                                             // Sort so current collection appears first
                                             if (a.handle === handle) return -1;
                                             if (b.handle === handle) return 1;
                                             return 0;
                                         })
-                                        .map((collection, index) => {
+                                        ?.slice(0, showAllCollections ? undefined : 2)
+                                        ?.map((collection, index) => {
                                             const isCurrentCollection = collection.handle === handle;
                                             return (
                                                 <TouchableOpacity
@@ -647,6 +647,30 @@ const ProductList = () => {
                                             );
                                         })
                                     }
+                                    {collections.length > 2 && (
+                                        <TouchableOpacity
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                paddingHorizontal: 8,
+                                                paddingVertical: 6,
+                                                // backgroundColor: '#1D1A44',
+                                                borderRadius: 20,
+                                                gap: 6,
+                                                borderWidth: 1,
+                                                borderColor: '#1D1A44'
+                                            }}
+                                            onPress={() => setShowAllCollections(!showAllCollections)}
+                                        >
+                                            <Text style={[
+                                                styles.text_12_reg_mainTextColor2,
+                                                { color: '#1D1A44' }
+                                            ]}>
+                                                {showAllCollections ? 'Show Less' : 'Show More +'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
 
 

@@ -495,7 +495,7 @@ const ProductDetails = () => {
                         {_getVerticalPadding(12)}
 
                         {/* Variant Selections */}
-                        {product?.options?.map((option) => {
+                        {[].map((option) => {
 
                             return (
                                 <View key={option.name} style={localStyles.variantContainer}>

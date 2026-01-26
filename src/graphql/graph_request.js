@@ -336,7 +336,8 @@ export const setCustomerDefaultAddress = async (customerAccessToken, addressId) 
 
 // DO NOT call this from the client app. Route via a secure server using Admin API.
 export const setCustomerMetafieldsAdmin = async (ownerId, metafields) => {
-    return await shopifyClient.request(CUSTOMER_METAFIELDS_SET, { ownerId, metafields });
+    const metafieldsWithOwner = metafields.map(field => ({ ...field, ownerId }));
+    return await shopifyClient.request(CUSTOMER_METAFIELDS_SET, { metafields: metafieldsWithOwner });
 }
 
 // Convenience helper: update facts.gender (single_line_text_field) and facts.birth_date (date)

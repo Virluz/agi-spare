@@ -95,7 +95,7 @@ const CommonInput = props => {
           placeholder={placeholder}
           onFocus={() => setOnFocus(true)}
           onBlur={() => setOnFocus(false)}
-          placeholderTextColor={AppStyles.colorSet[colorScheme].mainSubtextColor}
+          placeholderTextColor={AppStyles.colorSet[colorScheme].dark7}
           value={field.value}
           keyboardType={keyboardType}
           {...inputProps}

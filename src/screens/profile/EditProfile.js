@@ -149,7 +149,7 @@ const EditProfile = () => {
 
                 if (gMeta) setValue('gender', gMeta);
                 if (companyMeta) setValue('company_name', companyMeta);
-                if (gstMeta) setValue('gstNo', gstMeta);
+                if (gstMeta) setValue('gst_number', gstMeta);
                 if (usernameMeta) setValue('username', usernameMeta);
                 if (areaMeta) setValue('areaName', areaMeta);
                 if (pinCodeMeta) setValue('zip', pinCodeMeta);
@@ -306,7 +306,7 @@ const EditProfile = () => {
                 gender: data.gender || '',
                 dob: data.dob || '',
                 company_name: data.company_name || '',
-                gstNo: data.gstNo || '',
+                gst_number: data.gst_number || '',
                 username: data.username || '',
                 areaName: data.areaName || ''
             };
@@ -331,7 +331,7 @@ const EditProfile = () => {
                 else metas.push({ namespace: 'facts', key: 'birth_date', value: String(data.dob), type: 'single_line_text_field' });
             }
             if (data.company_name) metas.push({ namespace: 'custom', key: 'company_name', value: String(data.company_name), type: 'single_line_text_field' });
-            if (data.gstNo) metas.push({ namespace: 'custom', key: 'gst_number', value: String(data.gstNo), type: 'single_line_text_field' });
+            if (data.gst_number) metas.push({ namespace: 'custom', key: 'gst_number', value: String(data.gst_number), type: 'single_line_text_field' });
             if (data.username) metas.push({ namespace: 'custom', key: 'username', value: String(data.username), type: 'single_line_text_field' });
             if (data.areaName) metas.push({ namespace: 'custom', key: 'area_name', value: String(data.areaName), type: 'single_line_text_field' });
             if (data.zip) metas.push({ namespace: 'custom', key: 'pin-code', value: String(data.zip), type: 'single_line_text_field' });
@@ -490,7 +490,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="firstName"
-                            placeholder="Mukesh"
+                            placeholder="enter first name"
                             label="First Name"
                             control={control}
                             errors={errors}
@@ -502,7 +502,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="lastName"
-                            placeholder="Kumar"
+                            placeholder="Enter last name"
                             label="Last Name"
                             control={control}
                             errors={errors}
@@ -559,7 +559,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="email"
-                            placeholder="starkashok100@gmail.com"
+                            placeholder="Enter email"
                             label="Email"
                             rightIcon={<Edit size={widthPixel(20)} color={colorSet.dark3} />}
                             control={control}
@@ -572,7 +572,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="phone"
-                            placeholder="+91 8092543066"
+                            placeholder="Enter phone number"
                             label="Phone Number"
                             rightIcon={<Edit size={widthPixel(20)} color={colorSet.dark3} />}
 
@@ -591,7 +591,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="company_name"
-                            placeholder="Company Name"
+                            placeholder="Enter company name"
                             label="Company Name"
                             control={control}
                             errors={errors}
@@ -601,11 +601,12 @@ const EditProfile = () => {
 
                     <View style={localStyles.inputContainer}>
                         <CommonInput
-                            name="gstNo"
-                            placeholder="GST No"
+                            name="gst_number"
+                            placeholder="Enter gst no"
                             label="GST No"
                             control={control}
                             errors={errors}
+                            errorMessage="Invalid GST number format"
                             rules={{
                                 required: false,
                                 pattern: {
@@ -619,7 +620,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="username"
-                            placeholder="Username"
+                            placeholder="Enter username"
                             label="Username"
                             control={control}
                             errors={errors}
@@ -637,7 +638,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="address1"
-                            placeholder="Address line 1"
+                            placeholder="Enter address line 1"
                             label="Address 1"
                             rightIcon={<MapPin size={widthPixel(20)} color={colorSet.dark3} />}
                             control={control}
@@ -649,7 +650,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="address2"
-                            placeholder="Apartment, suite, etc. (optional)"
+                            placeholder="Enter address line 2"
                             label="Address 2"
                             control={control}
                             errors={errors}
@@ -660,7 +661,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="city"
-                            placeholder="City"
+                            placeholder="Enter city"
                             label="City"
                             control={control}
                             errors={errors}
@@ -693,7 +694,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="zip"
-                            placeholder="Postal/ZIP code"
+                            placeholder="Enter postal code"
                             label="ZIP/Postal Code"
                             control={control}
                             errors={errors}
@@ -712,7 +713,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="areaName"
-                            placeholder="Area Name"
+                            placeholder="Enter area name"
                             label="Area Name"
                             control={control}
                             errors={errors}
@@ -722,7 +723,7 @@ const EditProfile = () => {
                     <View style={localStyles.inputContainer}>
                         <CommonInput
                             name="country"
-                            placeholder="India"
+                            placeholder="Enter country"
                             label="Country"
                             control={control}
                             errors={errors}

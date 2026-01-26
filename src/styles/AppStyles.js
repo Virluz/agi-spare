@@ -70,7 +70,7 @@ const lightColorSet = {
   dark5: '#292d32',
   dark6: '#565656',
 
-  dark7: '#E8E8E8',
+  dark7: '#c4c1c1ff',
   dark8: '#BBBBBB',
 
   white: '#FFFFFF',

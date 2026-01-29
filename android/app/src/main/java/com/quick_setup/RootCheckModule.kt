@@ -3,7 +3,6 @@ package com.algyas.agispares
 import android.app.Activity
 import android.view.WindowManager
 import com.facebook.react.bridge.*
-import com.scottyab.rootbeer.RootBeer
 import com.facebook.react.bridge.*
 import android.util.Base64
 import javax.crypto.Cipher
@@ -24,11 +23,7 @@ class RootCheckModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         return "DeviceShield" 
     }
 
-    @ReactMethod
-    fun isRooted(promise: Promise) {
-        val rootBeer = RootBeer(reactApplicationContext)
-        promise.resolve(rootBeer.isRooted)
-    }
+   
 
   @ReactMethod
     fun encrypt(plainText: String, promise: Promise) {

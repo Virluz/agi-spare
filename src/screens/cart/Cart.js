@@ -14,7 +14,6 @@ import Toolbar from "../../components/ui/Toolbar";
 import { useNavigation } from "@react-navigation/native";
 import { PrimaryButton } from "../../components/ui/PrimaryButton";
 import { heightPixel, widthPixel } from "../../utils/fonts";
-import RazorpayCheckout from 'react-native-razorpay';
 import AppStyles from "../../styles/AppStyles";
 import { createCheckoutShopify, updateCartBuyerIdentity, getValidCustomerToken, getCartDeliveryOptions, getProductsByIds, setCartDeliveryOption } from "../../graphql/graph_request";
 import { checkServiceability } from "../../api/requests";
@@ -731,15 +730,7 @@ const Cart = () => {
                             }
                             console.log("options", options);
 
-                            RazorpayCheckout?.open(options).then((data) => {
-                                // handle success
-                                console.log("data", data);
 
-                            }).catch((error) => {
-                                // handle failure
-                                console.log("error", error);
-
-                            });
                             console.log("options", options);
 
                         } catch (error) {

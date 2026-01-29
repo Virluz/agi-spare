@@ -12,7 +12,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-import com.razorpay.rn.RazorpayPackage;
 
 class MainApplication : Application(), ReactApplication {
   lateinit var reactInstanceManager: ReactInstanceManager
@@ -24,7 +23,6 @@ class MainApplication : Application(), ReactApplication {
                       add(RootCheckPackage())
                       add(LocationPackage())
                       add(NotificationPackage())
-                      add(RazorpayPackage())
                     }
 
             override fun getJSMainModuleName(): String = "index"

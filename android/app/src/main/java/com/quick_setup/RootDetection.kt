@@ -2,17 +2,13 @@ package com.algyas.agispares
 
 import android.content.Context
 import android.os.Build
-import com.scottyab.rootbeer.RootBeer
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
 object RootDetection {
 
-    fun isRooted(cont: Context): Boolean {
-        val rootBeer = RootBeer(cont)
-        return rootBeer.isRooted || isDeviceRooted()
-    }
+    
 
     private fun isDeviceRooted(): Boolean {
         return checkRootMethod1() ||

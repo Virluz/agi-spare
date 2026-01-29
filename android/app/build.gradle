@@ -87,8 +87,8 @@ android {
         applicationId "com.algyas.agispares"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 34
-        versionName "2.1"
+        versionCode 18
+        versionName "16.0.18"
         renderscriptTargetApi 33
         renderscriptSupportModeEnabled true
         manifestPlaceholders = [
@@ -103,6 +103,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('agispare.keystore')
+            storePassword 'AgiSpare@123'
+            keyAlias 'AgiSpare'
+            keyPassword 'AgiSpare@123'
+        }
         
     }
     buildTypes {
@@ -114,7 +120,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
               buildConfigField "String", "SECRET_KEY", apikeyProperties['CSK']
             buildConfigField "String", "IV_SALT", apikeyProperties['CIV']
@@ -135,9 +141,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'com.scottyab:rootbeer-lib:0.0.8'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
-    implementation project(':react-native-razorpay')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

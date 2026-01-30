@@ -43,7 +43,7 @@ export const ForceUpdateConfig = {
      * Android package name
      * Must match the package name in build.gradle
      */
-    ANDROID_PACKAGE_NAME: 'in.stunion',
+    ANDROID_PACKAGE_NAME: 'com.algyas.agispares',
 
     /**
      * Update modal customization

@@ -35,15 +35,28 @@ class AppVersionCheckService {
      */
     async getLatestVersion() {
         try {
+            // Get package/bundle identifier
+            const bundleId = DeviceInfo.getBundleId();
+
             const latestVersion = await VersionCheck.getLatestVersion({
                 provider: Platform.OS === 'ios' ? 'appStore' : 'playStore',
+                packageName: bundleId, // Works for both platforms
+                ignoreErrors: true,
             });
 
-            const storeUrl = await VersionCheck.getStoreUrl({
-                appID: Platform.OS === 'ios'
-                    ? await VersionCheck.getAppID()
-                    : 'in.stunion', // Your Android package name
-            });
+            // Generate store URL
+            let storeUrl;
+            if (Platform.OS === 'ios') {
+                // For iOS, use the App Store URL format
+                // You can also use: `https://apps.apple.com/app/id${APP_STORE_ID}`
+                storeUrl = await VersionCheck.getStoreUrl({
+                    appID: bundleId,
+                    appName: DeviceInfo.getApplicationName(),
+                });
+            } else {
+                // For Android, use Play Store URL
+                storeUrl = `https://play.google.com/store/apps/details?id=${bundleId}`;
+            }
 
             return {
                 version: latestVersion,

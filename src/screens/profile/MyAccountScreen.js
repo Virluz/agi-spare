@@ -107,10 +107,10 @@ const MyAccountScreen = () => {
 
   // Contact actions
   const SUPPORT_PHONE = '+919429692121';
-  const SUPPORT_EMAIL = 'sharewithus@styleunion.in';
-  const LEGAL_EMAIL = 'compliance@nexonomniverse.com';
-  const FRANCHISE_URL = 'https://styleunion.in/pages/franchise-enquiry'; // Assumed URL
-  const BUSINESS_PARTNER_URL = 'https://styleunion.in/pages/business-partner-form'; // Assumed URL
+  const SUPPORT_EMAIL = 'sharewith.in';
+  const LEGAL_EMAIL = 'compliarse.com';
+  const FRANCHISE_URL = 'hise-enquiry'; // Assumed URL
+  const BUSINESS_PARTNER_URL = 'usiness-partner-form'; // Assumed URL
 
   const openDialer = async (phone) => {
     const url = `tel:${phone}`;
@@ -141,10 +141,6 @@ const MyAccountScreen = () => {
     { icon: require('../../../assets/images/account/rewards.png'), name: 'My Rewards', requiresAuth: true },
     { icon: require('../../../assets/images/account/wallet.png'), name: 'My Wallets', requiresAuth: true },
     { icon: require('../../../assets/images/account/share.png'), name: 'Share App', requiresAuth: false },
-    { icon: require('../../../assets/images/account/about.png'), name: 'About Us', navigateTo: 'WebViewScreen', requiresAuth: false, url: 'https://styleunion.in/pages/about-us', title: 'About Us' },
-    { icon: require('../../../assets/images/account/support.png'), name: 'Contact Support', requiresAuth: false, openSheet: true },
-    { icon: require('../../../assets/images/account/policies.png'), name: 'Policies', requiresAuth: false, url: 'https://styleunion.in/pages/privacy-policy', title: 'Policies', navigateTo: 'WebViewScreen' },
-    { icon: require('../../../assets/images/account/trial.png'), name: 'Book & Trial', navigateTo: 'BookAndTrail', requiresAuth: true },
   ];
 
   if (isLoading) {

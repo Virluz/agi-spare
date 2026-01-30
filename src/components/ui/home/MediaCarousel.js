@@ -16,52 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import { _getVerticalPadding } from '../../../utils/Helper';
 
 const videos = [
-    // {
-    //     id: '1',
-    //     type: 'video',
-    //     source: { uri: 'https://styleunion.in/cdn/shop/videos/c/vp/2c31a1fa2e6e4259ad50596e7c5edf89/2c31a1fa2e6e4259ad50596e7c5edf89.HD-1080p-7.2Mbps-54793300.mp4?v=0' },
-    //     handle: 'air-dry-collection',
-    //     title: 'AirDry- shirt',
-    //     desc: 'fit for office and casual wear',
-    //     buttonText: 'shop Now'
-    // },
-    // {
-    //     id: '2',
-    //     type: 'video',
-    //     source: { uri: 'https://styleunion.in/cdn/shop/videos/c/vp/d0bc58b449ae4c5b8f011130728ccc90/d0bc58b449ae4c5b8f011130728ccc90.HD-1080p-7.2Mbps-54745692.mp4?v=0' },
-    //     handle: 'air-dry-collection',
-    //     title: 'AirDry- shirt',
-    //     desc: 'fit for office and casual wear',
-    //     buttonText: 'shop Now'
-    // },
-    {
-        id: '3',
-        type: 'video',
-        source: { uri: 'https://styleunion.in/cdn/shop/videos/c/vp/20625532078a49de850525934a61c80f/20625532078a49de850525934a61c80f.HD-1080p-7.2Mbps-54745796.mp4?v=0' },
-        handle: 'summer-collection',
-        title: 'Summer Collection',
-        desc: 'fit for office and casual wear',
-        buttonText: 'shop Now'
 
-    },
-    {
-        id: '4',
-        type: 'video',
-        source: { uri: 'https://styleunion.in/cdn/shop/videos/c/vp/824a4189bd854f628eac692eb6152df8/824a4189bd854f628eac692eb6152df8.HD-720p-4.5Mbps-54745782.mp4?v=0' },
-        handle: 'summer-collection',
-        title: 'Summer Collection',
-        desc: 'fit for office and casual wear',
-        buttonText: 'shop Now'
-    },
-    {
-        id: '5',
-        type: 'video',
-        source: { uri: 'https://styleunion.in/cdn/shop/videos/c/vp/ee8cbd1d4e874cd1b3b94e7782e457a1/ee8cbd1d4e874cd1b3b94e7782e457a1.HD-1080p-7.2Mbps-54745773.mp4?v=0' },
-        handle: 'party-wear-dress',
-        title: 'Party Wear Collection',
-        desc: 'fit for office and casual wear',
-        buttonText: 'shop Now'
-    },
+
 ];
 
 const height = Dimensions.get('window').height - heightPixel(135)

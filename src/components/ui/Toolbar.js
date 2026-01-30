@@ -6,10 +6,10 @@ import Ripple from 'react-native-material-ripple';
 import AppStyles from '../../styles/AppStyles';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { DrawerActions } from '@react-navigation/native';
+
 import { PrimaryButton } from './PrimaryButton';
 import { _getHorizontalPadding, _getVerticalPadding, calculateBounds } from '../../utils/Helper';
-import { useDrawer } from '../../context/DrawerContext';
+
 import FastImage from '@d11/react-native-fast-image';
 import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 

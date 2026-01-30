@@ -4,7 +4,7 @@ import { generateTokenFromUsernamePassword } from "../utils/Helper";
 import eventBus from "../service/EventBus";
 
 const axiosInstanceLogin = axios.create({
-  baseURL: `https://${process.env.SHOPIFY_URL}.myshopify.com/apps/sml/client/`,
+  baseURL: `https://agispares.com/apps/sml/client/`,
 
 });
 
@@ -15,7 +15,7 @@ axiosInstanceLogin.interceptors.response.use(
     return res.data;
   },
   err => {
-    console.log("err", err);
+    console.log("err", JSON.stringify(err?.response?.data));
 
     if (err?.response?.status === 401) {
       console.log("err", err?.response);

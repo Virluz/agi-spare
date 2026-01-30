@@ -39,10 +39,10 @@ const CancellationConfirmedScreen = ({ }) => {
 
       }}
         onPress={() => {
-          //reset the navigation stack to HomeDrawer
+          //reset the navigation stack to HomeTabs
           navigation.reset({
             index: 0,
-            routes: [{ name: 'HomeDrawer' }],
+            routes: [{ name: 'HomeTabs' }],
           });
         }}
       >

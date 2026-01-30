@@ -7,7 +7,7 @@ import Constants from '../utils/Constants';
 import Loader from '../widgets/Loader';
 import { initializeI18n } from '../service/i18n.config';
 import { BottomTabs } from './BottomTabs';
-import DrawerNavigator from './DrawerNavigator';
+
 import { setAuthorizationHeader, setAxiosBaseUrl } from '../api/config';
 import eventBus from '../service/EventBus';
 import { _getVerticalPadding, _isEmpty, checkLocationPermission, fetchCurrentLocation, generateTokenFromUsernamePassword, getDeviceInfo, handleLogout, processPins, requestLocationPermission, sleep } from '../utils/Helper';

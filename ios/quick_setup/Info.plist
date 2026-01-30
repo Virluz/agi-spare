@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>agi spare</string>
+	<string>Agi Spare</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -43,6 +43,8 @@
 	<string>Your location is needed for checkin and safety</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is needed for map features.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Agi Spare needs access to your photo library to upload profile pictures and product images.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Metropolis-Bold.ttf</string>
@@ -76,6 +78,13 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>

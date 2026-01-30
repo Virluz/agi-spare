@@ -159,6 +159,7 @@ export default RootNavigator = () => {
 
 
   const handleRedirection = async (IncidentTrackingLogId) => {
+    return;
     try {
 
       await sleep(300);
@@ -241,7 +242,7 @@ export default RootNavigator = () => {
         </>
       </Root.Navigator>
 
-      {!_isEmpty(showNotification) &&
+      {/* {!_isEmpty(showNotification) &&
         <NotificationModel
           title={showNotification?.title}
           description={showNotification?.desc}
@@ -254,7 +255,7 @@ export default RootNavigator = () => {
 
           }}
         />
-      }
+      } */}
     </>
 
   );

@@ -376,22 +376,27 @@ const Cart = () => {
 
     if (!isLoggedInGlobal) {
         return (
-            <View style={styles.center}>
-
-                <PrimaryButton
-
-                    title={"Go To Login"}
-                    onPress={() => navigation.navigate('Login')}
-                />
-
-                <Text style={appStyles.text_18_bold_mainTextColor2}>
-
-                    Please log in to view your cart.
-
-                </Text>
+            <>
+                <Toolbar title={'My Cart'} />
 
 
-            </View>
+                <View style={styles.center}>
+
+                    <PrimaryButton
+
+                        title={"Go To Login"}
+                        onPress={() => navigation.navigate('Login')}
+                    />
+
+                    <Text style={appStyles.text_18_bold_mainTextColor2}>
+
+                        Please log in to view your cart.
+
+                    </Text>
+
+
+                </View>
+            </>
         )
     }
 

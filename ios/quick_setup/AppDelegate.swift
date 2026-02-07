@@ -75,6 +75,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // }
     
     FirebaseApp.configure()
+
+       // Set up push notification delegate
+    UNUserNotificationCenter.current().delegate = self
+    application.registerForRemoteNotifications()
     window?.makeKeyAndVisible()
     return true
   }
@@ -141,6 +145,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
       }
     #endif
   }
+
+  // MARK: - Push Notification Handling
+
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+  }
+
+  func application(_ application: UIApplication,
+                   didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("Failed to register for remote notifications: \(error)")
+  }
+
+  // MARK: - UNUserNotificationCenterDelegate
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              willPresent notification: UNNotification,
+                              withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    // Show notification banner even when app is in foreground
+    completionHandler([.banner, .sound, .badge])
+  }
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse,
+                              withCompletionHandler completionHandler: @escaping () -> Void) {
+    // Handle notification tap
+    completionHandler()
+  }
+
 
 }
 

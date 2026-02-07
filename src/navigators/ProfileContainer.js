@@ -8,6 +8,7 @@ import MyOrdersScreen from '../screens/profile/order/MyOrdersScreen';
 import OrderDetailsScreen from '../screens/profile/order/OrderDetailsScreen';
 import RequestCancellationScreen from '../screens/profile/order/cancel/RequestCancellationScreen';
 import CancellationConfirmedScreen from '../screens/profile/order/cancel/CancellationConfirmedScreen';
+import WebPage from '../screens/drawer/WebPage';
 
 const ProfileStack = createStackNavigator();
 
@@ -52,6 +53,11 @@ const ProfileContainer = () => {
             <ProfileStack.Screen
                 name="CancellationConfirmedScreen"
                 component={CancellationConfirmedScreen}
+            />
+
+            <ProfileStack.Screen
+                name="WebViewScreen"
+                component={WebPage}
             />
 
 

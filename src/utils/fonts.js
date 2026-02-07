@@ -1,8 +1,32 @@
 import { Dimensions, PixelRatio } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const widthScale = SCREEN_WIDTH / 375;
-const heightScale = SCREEN_HEIGHT / 812;
+
+// Tablet detection
+export const isTablet = DeviceInfo.isTablet();
+
+// Base scale calculations
+const baseWidthScale = SCREEN_WIDTH / 375;
+const baseHeightScale = SCREEN_HEIGHT / 812;
+
+// Cap scaling on tablets to prevent over-sized elements
+// This ensures fonts/spacing don't become too large on tablets
+const widthScale = isTablet ? Math.min(baseWidthScale, 1.2) : baseWidthScale;
+const heightScale = isTablet ? Math.min(baseHeightScale, 1.1) : baseHeightScale;
+
+/**
+ * Get dynamic number of columns for grids based on device type
+ * @param {number} mobileColumns - Number of columns for mobile (default: 2)
+ * @param {number} tabletColumns - Number of columns for tablet (default: mobileColumns + 1)
+ * @returns {number} Number of columns to display
+ */
+export const getNumColumns = (mobileColumns = 2, tabletColumns) => {
+  if (isTablet) {
+    return tabletColumns ?? mobileColumns + 1;
+  }
+  return mobileColumns;
+};
 
 const normalize = (size, based = 'height') => {
   const newSize = based === 'height' ? size * heightScale : size * widthScale;

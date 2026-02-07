@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateCartLine } from '../../redux/reducers/cartSlice';
 import { toggleWishlistItem } from '../../redux/reducers/wishlistSlice';
 import { useNavigation } from '@react-navigation/native';
-import { widthPixel } from '../../utils/fonts';
+import { widthPixel, getNumColumns } from '../../utils/fonts';
 import { Cross, CrossIcon, Heart, HeartIcon, ShoppingBag, ShoppingBasket, ShoppingCart, ShoppingCartIcon, X } from 'lucide-react-native';
 import FastImage from '@d11/react-native-fast-image';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
@@ -17,7 +17,7 @@ import { showErrorMsg, showSuccessMsg } from '../../widgets/FlashMessages';
 
 
 const ITEM_SPACING = widthPixel(16); // space between items
-const NUM_COLUMNS = 2;
+const NUM_COLUMNS = getNumColumns(2); // 2 on mobile, 3 on tablet
 const SIDE_MARGIN = widthPixel(16); // padding left/right
 const ITEM_WIDTH = (DEVICE_WIDTH - SIDE_MARGIN * 2 - ITEM_SPACING * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 

@@ -19,7 +19,6 @@ import AddAddress from '../screens/profile/address/AddAddress';
 import EditAddress from '../screens/profile/address/EditAddress';
 import WebPage from '../screens/drawer/WebPage';
 import LoginBottomSheet from '../components/ui/LoginBottomSheet';
-import LoginWithOtpScreen from '../screens/LoginWithOtpScreen';
 import LoginScreen from '../screens/profile/LoginScreen';
 
 const AccountStack = createStackNavigator();

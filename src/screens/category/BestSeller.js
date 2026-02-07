@@ -11,6 +11,9 @@ import { getCollectionByHandle } from '../../graphql/graph_request';
 import { useTranslation } from 'react-i18next';
 import { showErrorMsg } from '../../widgets/FlashMessages';
 import Constants from '../../utils/Constants';
+import { getNumColumns } from '../../utils/fonts';
+
+const NUM_COLUMNS = getNumColumns(2); // 2 on mobile, 3 on tablet
 
 const BestSeller = () => {
   const { colorScheme } = useSelector(state => state.app);
@@ -25,7 +28,7 @@ const BestSeller = () => {
     (async () => {
       setLoading(true);
       try {
-        const res = await getCollectionByHandle({ handle: 'best-seller', first: 4 });
+        const res = await getCollectionByHandle({ handle: 'best-seller', first: NUM_COLUMNS === 2 ? 4 : 6 });
         setItems(res?.collection?.products?.edges || []);
       } catch (e) {
         showErrorMsg(Constants.DEFAULT_ERROR);
@@ -52,7 +55,7 @@ const BestSeller = () => {
             />
           )}
           keyExtractor={(item, index) => item?.node?.id?.toString?.() || String(index)}
-          numColumns={2}
+          numColumns={NUM_COLUMNS}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: SIDE_MARGIN,

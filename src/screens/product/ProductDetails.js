@@ -764,6 +764,7 @@ const ProductDetails = () => {
                                 <PrimaryButton
                                     onPress={handleAddToCart}
                                     title={'Add to cart'}
+                                    fullWidth
                                     disabled={selectedVariant == null || outOfStock || qtyExceeds}
                                 />
                             </View>

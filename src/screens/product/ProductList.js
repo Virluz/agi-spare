@@ -5,7 +5,7 @@ import AppStyles from '../../styles/AppStyles';
 import { ArrowLeft, ArrowRight, ArrowRightIcon, ArrowRightLeft, ArrowUpDown, Bell, Check, CheckCheck, CheckSquare, CheckSquare2, ChevronRight, Filter, Lock, Menu, MenuIcon, MenuSquareIcon, MoveLeft, MoveRight, Search, SortAsc, SortAscIcon, X } from 'lucide-react-native';
 import Toolbar from '../../components/ui/Toolbar';
 import { useTranslation } from 'react-i18next';
-import { heightPixel, widthPixel } from '../../utils/fonts';
+import { getNumColumns, heightPixel, widthPixel } from '../../utils/fonts';
 import { getRecipientMessages, setNotificationStatus } from '../../api/requests';
 import Loader from '../../widgets/Loader';
 import { _getHorizontalPadding, _getVerticalPadding, checkBackgroundPermission, DEVICE_HEIGHT, DEVICE_WIDTH, formatRelative, getDeviceInfo, ITEM_SPACING, noDataView, SIDE_MARGIN, sleep } from '../../utils/Helper';
@@ -34,6 +34,9 @@ const sortOptions = [
     // { value: 'CREATED_AT', label: 'Newest First', reverse: true },
     // { value: 'PRODUCT_TYPE', label: 'Product Type', reverse: false },
 ];
+
+const NUM_COLUMNS = getNumColumns(2); // 2 on mobile, 3 on tablet
+
 
 const ProductList = () => {
     const route = useRoute();
@@ -613,7 +616,7 @@ const ProductList = () => {
                                             if (b.handle === handle) return 1;
                                             return 0;
                                         })
-                                        ?.slice(0, showAllCollections ? undefined : 2)
+                                        ?.slice(0, showAllCollections ? undefined : getNumColumns(2) === 2 ? 2 : 3)
                                         ?.map((collection, index) => {
                                             const isCurrentCollection = collection.handle === handle;
                                             return (
@@ -728,7 +731,7 @@ const ProductList = () => {
                                 showDetails={true}
                             />
                         )}
-                        numColumns={2}
+                        numColumns={NUM_COLUMNS}
                         keyExtractor={(item, index) => {
                             // item is either a product edge or a skeleton string during loading
                             if (typeof item === 'string') return `skeleton-${index}`;

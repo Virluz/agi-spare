@@ -188,11 +188,11 @@ const Profile = () => {
                             {/* Help & Support section */}
                             <Text style={[styles.text_16_bold_mainTextColor2, { marginTop: 20 }]}>Help & Support</Text>
                             <View style={s.card}>
-                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/contact', title: 'Contact Us' }) }} />
-                                <RowItem icon={<Shield size={18} color={colorSet.dark3} />} title="Disclaimer" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/disclaimer', title: 'Disclaimer' }) }} />
-                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/return', title: 'Return Policy' }) }} />
-                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/return', title: 'Return Policy' }) }} />
-                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/about', title: 'About Us' }) }} />
+                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/pages/contact', title: 'Contact Us' }) }} />
+                                <RowItem icon={<Shield size={18} color={colorSet.dark3} />} title="Disclaimer" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/disclaimer', title: 'Disclaimer' }) }} />
+                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/return-policy', title: 'Return Policy' }) }} />
+                                <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Privacy Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/privacy-policy', title: 'Privacy Policy' }) }} />
+                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/about-us', title: 'About Us' }) }} />
                             </View>
 
                             {/* Logout button */}

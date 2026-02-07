@@ -1268,7 +1268,7 @@ const getAllStyles = (schemeFromParent) => {
     // Custom Tab Bar Styles
     customTabBarContainer: {
       width: '100%',
-      height: 70,
+      height: heightPixel(70),
       flexDirection: 'row',
       backgroundColor: '#F6F6F6',
       borderTopRightRadius: widthPixel(25),

@@ -2,18 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>793612694158-j7h9kufn2u7gme9j0stjgkjo9lm2vrnb.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.793612694158-j7h9kufn2u7gme9j0stjgkjo9lm2vrnb</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>793612694158-p95qbb265hna5vqa9489qlg0tlel29ts.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA35zqzkVxwEYzlzohYCdpZykPNYDYZsbI</string>
+	<string>AIzaSyAMCzqI2zb2okY6zqdHgydQ7Iz7JPfvuLQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>859865700207</string>
+	<string>793612694158</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.agi.notifyapp</string>
+	<string>com.algyas.agispares</string>
 	<key>PROJECT_ID</key>
-	<string>style-notify-ios</string>
+	<string>agi-spares</string>
 	<key>STORAGE_BUCKET</key>
-	<string>style-notify-ios.firebasestorage.app</string>
+	<string>agi-spares.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:859865700207:ios:d864ffac478fc0b3c8fa9a</string>
+	<string>1:793612694158:ios:aedf78cd46c6697238cfdf</string>
 </dict>
 </plist>

@@ -6,7 +6,7 @@ import { fetchCollections } from '../../redux/reducers/collectionSlice';
 import AppStyles, { fontFamily } from '../../styles/AppStyles';
 import Toolbar from '../../components/ui/Toolbar';
 import { _getVerticalPadding, DEVICE_WIDTH } from '../../utils/Helper';
-import { heightPixel, widthPixel } from '../../utils/fonts';
+import { heightPixel, widthPixel, isTablet, getNumColumns } from '../../utils/fonts';
 import storeFrontClient from '../../graphql/storeFrontClient';
 import { MENU_QUERY } from '../../graphql/queries/menu/fetch_menus';
 import FastImage from '@d11/react-native-fast-image';
@@ -48,12 +48,22 @@ const BannerCarousel = () => {
         "https://agi-spare.myshopify.com/cdn/shop/files/Hydraulic_Parts_Website_View.jpg?v=1764931456"
     ];
 
+    // Dynamic dimensions based on device width
+    // Using 16:5 aspect ratio for banner images (common for website banners)
+    const BANNER_ASPECT_RATIO = 16 / 5;
+    const bannerWidth = DEVICE_WIDTH - widthPixel(32);
+    const bannerHeight = bannerWidth / BANNER_ASPECT_RATIO;
+
+    // On tablets, cap the banner height to prevent it from being too tall
+    const maxBannerHeight = isTablet ? heightPixel(280) : heightPixel(200);
+    const finalBannerHeight = Math.min(bannerHeight, maxBannerHeight);
+
     return (
         <View style={{ marginTop: heightPixel(8) }}>
             <Carousel
                 loop
                 width={DEVICE_WIDTH}
-                height={heightPixel(160)}
+                height={finalBannerHeight}
                 autoPlay={true}
                 autoPlayInterval={3000}
                 scrollAnimationDuration={800}
@@ -63,8 +73,8 @@ const BannerCarousel = () => {
                     <FastImage
                         source={{ uri: item }}
                         style={{
-                            width: DEVICE_WIDTH - widthPixel(32),
-                            height: heightPixel(160),
+                            width: bannerWidth,
+                            height: finalBannerHeight,
                             marginHorizontal: widthPixel(16),
                             borderRadius: widthPixel(12)
                         }}
@@ -398,7 +408,7 @@ const localStyles = StyleSheet.create({
         rowGap: heightPixel(12),
     },
     categoryCard: {
-        width: (DEVICE_WIDTH - widthPixel(16) * 2.5 - widthPixel(12)) / 2,
+        width: (DEVICE_WIDTH - widthPixel(16) * 2.5 - widthPixel(12) * (getNumColumns(2) - 1)) / getNumColumns(2),
         backgroundColor: '#FFFFFF',
         borderRadius: widthPixel(14),
         padding: widthPixel(12),
@@ -504,7 +514,7 @@ const localStyles = StyleSheet.create({
         rowGap: heightPixel(12)
     },
     partnerBox: {
-        width: (DEVICE_WIDTH - widthPixel(16) * 2 - widthPixel(12)) / 2,
+        width: (DEVICE_WIDTH - widthPixel(16) * 2 - widthPixel(12) * (getNumColumns(2, 4) - 1)) / getNumColumns(2, 4),
         height: heightPixel(70),
         borderRadius: widthPixel(12),
         backgroundColor: '#fff',

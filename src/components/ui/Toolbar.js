@@ -94,7 +94,8 @@ const Toolbar = ({ home,
                 width: '100%',
                 height: heightPixel(48),
                 // backgroundColor: colorSet.mainThemeBackgroundColor,
-                flexDirection: 'row', paddingHorizontal: widthPixel(8),
+                flexDirection: 'row',
+                paddingHorizontal: widthPixel(8),
                 alignItems: 'center',
                 justifyContent: 'space-between'
             }}>
@@ -112,6 +113,7 @@ const Toolbar = ({ home,
                     <FastImage
                         source={require('../../../assets/images/home/logo_round.png')}
                         style={{ width: widthPixel(42), height: heightPixel(42) }}
+                        resizeMode={FastImage.resizeMode.contain}
 
                     />
                     {/* <Menu size={widthPixel(24)} color={colorSet.white} /> */}

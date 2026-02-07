@@ -84,6 +84,11 @@ export default AlertModel
 const getLocalStyles = (colorSet) => {
     return StyleSheet.create({
 
-        buttonContainer: { width: DEVICE_WIDTH - widthPixel(80), },
+        buttonContainer: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: widthPixel(16),
+        },
     })
 }

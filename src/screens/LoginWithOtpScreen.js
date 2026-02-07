@@ -525,14 +525,14 @@ const LoginWithOtpScreen = ({
                                     <Text style={styles.text_12_reg_mainTextColor2}>By continuing, you agree to our </Text>
                                     <Text
                                         style={[styles.text_12_reg_mainTextColor2, localStyles.link]}
-                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://styleunion.in/pages/privacy-policy', title: 'Policies' })}
+                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/privacy-policy', title: 'Policies' })}
                                     >
                                         Privacy Policy
                                     </Text>
                                     <Text style={styles.text_12_reg_mainTextColor2}>{' '}and{' '}</Text>
                                     <Text
                                         style={[styles.text_12_reg_mainTextColor2, localStyles.link]}
-                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://styleunion.in/pages/terms-condition', title: 'Terms & Conditions' })}
+                                        onPress={() => navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/terms-of-use', title: 'Terms & Conditions' })}
                                     >
                                         Terms & Conditions
                                     </Text>

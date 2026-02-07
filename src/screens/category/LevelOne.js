@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Toolbar from '../../components/ui/Toolbar';
 import { DEVICE_WIDTH } from '../../utils/Helper';
 import FastImage from '@d11/react-native-fast-image';
-import { heightPixel, widthPixel } from '../../utils/fonts';
+import { getNumColumns, heightPixel, widthPixel } from '../../utils/fonts';
 import { SearchIcon, ArrowRight } from 'lucide-react-native';
 import { fetchCollections } from '../../redux/reducers/collectionSlice';
 
@@ -110,7 +110,7 @@ const localStyles = StyleSheet.create({
     paddingBottom: heightPixel(16),
   },
   card: {
-    width: (DEVICE_WIDTH - widthPixel(16) * 2 - widthPixel(12)) / 2,
+    width: (DEVICE_WIDTH - widthPixel(16) * 2.5 - widthPixel(12) * (getNumColumns(2) - 1)) / getNumColumns(2),
     backgroundColor: '#FFFFFF',
     borderRadius: widthPixel(16),
     padding: widthPixel(12),

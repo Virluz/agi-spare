@@ -39,6 +39,7 @@ import EmailPasswordLogin from '../screens/auth/EmailPasswordLogin';
 import { isAuthenticated } from '../utils/customerAuth';
 import { setIsLoggedIn } from '../redux/reducers/appSlice';
 import FullScreenImage from '../components/ui/FullScreenImage';
+import WebPage from '../screens/drawer/WebPage';
 const Root = createStackNavigator();
 
 export default RootNavigator = () => {
@@ -232,6 +233,12 @@ export default RootNavigator = () => {
             options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
             name="CreateAccount"
             component={CreateAccount}
+          />
+
+
+          <Root.Screen
+            name="WebViewScreen"
+            component={WebPage}
           />
 
           <Root.Screen

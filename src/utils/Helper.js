@@ -1184,6 +1184,16 @@ const ITEM_WIDTH = (DEVICE_WIDTH - SIDE_MARGIN * 2 - ITEM_SPACING * (NUM_COLUMNS
 
 
 
+
+const getProportionalDimensions = (baseWidth, baseHeight, targetWidth = DEVICE_WIDTH) => {
+  const aspectRatio = baseHeight / baseWidth;
+  return {
+    width: targetWidth,
+    height: targetWidth * aspectRatio
+  };
+}
+
+
 const extactColorsFromVariants = (data) => {
 
   const variants = data.edges.map(edge => edge.node); // Extract nodes from edges
@@ -1260,5 +1270,5 @@ export {
   debounceScanner,
   showAlert,
   sleep,
-  debounce, tagStyles
+  debounce, tagStyles, getProportionalDimensions
 };

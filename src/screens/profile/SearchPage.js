@@ -320,7 +320,7 @@ const SearchPage = () => {
                                                     <TouchableOpacity
                                                         key={product.id}
                                                         style={localStyles.suggestionProductRow}
-                                                        onPress={() => navigation.navigate('PdpMain', { handle: product.handle })}
+                                                        onPress={() => navigation.navigate('ProductDetails', { productId: product.id })}
                                                     >
                                                         <FastImage
                                                             source={{ uri: product.featuredImage?.url }}

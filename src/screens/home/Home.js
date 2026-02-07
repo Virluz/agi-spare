@@ -49,21 +49,18 @@ const BannerCarousel = () => {
     ];
 
     // Dynamic dimensions based on device width
-    // Using 16:5 aspect ratio for banner images (common for website banners)
-    const BANNER_ASPECT_RATIO = 16 / 5;
+    // Original image dimensions: 1600 × 666
+    const ORIGINAL_WIDTH = 1600;
+    const ORIGINAL_HEIGHT = 666;
     const bannerWidth = DEVICE_WIDTH - widthPixel(32);
-    const bannerHeight = bannerWidth / BANNER_ASPECT_RATIO;
-
-    // On tablets, cap the banner height to prevent it from being too tall
-    const maxBannerHeight = isTablet ? heightPixel(280) : heightPixel(200);
-    const finalBannerHeight = Math.min(bannerHeight, maxBannerHeight);
+    const bannerHeight = (bannerWidth * ORIGINAL_HEIGHT) / ORIGINAL_WIDTH;
 
     return (
         <View style={{ marginTop: heightPixel(8) }}>
             <Carousel
                 loop
                 width={DEVICE_WIDTH}
-                height={finalBannerHeight}
+                height={bannerHeight}
                 autoPlay={true}
                 autoPlayInterval={3000}
                 scrollAnimationDuration={800}
@@ -74,9 +71,8 @@ const BannerCarousel = () => {
                         source={{ uri: item }}
                         style={{
                             width: bannerWidth,
-                            height: finalBannerHeight,
+                            height: bannerHeight,
                             marginHorizontal: widthPixel(16),
-                            borderRadius: widthPixel(12)
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                     />

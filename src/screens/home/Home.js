@@ -413,7 +413,7 @@ const localStyles = StyleSheet.create({
         width: '100%',
         height: heightPixel(110),
         borderRadius: widthPixel(8),
-        backgroundColor: '#F7F7F7',
+        // backgroundColor: '#F7F7F7',
     },
     categoryFooter: {
         marginTop: heightPixel(8),

@@ -51,7 +51,12 @@ const collection_by_handle = gql`
             images(first: 1) {
               edges {
                 node {
-                  url
+                  url(transform: {
+                      maxWidth: 150,
+                      maxHeight: 150,
+                      crop: CENTER,
+                      scale: 2
+                    })
                   altText
                 }
               }

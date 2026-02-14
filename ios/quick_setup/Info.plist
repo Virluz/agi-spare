@@ -64,7 +64,6 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>location</string>
 		<string>processing</string>
 		<string>fetch</string>
 		<string>remote-notification</string>

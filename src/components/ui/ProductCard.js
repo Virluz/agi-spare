@@ -109,13 +109,30 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                 />
 
 
+                {isLoggedInGlobal && (
+
+                    <View style={{
+                        backgroundColor: colorSet.primaryColor,
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        borderRadius: 12
+                    }}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '600' }}>
+                            5% OFF
+                        </Text>
+                    </View>
+                )}
+
                 <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
-                    <Text style={isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_primaryTwo} numberOfLines={2}>{item?.node?.title}</Text>
+                    <Text style={[isDarkBackground ? styles.text_16_reg_mainTextColor3 : styles.text_16_reg_mainTextColor2, { color: '#261F64' }]} numberOfLines={2}>{item?.node?.title}</Text>
 
                     {showDetails && (
                         <>
                             {_getVerticalPadding(4)}
-                            <Text style={isDarkBackground ? styles.text_10_reg_mainTextColor3 : styles.text_10_reg_mainTextColor2} numberOfLines={1}>
+                            <Text style={[isDarkBackground ? styles.text_16_reg_mainTextColor3 : styles.text_16_reg_mainTextColor2, { color: '#666666' }]} numberOfLines={1}>
                                 {item?.node?.variants?.edges?.[0]?.node?.sku || ''}
                             </Text>
                             {_getVerticalPadding(4)}
@@ -134,16 +151,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                             <Text style={[isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2, { textDecorationLine: 'line-through', opacity: 0.6 }]}>
                                 ₹{Math.round(Number(item?.node?.variants?.edges?.[0]?.node?.price?.amount) * 1.14)}
                             </Text>
-                            <View style={{
-                                backgroundColor: '#22C55E',
-                                paddingHorizontal: 6,
-                                paddingVertical: 2,
-                                borderRadius: 4
-                            }}>
-                                <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '600' }}>
-                                    14% OFF
-                                </Text>
-                            </View>
+
                         </View>
                     )}
 
@@ -195,7 +203,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                             </TouchableOpacity>
                         </View>
 
-                        <PrimaryButton title={'Add to Cart'} color={'#F2994A'} onPress={async () => {
+                        <PrimaryButton title={'Add to Cart'} color={colorSet?.primaryColor} onPress={async () => {
                             try {
                                 const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
                                 if (!variantId) {

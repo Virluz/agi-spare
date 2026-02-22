@@ -21,7 +21,6 @@ class MainApplication : Application(), ReactApplication {
             override fun getPackages(): List<ReactPackage> =
                     PackageList(this).packages.toMutableList().apply {
                       add(RootCheckPackage())
-                      add(LocationPackage())
                       add(NotificationPackage())
                     }
 

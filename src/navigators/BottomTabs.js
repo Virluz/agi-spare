@@ -164,7 +164,7 @@ export const BottomTabs = () => {
                                         </View>
                                         <Text style={[
                                             styles.tabBarLabel,
-                                            { color: isFocused ? '#F27E03' : colorSet.dark3 }
+                                            { color: isFocused ? colorSet?.primaryColor : colorSet.dark3 }
                                         ]}>
                                             {label}
                                         </Text>

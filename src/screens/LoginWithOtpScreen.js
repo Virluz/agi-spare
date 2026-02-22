@@ -596,6 +596,15 @@ const LoginWithOtpScreen = ({
                             }
                         </View>
 
+                        <TouchableOpacity style={localStyles.skipBtn}
+                            onPress={() => {
+                                navigation.navigate('CreateAccount')
+
+                            }}
+                        >
+                            <Text style={localStyles.skipText}>Signup</Text>
+                        </TouchableOpacity>
+
                         {/* {showSkip && (
                             <TouchableOpacity style={localStyles.skipBtn}
                                 onPress={() => {

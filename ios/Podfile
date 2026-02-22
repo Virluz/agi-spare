@@ -60,5 +60,13 @@ target 'quick_setup' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Fix for folly/lang/New.h build error in React Native 0.79+
+    # FOLLY_CREATE_QUAL_INVOKER macros require C++20 to compile correctly
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
+      end
+    end
   end
 end

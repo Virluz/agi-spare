@@ -13,7 +13,6 @@ import eventBus from '../service/EventBus';
 import { _getVerticalPadding, _isEmpty, checkLocationPermission, fetchCurrentLocation, generateTokenFromUsernamePassword, getDeviceInfo, handleLogout, processPins, requestLocationPermission, sleep } from '../utils/Helper';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorMsg } from '../widgets/FlashMessages';
-import { isDeviceRooted } from 'react-native-detect-frida';
 import DeviceInfo from 'react-native-device-info';
 import Shield from '../components/functions/Shield';
 import RNBootSplash from 'react-native-bootsplash';
@@ -46,11 +45,6 @@ export default RootNavigator = () => {
   const [showNotification, setShowNotification] = React.useState({});
   const navigation = useNavigation();
 
-  getMessaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
-    callDeliveredApi(remoteMessage?.data?.IncidentTrackingLogId);
-
-  });
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [initialRoute, setInitialRoute] = useState(null);
@@ -60,10 +54,15 @@ export default RootNavigator = () => {
   const styles = AppStyles.getAllStyles(colorScheme);
   const [pendingNotificationId, setPendingNotificationId] = useState(null);
   useEffect(() => {
+    // Register background message handler inside useEffect so it runs once
+    // after mount (not on every render) and only when Firebase is ready
+    getMessaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!', remoteMessage);
+      callDeliveredApi(remoteMessage?.data?.IncidentTrackingLogId);
+    });
 
     const init = async () => {
       // ... initialization code
-
 
       const authenticated = await isAuthenticated();
 

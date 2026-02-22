@@ -15,7 +15,6 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import DeviceInfo from 'react-native-device-info';
 import Geolocation from '@react-native-community/geolocation';
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
-const { LocationModule } = NativeModules
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
@@ -896,6 +895,7 @@ function calculateBounds(center, radius = 500) {
 }
 
 const fetchCurrentLocation = async (tryEnableGPS = false) => {
+  return;
   console.log("Attempting to fetch location...");
 
   try {
@@ -951,8 +951,8 @@ const fetchCurrentLocation = async (tryEnableGPS = false) => {
         try {
           if (!tryEnableGPS) return;
           SecureStorage.setGPSEnablePopup('1');
-          const ok = await LocationModule?.requestEnableGPS()
-          console.log('GPS enabled:', ok);
+          // LocationModule.requestEnableGPS() removed - native module deleted
+
 
           const position = await new Promise((resolve, reject) => {
             Geolocation.getCurrentPosition(

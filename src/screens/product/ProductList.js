@@ -806,7 +806,7 @@ const ProductList = () => {
                     onPress={() => refFilterRBSheet.current.open()}
                     style={{
                         flex: 1,
-                        backgroundColor: '#F2994A',
+                        backgroundColor: colorSet.primaryColor,
                         paddingVertical: 12,
                         borderRadius: 24,
                         flexDirection: 'row',

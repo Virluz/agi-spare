@@ -48,7 +48,7 @@ export const PrimaryButton = ({ disabled, onPress, fullWidth, iconSource, title,
 
           }, loading && styles.lowOpacity]}>
 
-            <Text style={disabled ? appStyles.text_16_secondaryFont_dark5 : appStyles.text_16_reg_secondaryFont}>{title}</Text>
+            <Text style={disabled ? appStyles.text_16_reg_secondaryFont : appStyles.text_16_reg_secondaryFont}>{title}</Text>
 
             {iconSource && <>
               {_getHorizontalPadding(8)}

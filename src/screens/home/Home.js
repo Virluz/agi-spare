@@ -39,23 +39,24 @@ const successStories = [
 ];
 
 // Simple local image carousel for the hero banner
-const BannerCarousel = () => {
+const BannerCarousel = ({ scrollRef }) => {
     const [index, setIndex] = useState(0);
     const images = [
-        'https://agi-spare.myshopify.com/cdn/shop/files/Tire_Banner_Website_View.jpg?v=1764931402',
-        "https://agi-spare.myshopify.com/cdn/shop/files/Engine_Parts_Website_View.jpg?v=1764931289",
-        "https://agi-spare.myshopify.com/cdn/shop/files/All_Parts_Website_View.jpg?v=1764931236",
-        "https://agi-spare.myshopify.com/cdn/shop/files/Hydraulic_Parts_Website_View.jpg?v=1764931456"
+        "https://agispares.com/cdn/shop/files/All_Parts_Mobile_View.jpg?v=1764931258",
+        'https://agispares.com/cdn/shop/files/Engine_Parts_Mobile_View.jpg?v=1764931350',
+        "https://agispares.com/cdn/shop/files/Tire_Banner_Mobile_View.jpg?v=1764931402",
+        "https://agispares.com/cdn/shop/files/Hydraulic_Parts_Mobile_View.jpg?v=1764931455"
     ];
 
     // Dynamic dimensions based on device width
     // Original image dimensions: 1600 × 666
-    const ORIGINAL_WIDTH = 1600;
-    const ORIGINAL_HEIGHT = 666;
+    const ORIGINAL_WIDTH = 600;
+    const ORIGINAL_HEIGHT = 800;
     const bannerWidth = DEVICE_WIDTH - widthPixel(32);
     const bannerHeight = (bannerWidth * ORIGINAL_HEIGHT) / ORIGINAL_WIDTH;
 
     return (
+        // No flex:1 — prevents this from consuming vertical touch events in the parent ScrollView
         <View style={{ marginTop: heightPixel(8) }}>
             <Carousel
                 loop
@@ -65,7 +66,20 @@ const BannerCarousel = () => {
                 autoPlayInterval={3000}
                 scrollAnimationDuration={800}
                 data={images}
-                onSnapToItem={(idx) => setIndex(idx)}
+                // onProgressChange fires during the swipe animation (not after),
+                // so the dot updates instantly as the slide crosses the midpoint
+                onProgressChange={(_, absoluteProgress) => {
+                    const newIndex = Math.round(absoluteProgress) % images.length;
+                    if (newIndex !== index) setIndex(newIndex);
+                }}
+                // simultaneousHandlers tells RNGH to let the parent ScrollView
+                // also receive gestures — this is what actually fixes vertical scroll
+                onConfigurePanGesture={(gesture) => {
+                    gesture
+                        .activeOffsetX([-10, 10])   // allow horizontal swipe
+                        .failOffsetY([-10, 10]);    // allow vertical scroll to pass to ScrollView
+                }}
+
                 renderItem={({ item }) => (
                     <FastImage
                         source={{ uri: item }}
@@ -73,6 +87,7 @@ const BannerCarousel = () => {
                             width: bannerWidth,
                             height: bannerHeight,
                             marginHorizontal: widthPixel(16),
+                            borderRadius: widthPixel(8),
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                     />
@@ -141,7 +156,8 @@ const Home = () => {
             <Toolbar home={true} title={'agi spare'} isSearch />
 
             <ScrollView
-                style={{ flex: 1 }}
+                ref={scrollRef}
+                style={{ flex: 1, }}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: heightPixel(100) }}
             >
@@ -160,7 +176,7 @@ const Home = () => {
                 </TouchableOpacity> */}
 
                 {/* Hero banner */}
-                <BannerCarousel />
+                <BannerCarousel scrollRef={scrollRef} />
 
                 {/* Welcome card */}
                 <View style={localStyles.welcomeCard}>

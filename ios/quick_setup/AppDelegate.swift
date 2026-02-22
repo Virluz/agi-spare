@@ -24,6 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
       name: UIScreen.capturedDidChangeNotification,
       object: nil)
 
+    // Configure Firebase BEFORE starting the React Native bridge
+    // so that JS code can safely call Firebase APIs immediately on startup
+    FirebaseApp.configure()
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -74,7 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     //   }
     // }
     
-    FirebaseApp.configure()
+    // FirebaseApp.configure() has been moved above startReactNative()
 
        // Set up push notification delegate
     UNUserNotificationCenter.current().delegate = self

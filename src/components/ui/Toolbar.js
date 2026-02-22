@@ -133,30 +133,33 @@ const Toolbar = ({ home,
                         padding: widthPixel(8),
                         alignItems: 'center',
                         justifyContent: 'center',
-                        // backgroundColor: '#F4F1FB',
+                        backgroundColor: '#F4F1FB',
                         borderRadius: 100,
-                        opacity: 0.5
+                        // opacity: 0.5
                     }} onPress={() => {
                         navigation.navigate('SearchPage')
                     }} >
 
-                        <SearchIcon size={widthPixel(24)} color={colorSet.black} />
+                        <SearchIcon size={widthPixel(24)} color={'#666666'} />
 
 
                     </Ripple>
+
+                    {_getHorizontalPadding(5)}
 
 
                     <Ripple style={{
                         padding: widthPixel(8),
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: '#F4F1FB', borderRadius: 100,
-                        opacity: 0.5
+                        backgroundColor: '#F4F1FB',
+                        borderRadius: 100,
+                        // opacity: 0.5
                     }} onPress={() => {
                         navigation.navigate('Wishlist')
                     }} >
 
-                        <Heart size={widthPixel(24)} color={'#605E5E'} />
+                        <Heart size={widthPixel(24)} color={'#666666'} />
 
                     </Ripple>
 
@@ -171,7 +174,7 @@ const Toolbar = ({ home,
                             return navigation.navigate('Notifications');
                         }} >
 
-                        <BellIcon size={widthPixel(24)} color={'#605E5E'} />
+                        <BellIcon size={widthPixel(24)} color={'#666666'} />
 
                     </Ripple>
 

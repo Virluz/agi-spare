@@ -45,8 +45,15 @@ const BannerCarousel = ({ scrollRef }) => {
         "https://agispares.com/cdn/shop/files/All_Parts_Mobile_View.jpg?v=1764931258",
         'https://agispares.com/cdn/shop/files/Engine_Parts_Mobile_View.jpg?v=1764931350',
         "https://agispares.com/cdn/shop/files/Tire_Banner_Mobile_View.jpg?v=1764931402",
-        "https://agispares.com/cdn/shop/files/Hydraulic_Parts_Mobile_View.jpg?v=1764931455"
+        "https://agispares.com/cdn/shop/files/Hydraulic_Parts_Mobile_View.jpg?v=1764931455",
     ];
+
+    const tabImages = [
+        'https://agi-spare.myshopify.com/cdn/shop/files/Tire_Banner_Website_View.jpg?v=1764931402',
+        "https://agi-spare.myshopify.com/cdn/shop/files/Engine_Parts_Website_View.jpg?v=1764931289",
+        "https://agi-spare.myshopify.com/cdn/shop/files/All_Parts_Website_View.jpg?v=1764931236",
+        "https://agi-spare.myshopify.com/cdn/shop/files/Hydraulic_Parts_Website_View.jpg?v=1764931456"
+    ]
 
     // Dynamic dimensions based on device width
     // Original image dimensions: 1600 × 666
@@ -95,7 +102,7 @@ const BannerCarousel = ({ scrollRef }) => {
             />
 
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: heightPixel(8) }}>
-                {images.map((_, i) => (
+                {isTablet ? tabImages.map((_, i) => (
                     <View
                         key={i}
                         style={{
@@ -106,7 +113,20 @@ const BannerCarousel = ({ scrollRef }) => {
                             marginHorizontal: 4,
                         }}
                     />
-                ))}
+                )) :
+                    images.map((_, i) => (
+                        <View
+                            key={i}
+                            style={{
+                                width: i === index ? 16 : 8,
+                                height: 8,
+                                borderRadius: 4,
+                                backgroundColor: i === index ? '#4A4A68' : 'rgba(74,74,104,0.4)',
+                                marginHorizontal: 4,
+                            }}
+                        />
+                    ))
+                }
             </View>
         </View>
     );
@@ -183,7 +203,7 @@ const Home = () => {
                     <Text style={localStyles.welcomeTitle}>Welcome to AGI Spare</Text>
                     <Text style={localStyles.welcomeSubtitle}>Reaching New Heights in Safety{"\n"}and Service</Text>
                     <Text style={localStyles.welcomeBody}>
-                        Since 2014, Al-Gyas Infrastructure has specialised in supplying high-quality original and OEM spare parts for Aerial Work Platforms across India. Headquartere in Mumbai, we source parts from trusted.
+                        Al-Gyas Infrastructure has specialised in supplying high-quality original and OEM spare parts for Aerial Work Platforms across India. Headquartere in Mumbai, we source parts from trusted.
                     </Text>
                 </View>
 

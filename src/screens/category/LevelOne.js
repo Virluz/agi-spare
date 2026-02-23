@@ -117,9 +117,9 @@ const localStyles = StyleSheet.create({
   },
   imageBox: {
     width: '100%',
-    height: heightPixel(160),
+    height: heightPixel(110),
     borderRadius: widthPixel(12),
-    backgroundColor: '#F7F7F7',
+    // backgroundColor: '#F7F7F7',
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -136,7 +136,7 @@ const localStyles = StyleSheet.create({
   cardTitle: {
     color: '#1F2024',
     fontWeight: '700',
-    fontSize: heightPixel(16),
+    fontSize: heightPixel(14),
     // flex: 1,
     marginRight: widthPixel(5)
   }

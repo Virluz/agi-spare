@@ -4,7 +4,7 @@ import DeviceInfo from 'react-native-device-info';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Tablet detection
-export const isTablet = DeviceInfo.isTablet();
+export const isTablet = DeviceInfo.isTablet() || Dimensions.get('window').width > 768;
 
 // Base scale calculations
 const baseWidthScale = SCREEN_WIDTH / 375;

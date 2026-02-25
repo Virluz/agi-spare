@@ -17,6 +17,7 @@ import { clearAuthToken } from '../../utils/customerAuth';
 import { t } from 'i18next';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showSuccessMsg } from '../../widgets/FlashMessages';
 
 const MyAccountScreen = () => {
   const navigation = useNavigation();
@@ -76,6 +77,26 @@ const MyAccountScreen = () => {
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete', onPress: () => {
+            // showSuccessMsg(
+            //   'We have received your request for account deletion.\nYour account will be deleted automatically after 30 days.',
+            //   { duration: 5000 }
+            // );
+            // handleLogout();
+          }
+        },
+      ]
+    )
+
   };
 
   const handleLogin = () => {
@@ -296,6 +317,13 @@ const MyAccountScreen = () => {
             <View style={localStyles.menuItemLeft}>
               <Image source={require('../../../assets/images/account/arrow_right.png')} style={localStyles.menuIcon} />
               <Text style={[styles.text_16_reg_mainTextColor2, { color: colorSet.red }]}>Logout</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={localStyles.menuItem} onPress={handleDeleteAccount}>
+            <View style={localStyles.menuItemLeft}>
+              <Image source={require('../../../assets/images/account/arrow_right.png')} style={localStyles.menuIcon} />
+              <Text style={[styles.text_16_reg_mainTextColor2, { color: colorSet.red }]}>Delete Account</Text>
             </View>
           </TouchableOpacity>
         </View>

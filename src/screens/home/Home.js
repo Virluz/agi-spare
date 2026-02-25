@@ -57,8 +57,8 @@ const BannerCarousel = ({ scrollRef }) => {
 
     // Dynamic dimensions based on device width
     // Original image dimensions: 1600 × 666
-    const ORIGINAL_WIDTH = 600;
-    const ORIGINAL_HEIGHT = 800;
+    const ORIGINAL_WIDTH = isTablet ? 1600 : 600;
+    const ORIGINAL_HEIGHT = isTablet ? 666 : 800;
     const bannerWidth = DEVICE_WIDTH - widthPixel(32);
     const bannerHeight = (bannerWidth * ORIGINAL_HEIGHT) / ORIGINAL_WIDTH;
 
@@ -72,7 +72,7 @@ const BannerCarousel = ({ scrollRef }) => {
                 autoPlay={true}
                 autoPlayInterval={3000}
                 scrollAnimationDuration={800}
-                data={images}
+                data={isTablet ? tabImages : images}
                 // onProgressChange fires during the swipe animation (not after),
                 // so the dot updates instantly as the slide crosses the midpoint
                 onProgressChange={(_, absoluteProgress) => {

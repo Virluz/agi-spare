@@ -1,4 +1,4 @@
-import { Appearance, Image, Linking, ScrollView, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native'
+import { Alert, Appearance, Image, Linking, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, useColorScheme, View } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import SecureStorage from '../../utils/SecureStorage'
@@ -18,10 +18,11 @@ import { openSettings } from 'react-native-permissions'
 import Loader from '../../widgets/Loader'
 import AlertModel from '../../components/models/AlertModel'
 import { getLocationTrackingSetting, updateFirebaseToken } from '../../api/requests'
-import { Bell, ChevronRight, LogOut, Phone, Shield, User2, Wrench, Info, RotateCcw } from 'lucide-react-native'
+import { Bell, ChevronRight, LogOut, Phone, Shield, User2, Wrench, Info, RotateCcw, LucideLogOut, Delete, DeleteIcon } from 'lucide-react-native'
 import { clearAuthToken } from '../../utils/customerAuth'
 import { setIsLoggedIn } from '../../redux/reducers/appSlice'
 import { checkCustomerAuth } from '../../graphql/customerAuth'
+import { showSuccessMsg } from '../../widgets/FlashMessages'
 
 const colorModes = [
     {
@@ -126,7 +127,30 @@ const Profile = () => {
         } catch (error) {
             console.log("ERror");
         }
+
+
     }
+
+    const handleDeleteAccount = () => {
+
+        Alert.alert(
+            'Delete Account',
+            'Are you sure you want to delete your account?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete', onPress: () => {
+                        showSuccessMsg(
+                            'We have received your request for account deletion.\nYour account will be deleted automatically after 30 days.',
+                            { duration: 5000 }
+                        );
+                        handleLogoutFunction();
+                    }
+                },
+            ]
+        )
+
+    };
 
     if (!isLoggedInGlobal) {
 
@@ -193,7 +217,13 @@ const Profile = () => {
                                 <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/return-policy', title: 'Return Policy' }) }} />
                                 <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Privacy Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/privacy-policy', title: 'Privacy Policy' }) }} />
                                 <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/about-us', title: 'About Us' }) }} />
+
+
+                                <RowItem icon={<DeleteIcon size={18} color={colorSet.dark3} />} title="Delete Account" onPress={handleDeleteAccount} />
+
+
                             </View>
+
 
                             {/* Logout button */}
                             <View style={{ alignItems: 'center', marginTop: 16 }}>

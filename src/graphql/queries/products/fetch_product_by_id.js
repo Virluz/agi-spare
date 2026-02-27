@@ -29,6 +29,7 @@ const fetch_product_by_id = gql`
           node {
             id
             title
+            sku
              image {
                   url(transform: {
                     maxWidth: 24,
@@ -53,13 +54,13 @@ const fetch_product_by_id = gql`
           }
         }
       }
-      images(first: 50) {
+      images(first: 5) {
         edges {
           node {
             id
             url(transform: {
-                    maxWidth: 200,
-                    maxHeight: 200,
+                    maxWidth: 450,
+                    maxHeight: 450,
                     crop: CENTER,
                     scale: 2
                   })

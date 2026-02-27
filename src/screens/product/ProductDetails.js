@@ -404,7 +404,7 @@ const ProductDetails = () => {
                     {/* Product Images */}
 
 
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1, }}>
                         <Carousel
                             ref={carouselRef}
                             width={DEVICE_WIDTH}
@@ -414,13 +414,29 @@ const ProductDetails = () => {
                             scrollAnimationDuration={500}
                             onSnapToItem={(index) => setCurrentIndex(index)}
                             renderItem={({ item }) => (
-                                <Animated.Image
-                                    source={{ uri: item.node.url }}
-                                    style={{ width: DEVICE_WIDTH, height: IMAGE_HEIGHT, }}
-                                // resizeMode="contain"
-                                />
+                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+
+                                        {loading && <ActivityIndicator size="large" color={colorSet.primaryColor} />}
+                                    </View>
+
+                                    <Animated.Image
+                                        source={{ uri: item.node.url }}
+                                        style={{ width: DEVICE_WIDTH, height: IMAGE_HEIGHT, }}
+                                        resizeMode="contain"
+                                        onLoadStart={() => {
+                                            setLoading(true);
+                                            console.log('Image loading started');
+                                        }}
+                                        onLoadEnd={() => {
+                                            setLoading(false);
+                                            console.log('Image loading ended');
+                                        }}
+                                    />
+                                </View>
                             )}
                         />
+
 
 
                         {/* <TouchableOpacity style={[localStyles.arrow, localStyles.leftArrow]} onPress={goToPrev}>
@@ -479,6 +495,12 @@ const ProductDetails = () => {
                         {_getVerticalPadding(12)}
 
                         <Text style={styles.text_16_semi_mainTextColor2}>{product?.title}</Text>
+
+                        {_getVerticalPadding(8)}
+                        <Text style={[styles.text_16_reg_mainTextColor2, { color: '#666666' }]}>
+                            {product?.variants?.edges?.[0].node?.sku}
+                        </Text>
+
 
                         {isLoggedInGlobal && (
                             <Text style={styles.text_24_semi_mainTextColor2}>
@@ -842,9 +864,9 @@ const localStyles = StyleSheet.create({
     container: { flex: 1 },
     detailsContainer: {
         padding: 20,
-        marginTop: -30,
-        borderTopLeftRadius: widthPixel(20),
-        borderTopRightRadius: widthPixel(20),
+        // marginTop: -30,
+        // borderTopLeftRadius: widthPixel(20),
+        // borderTopRightRadius: widthPixel(20),
         backgroundColor: 'rgba(255, 255, 255, 0.9)'
     },
     productTitle: {

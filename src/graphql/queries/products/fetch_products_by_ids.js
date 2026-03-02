@@ -17,6 +17,7 @@ const fetch_products_by_ids = gql`
             node {
               id
               title
+              quantityAvailable
               image {
                 url(transform: {
                   maxWidth: 24,

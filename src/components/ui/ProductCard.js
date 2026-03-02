@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useState } from 'react'
 import { _getVerticalPadding, DEVICE_WIDTH, extactColorsFromVariants } from '../../utils/Helper';
 import Ripple from 'react-native-material-ripple';
@@ -80,6 +80,16 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     const isInWishlist = wishlist?.wishlistItems?.includes(item?.node?.id) || false;
     const [imageLoading, setImageLoader] = useState(true);
     const dispatch = useDispatch();
+
+    // Determine how many of this variant are already in the cart
+    const cartLines = useSelector(state => state.cart?.cart?.lines?.edges);
+    const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
+    const maxQty = item?.node?.variants?.edges?.[0]?.node?.quantityAvailable; // now populated from GraphQL
+    const cartQty = cartLines?.find(e => e?.node?.merchandise?.id === variantId)?.node?.quantity ?? 0;
+    // Cart already holds the maximum available stock
+    const cartAtMax = maxQty != null && cartQty >= maxQty;
+    // Adding local selector qty would exceed stock
+    const wouldExceed = maxQty != null && (cartQty + quantity) > maxQty || quantity === maxQty;
 
     return (
         <TouchableWithoutFeedback
@@ -189,33 +199,56 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                             </Text>
 
                             <TouchableOpacity
-                                onPress={() => setQuantity(quantity + 1)}
+                                onPress={() => {
+                                    if (wouldExceed) {
+                                        Alert.alert(
+                                            'Max quantity reached',
+                                            `Only ${maxQty} unit${maxQty === 1 ? '' : 's'} available` +
+                                            (cartQty > 0 ? ` (${cartQty} already in cart).` : '.')
+                                        );
+                                        return;
+                                    }
+                                    setQuantity(quantity + 1);
+                                }}
+                                disabled={wouldExceed}
                                 style={{
                                     width: 32,
                                     height: 32,
                                     borderRadius: 16,
                                     backgroundColor: colorSet?.primaryColorTwo,
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+                                    opacity: wouldExceed ? 0.35 : 1,
                                 }}
                             >
                                 <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>+</Text>
                             </TouchableOpacity>
                         </View>
 
-                        <PrimaryButton title={'Add to Cart'} color={colorSet?.primaryColor} onPress={async () => {
-                            try {
-                                const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
-                                if (!variantId) {
-                                    showErrorMsg('Variant unavailable');
+                        <PrimaryButton
+                            title={'Add to Cart'}
+                            color={colorSet?.primaryColor}
+                            onPress={async () => {
+                                // Guard: cart already holds max available stock
+                                if (cartAtMax) {
+                                    Alert.alert(
+                                        'Max quantity reached',
+                                        `You already have all ${maxQty} available unit${maxQty === 1 ? '' : 's'} of this item in your cart.`
+                                    );
                                     return;
                                 }
-                                await dispatch(addOrUpdateCartLine({ variantId, quantity: quantity })).unwrap();
-                                showSuccessMsg(`Added ${quantity} item(s) to cart`);
-                            } catch (e) {
-                                showErrorMsg(String(e?.message || 'Failed to add to cart'));
-                            }
-                        }} />
+                                try {
+                                    if (!variantId) {
+                                        showErrorMsg('Variant unavailable');
+                                        return;
+                                    }
+                                    await dispatch(addOrUpdateCartLine({ variantId, quantity })).unwrap();
+                                    showSuccessMsg(`Added ${quantity} item(s) to cart`);
+                                } catch (e) {
+                                    showErrorMsg(String(e?.message || 'Failed to add to cart'));
+                                }
+                            }}
+                        />
                     </View>
                 }
 

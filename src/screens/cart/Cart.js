@@ -19,7 +19,7 @@ import { createCheckoutShopify, updateCartBuyerIdentity, getValidCustomerToken, 
 import { checkServiceability } from "../../api/requests";
 import { createPickupCheckout } from "../../service/customCheckout";
 import YouWillAlsoLike from "./YouWillAlsoLike";
-import { Minus, Plus } from "lucide-react-native";
+import { Minus, Plus, Trash2 } from "lucide-react-native";
 // LinearGradient now used inside WishlistTray
 
 const Cart = () => {
@@ -501,7 +501,12 @@ const Cart = () => {
 
                         return (
                             <View style={styles.cardItem}>
-                                <View style={{ flexDirection: 'row' }}>
+                                {/* Top row: image + info + qty pill */}
+                                <TouchableOpacity
+                                    activeOpacity={0.85}
+                                    onPress={() => navigation.navigate('ProductDetails', { productId: merchandise?.product?.id })}
+                                    style={{ flexDirection: 'row', flex: 1 }}
+                                >
                                     <View style={styles.thumbBox}>
                                         <Image style={styles.thumb} source={{ uri: merchandise?.product?.featuredImage?.url }} />
                                     </View>
@@ -525,7 +530,10 @@ const Cart = () => {
                                             <Text style={[appStyles.text_16_semi_mainTextColor2]}>₹{merchandise?.price?.amount}</Text>
                                         </View>
                                     </View>
+                                </TouchableOpacity>
 
+                                {/* Bottom row: qty pill + delete */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
                                     {/* Qty control */}
                                     <View style={styles.qtyPill}>
                                         <TouchableOpacity
@@ -554,6 +562,24 @@ const Cart = () => {
                                             <Plus size={16} />
                                         </TouchableOpacity>
                                     </View>
+
+                                    {/* Delete button */}
+                                    <TouchableOpacity
+                                        disabled={!!lineLoading[id]}
+                                        onPress={() =>
+                                            Alert.alert(
+                                                'Remove item?',
+                                                `Remove "${merchandise?.product?.title || 'this item'}" from your cart?`,
+                                                [
+                                                    { text: 'Cancel', style: 'cancel' },
+                                                    { text: 'Remove', style: 'destructive', onPress: () => handleRemoveItem(id) },
+                                                ]
+                                            )
+                                        }
+                                        style={styles.deleteBtn}
+                                    >
+                                        <Trash2 size={18} color="#E53935" />
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         );
@@ -926,5 +952,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(255,255,255,0.3)'
+    },
+    deleteBtn: {
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: '#FFF0F0',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });

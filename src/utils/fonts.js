@@ -1,10 +1,22 @@
-import { Dimensions, PixelRatio } from 'react-native';
+import { Dimensions, PixelRatio, useWindowDimensions } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Tablet detection
+// Static tablet detection (evaluated once at module load — for non-hook/module-level contexts)
 export const isTablet = DeviceInfo.isTablet() || Dimensions.get('window').width > 768;
+
+/**
+ * Hook for reactive tablet detection.
+ * Uses useWindowDimensions under the hood — React Native's built-in hook that
+ * automatically re-renders the component whenever the screen dimensions change
+ * (fold/unfold, rotation, split-screen, etc.).
+ * Use this inside React components instead of the static `isTablet`.
+ */
+export const useIsTablet = () => {
+  const { width } = useWindowDimensions();
+  return DeviceInfo.isTablet() || width > 768;
+};
 
 // Base scale calculations
 const baseWidthScale = SCREEN_WIDTH / 375;
@@ -16,13 +28,16 @@ const widthScale = isTablet ? Math.min(baseWidthScale, 1.2) : baseWidthScale;
 const heightScale = isTablet ? Math.min(baseHeightScale, 1.1) : baseHeightScale;
 
 /**
- * Get dynamic number of columns for grids based on device type
+ * Get dynamic number of columns for grids based on device type.
  * @param {number} mobileColumns - Number of columns for mobile (default: 2)
  * @param {number} tabletColumns - Number of columns for tablet (default: mobileColumns + 1)
+ * @param {boolean} [isTabletOverride] - Pass the value from useIsTablet() for live updates inside components.
+ *                                       Falls back to the static `isTablet` constant when omitted.
  * @returns {number} Number of columns to display
  */
-export const getNumColumns = (mobileColumns = 2, tabletColumns) => {
-  if (isTablet) {
+export const getNumColumns = (mobileColumns = 2, tabletColumns, isTabletOverride) => {
+  const tablet = isTabletOverride !== undefined ? isTabletOverride : isTablet;
+  if (tablet) {
     return tabletColumns ?? mobileColumns + 1;
   }
   return mobileColumns;

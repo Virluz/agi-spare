@@ -827,6 +827,19 @@ const OrderDetailsScreen = ({ navigation, route }) => {
               )
             }
 
+            {canCancelOrder && isOrderCancelable(orderNode).ok && (
+              <View style={styles.actionRow}>
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.cancelActionBtn]}
+                  onPress={() => {
+                    refCancelRBSheet.current.open();
+                  }}
+                >
+                  <Text style={[appStyles.text_14_reg_secondaryFont_primary]}>CANCEL ORDER</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <View style={styles.card}>
               <Text style={appStyles.text_14_semi_mainTextColor2}>{headerStatusText}</Text>
               {_getVerticalPadding(4)}
@@ -1028,18 +1041,7 @@ const OrderDetailsScreen = ({ navigation, route }) => {
             {_getVerticalPadding(16)}
 
             {/* Cancel button for orders not yet packed - only show if no fulfillments exist */}
-            {canCancelOrder && isOrderCancelable(orderNode).ok && (
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.cancelActionBtn]}
-                  onPress={() => {
-                    refCancelRBSheet.current.open();
-                  }}
-                >
-                  <Text style={[appStyles.text_14_reg_secondaryFont_primary]}>CANCEL ORDER</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+
 
 
 

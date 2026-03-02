@@ -207,7 +207,9 @@ const MyOrdersScreen = ({ navigation }) => {
                         {order.productName}
                     </Text>
 
-                    <Text style={appStyles.text_11_reg_mainTextColor2}>Items: {totalItems}</Text>
+                    {totalItems > 0 &&
+                        <Text style={appStyles.text_14_reg_mainTextColor2}>Items: {totalItems}</Text>
+                    }
 
                     {/* {renderStars(order.rating)} */}
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, ScrollView, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, Dimensions, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCollections } from '../../redux/reducers/collectionSlice';
 import AppStyles, { fontFamily } from '../../styles/AppStyles';
 import Toolbar from '../../components/ui/Toolbar';
 import { _getVerticalPadding, DEVICE_WIDTH } from '../../utils/Helper';
-import { heightPixel, widthPixel, isTablet, getNumColumns } from '../../utils/fonts';
+import { heightPixel, widthPixel, getNumColumns, useIsTablet } from '../../utils/fonts';
 import storeFrontClient from '../../graphql/storeFrontClient';
 import { MENU_QUERY } from '../../graphql/queries/menu/fetch_menus';
 import FastImage from '@d11/react-native-fast-image';
@@ -40,7 +40,10 @@ const successStories = [
 
 // Simple local image carousel for the hero banner
 const BannerCarousel = ({ scrollRef }) => {
+    const isTablet = useIsTablet();         // reactive — re-evaluates on fold/unfold
+    const { width: deviceWidth } = useWindowDimensions(); // reactive — updates on any dimension change
     const [index, setIndex] = useState(0);
+
     const images = [
         "https://agispares.com/cdn/shop/files/All_Parts_Mobile_View.jpg?v=1764931258",
         'https://agispares.com/cdn/shop/files/Engine_Parts_Mobile_View.jpg?v=1764931350',
@@ -53,30 +56,35 @@ const BannerCarousel = ({ scrollRef }) => {
         "https://agi-spare.myshopify.com/cdn/shop/files/Engine_Parts_Website_View.jpg?v=1764931289",
         "https://agi-spare.myshopify.com/cdn/shop/files/All_Parts_Website_View.jpg?v=1764931236",
         "https://agi-spare.myshopify.com/cdn/shop/files/Hydraulic_Parts_Website_View.jpg?v=1764931456"
-    ]
+    ];
 
-    // Dynamic dimensions based on device width
-    // Original image dimensions: 1600 × 666
+    // Read dimension live (not from a stale constant)
+    // const deviceWidth = Dimensions.get('window').width; // superseded by useWindowDimensions above
+
+    // Dynamic dimensions based on device width — recalculated every render
+    // Original image dimensions: 1600 × 666 (tablet) / 600 × 800 (mobile)
     const ORIGINAL_WIDTH = isTablet ? 1600 : 600;
     const ORIGINAL_HEIGHT = isTablet ? 666 : 800;
-    const bannerWidth = DEVICE_WIDTH - widthPixel(32);
+    const bannerWidth = deviceWidth - widthPixel(32);
     const bannerHeight = (bannerWidth * ORIGINAL_HEIGHT) / ORIGINAL_WIDTH;
+
+    const activeImages = isTablet ? tabImages : images;
 
     return (
         // No flex:1 — prevents this from consuming vertical touch events in the parent ScrollView
         <View style={{ marginTop: heightPixel(8) }}>
             <Carousel
                 loop
-                width={DEVICE_WIDTH}
+                width={deviceWidth}
                 height={bannerHeight}
                 autoPlay={true}
                 autoPlayInterval={3000}
                 scrollAnimationDuration={800}
-                data={isTablet ? tabImages : images}
+                data={activeImages}
                 // onProgressChange fires during the swipe animation (not after),
                 // so the dot updates instantly as the slide crosses the midpoint
                 onProgressChange={(_, absoluteProgress) => {
-                    const newIndex = Math.round(absoluteProgress) % images.length;
+                    const newIndex = Math.round(absoluteProgress) % activeImages.length;
                     if (newIndex !== index) setIndex(newIndex);
                 }}
                 // simultaneousHandlers tells RNGH to let the parent ScrollView
@@ -102,7 +110,7 @@ const BannerCarousel = ({ scrollRef }) => {
             />
 
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: heightPixel(8) }}>
-                {isTablet ? tabImages.map((_, i) => (
+                {activeImages.map((_, i) => (
                     <View
                         key={i}
                         style={{
@@ -113,20 +121,7 @@ const BannerCarousel = ({ scrollRef }) => {
                             marginHorizontal: 4,
                         }}
                     />
-                )) :
-                    images.map((_, i) => (
-                        <View
-                            key={i}
-                            style={{
-                                width: i === index ? 16 : 8,
-                                height: 8,
-                                borderRadius: 4,
-                                backgroundColor: i === index ? '#4A4A68' : 'rgba(74,74,104,0.4)',
-                                marginHorizontal: 4,
-                            }}
-                        />
-                    ))
-                }
+                ))}
             </View>
         </View>
     );
@@ -134,11 +129,33 @@ const BannerCarousel = ({ scrollRef }) => {
 
 const Home = () => {
     const dispatch = useDispatch();
-    const { colorScheme, } = useSelector(state => state.app);
+    const isTablet = useIsTablet();               // reactive — re-evaluates on fold/unfold
+    const { width: deviceWidth } = useWindowDimensions(); // reactive — updates on any dimension change
+    const { colorScheme } = useSelector(state => state.app);
     const navigation = useNavigation();
 
     const collections = useSelector(state => state?.collections?.collections);
     const styles = AppStyles.getAllStyles(colorScheme);
+
+    // Dynamic styles that depend on device width / isTablet — computed on every render
+    const dynamicStyles = {
+        categoryCard: {
+            width: (deviceWidth - widthPixel(16) * 2.5 - widthPixel(12) * (getNumColumns(2, undefined, isTablet) - 1)) / getNumColumns(2, undefined, isTablet),
+            backgroundColor: '#FFFFFF',
+            borderRadius: widthPixel(14),
+            padding: widthPixel(12),
+        },
+        partnerBox: {
+            width: (deviceWidth - widthPixel(16) * 2 - widthPixel(12) * (getNumColumns(2, 4, isTablet) - 1)) / getNumColumns(2, 4, isTablet),
+            height: heightPixel(70),
+            borderRadius: widthPixel(12),
+            backgroundColor: '#fff',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1,
+            borderColor: '#EEE',
+        },
+    };
 
     const scrollRef = useRef(null);
 
@@ -215,7 +232,7 @@ const Home = () => {
                         {(collections || []).slice(0, 6).map((item, idx) => (
                             <TouchableOpacity
                                 key={item?.id || idx}
-                                style={localStyles.categoryCard}
+                                style={dynamicStyles.categoryCard}
                                 onPress={() => navigation.navigate('ProductList', { handle: item?.handle, title: item?.title })}
                             >
                                 <FastImage
@@ -287,7 +304,7 @@ const Home = () => {
 
                     <View style={localStyles.partnersGrid}>
                         {partnerLogos.map((logo, i) => (
-                            <View key={i} style={localStyles.partnerBox}>
+                            <View key={i} style={dynamicStyles.partnerBox}>
                                 <FastImage
                                     source={logo}
 
@@ -306,7 +323,7 @@ const Home = () => {
 
                     <Carousel
                         loop
-                        width={DEVICE_WIDTH}
+                        width={deviceWidth}
                         // height={heightPixel(140)}
                         autoPlay={true}
                         autoPlayInterval={3000}
@@ -439,12 +456,7 @@ const localStyles = StyleSheet.create({
         justifyContent: 'space-between',
         rowGap: heightPixel(12),
     },
-    categoryCard: {
-        width: (DEVICE_WIDTH - widthPixel(16) * 2.5 - widthPixel(12) * (getNumColumns(2) - 1)) / getNumColumns(2),
-        backgroundColor: '#FFFFFF',
-        borderRadius: widthPixel(14),
-        padding: widthPixel(12),
-    },
+    // categoryCard is now in dynamicStyles inside the component (width depends on live isTablet)
     categoryImage: {
         width: '100%',
         height: heightPixel(110),
@@ -490,7 +502,7 @@ const localStyles = StyleSheet.create({
         marginBottom: heightPixel(12),
     },
     bestCard: {
-        width: DEVICE_WIDTH * 0.62,
+        width: '62%',
         backgroundColor: '#fff',
         marginHorizontal: widthPixel(6),
         borderRadius: widthPixel(12),

@@ -20,6 +20,7 @@ const fetch_products = gql`
               node {
                 id
                 sku
+                quantityAvailable
                 price {
                   amount
                   currencyCode

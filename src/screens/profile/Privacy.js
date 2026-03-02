@@ -8,6 +8,7 @@ import AppStyles from '../../styles/AppStyles';
 import WebView from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchCart } from '../../redux/reducers/cartSlice';
+import { showSuccessMsg } from '../../widgets/FlashMessages';
 
 const Privacy = ({ navigation }) => {
     const { colorScheme, apiCredentials } = useSelector(state => state.app);
@@ -60,6 +61,9 @@ const Privacy = ({ navigation }) => {
                                     // Clear local cart and refresh redux state
                                     await AsyncStorage.removeItem('cartId');
                                     dispatch(fetchCart());
+                                    showSuccessMsg("Order placed successfully");
+                                    // Navigate to the Home tab (pop the checkout stack first)
+                                    navigation.getParent()?.navigate('Home');
                                 }
                             } catch (_) { }
                         }}

@@ -28,6 +28,7 @@ const collection_by_handle = gql`
                 node {
                   id
                   sku
+                  quantityAvailable
                   price {
                     amount
                     currencyCode

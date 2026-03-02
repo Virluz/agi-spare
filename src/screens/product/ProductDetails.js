@@ -33,7 +33,7 @@ import BottomSheet from 'react-native-raw-bottom-sheet';
 import { createCheckoutShopify, getValidCustomerToken, updateCartBuyerIdentity } from '../../graphql/graph_request';
 import { createPickupCheckout } from '../../service/customCheckout';
 const { width: DEVICE_WIDTH } = Dimensions.get('window');
-const IMAGE_HEIGHT = heightPixel(380);
+const IMAGE_HEIGHT = 450;
 
 const ProductDetails = () => {
     const { colorScheme, isLoggedInGlobal } = useSelector((state) => state.app);

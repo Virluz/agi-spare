@@ -102,7 +102,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
                 <FastImage
                     source={{ uri: item?.node?.images?.edges[0]?.node?.url }}
-                    style={{ height: 200, width: '100%', }}
+                    style={{ height: 150, width: '100%', }}
                     resizeMode={FastImage.resizeMode.contain}
 
                     onLoad={() => { setImageLoader(false) }}

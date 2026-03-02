@@ -51,7 +51,11 @@ const Cart = () => {
 
 
     // Update quantity
-    const handleUpdateQuantity = async (lineId, quantity) => {
+    const handleUpdateQuantity = async (lineId, quantity, maxQty) => {
+        if (maxQty !== undefined && quantity > maxQty) {
+            Alert.alert('Max quantity reached', `Only ${maxQty} unit${maxQty === 1 ? '' : 's'} available for this item.`);
+            return;
+        }
         try {
             setLineLoading(prev => ({ ...prev, [lineId]: true }));
             await dispatch(updateCartItemQuantity({ lineId, quantity })).unwrap();
@@ -490,6 +494,8 @@ const Cart = () => {
                     keyExtractor={(item) => item.node.id}
                     renderItem={({ item }) => {
                         const { id, quantity, merchandise } = item.node;
+                        const maxQty = merchandise?.quantityAvailable;
+                        const isAtMax = maxQty !== undefined && quantity >= maxQty;
 
                         console.log("Item", item);
 
@@ -535,9 +541,15 @@ const Cart = () => {
                                             <Text style={appStyles.text_14_reg_mainTextColor2}>{quantity}</Text>
                                         )}
                                         <TouchableOpacity
-                                            style={styles.qtyIcon}
-                                            onPress={() => handleUpdateQuantity(id, quantity + 1)}
-                                            disabled={!!lineLoading[id]}
+                                            style={[styles.qtyIcon, isAtMax && { opacity: 0.35 }]}
+                                            onPress={() => {
+                                                if (isAtMax) {
+                                                    Alert.alert('Max quantity reached', `Only ${maxQty} unit${maxQty === 1 ? '' : 's'} available for this item.`);
+                                                    return;
+                                                }
+                                                handleUpdateQuantity(id, quantity + 1, maxQty);
+                                            }}
+                                            disabled={!!lineLoading[id] || isAtMax}
                                         >
                                             <Plus size={16} />
                                         </TouchableOpacity>

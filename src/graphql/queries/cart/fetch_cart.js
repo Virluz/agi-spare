@@ -23,6 +23,7 @@ const fetch_cart = `
               ... on ProductVariant {
                 id
                 title
+                quantityAvailable
                 product {
                   id
                   title

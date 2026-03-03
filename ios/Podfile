@@ -68,5 +68,23 @@ target 'quick_setup' do
         config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
       end
     end
+
+    # ── Hermes dSYM fix ───────────────────────────────────────────────────────
+    # App Store Connect validation requires a dSYM for hermes.framework.
+    # React Native bundles Hermes as a pre-built xcframework; its dSYMs are
+    # embedded inside the xcframework slices and must be extracted into
+    # the build products directory so Xcode picks them up during archiving.
+    #
+    # Without this, distribution validation fails with:
+    #   "Upload Symbols Failed – The archive did not include a dSYM for
+    #    the hermes.framework with the UUIDs [...]"
+    installer.pods_project.targets.each do |target|
+      if target.name == 'hermes-engine'
+        target.build_configurations.each do |config|
+          # Tell Xcode to always generate dSYM for the Hermes pod
+          config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+        end
+      end
+    end
   end
 end

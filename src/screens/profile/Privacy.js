@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Toolbar from '../../components/ui/Toolbar'
 import Loader from '../../widgets/Loader'
-import { Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import AppStyles from '../../styles/AppStyles';
@@ -61,8 +61,10 @@ const Privacy = ({ navigation }) => {
                                     // Clear local cart and refresh redux state
                                     await AsyncStorage.removeItem('cartId');
                                     dispatch(fetchCart());
-                                    showSuccessMsg("Order placed successfully");
+
+                                    Alert.alert("Order placed successfully");
                                     // Navigate to the Home tab (pop the checkout stack first)
+                                    navigation.goBack();
                                     navigation.getParent()?.navigate('Home');
                                 }
                             } catch (_) { }

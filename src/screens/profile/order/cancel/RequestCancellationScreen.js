@@ -14,7 +14,6 @@ const RequestCancellationScreen = ({ navigation, route }) => {
 
   const cancellationReasons = [
     'Ordered the wrong product',
-    'Ordered the wrong size',
     'Changed my mind ',
     'Found a better price elsewhere',
     'Need to change delivery address / details',

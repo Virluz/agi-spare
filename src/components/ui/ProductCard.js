@@ -26,6 +26,14 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     showAddToCartButton = true, isWishlistItem = false, disableNavigation = true, showDetails = false }) => {
 
     const [quantity, setQuantity] = useState(1);
+    const [imageLoading, setImageLoader] = useState(true);
+    const dispatch = useDispatch();
+    const navigation = useNavigation();
+    const { colorScheme, isLoggedInGlobal } = useSelector(state => state.app);
+    const wishlist = useSelector(state => state.wishlist);
+    const cartLines = useSelector(state => state.cart?.cart?.lines?.edges);
+
+    const isRightItem = (index + 1) % NUM_COLUMNS === 0;
 
     if (!item?.node || item?.node === null)
         return (
@@ -43,15 +51,11 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                     style={{ height: 150, width: '100%' }}
                 />
 
-
-
                 <ShimmerPlaceholder
                     duration={2000}
                     LinearGradient={LinearGradient}
                     style={{ height: 30, width: '100%', marginTop: 8 }}
                 />
-
-
 
                 <ShimmerPlaceholder
                     duration={1200}
@@ -63,26 +67,12 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
 
         )
 
-
-
-
-
-    const isRightItem = (index + 1) % NUM_COLUMNS === 0;
-    const { colorScheme, isLoggedInGlobal } = useSelector(state => state.app);
     const colors = extactColorsFromVariants(item?.node?.variants)
-
-
-
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
-    const navigation = useNavigation();
-    const wishlist = useSelector(state => state.wishlist);
     const isInWishlist = wishlist?.wishlistItems?.includes(item?.node?.id) || false;
-    const [imageLoading, setImageLoader] = useState(true);
-    const dispatch = useDispatch();
 
     // Determine how many of this variant are already in the cart
-    const cartLines = useSelector(state => state.cart?.cart?.lines?.edges);
     const variantId = item?.node?.variants?.edges?.[0]?.node?.id;
     const maxQty = item?.node?.variants?.edges?.[0]?.node?.quantityAvailable; // now populated from GraphQL
     const cartQty = cartLines?.find(e => e?.node?.merchandise?.id === variantId)?.node?.quantity ?? 0;
@@ -94,13 +84,7 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
     return (
         <TouchableWithoutFeedback
             onPress={() => {
-
-
-                // if (disableNavigation) return;
                 navigation.navigate('ProductDetails', { productId: item?.node?.id });
-                return;
-                navigation.navigate('FullScreenImage', { productId: item?.node?.id });
-
             }}>
             <View style={{
                 width: ITEM_WIDTH,
@@ -137,6 +121,11 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                 )}
 
                 <View style={{ paddingVertical: widthPixel(8), alignSelf: 'flex-start', flexGrow: 1, width: '100%' }}>
+                    {!!item?.node?.vendor && (
+                        <Text style={[isDarkBackground ? styles.text_12_reg_mainTextColor3 : styles.text_12_reg_mainTextColor2, { color: '#F2994A', fontWeight: '600', textTransform: 'uppercase', marginBottom: 2 }]} numberOfLines={1}>
+                            {item.node.vendor}
+                        </Text>
+                    )}
                     <Text style={[isDarkBackground ? styles.text_16_reg_mainTextColor3 : styles.text_16_reg_mainTextColor2, { color: '#261F64' }]} numberOfLines={2}>{item?.node?.title}</Text>
 
                     {showDetails && (
@@ -244,6 +233,9 @@ const ProductCard = ({ item, index, isDarkBackground = false, quickShop = false,
                                     }
                                     await dispatch(addOrUpdateCartLine({ variantId, quantity })).unwrap();
                                     showSuccessMsg(`Added ${quantity} item(s) to cart`);
+                                    if (isWishlistItem && isInWishlist) {
+                                        dispatch(toggleWishlistItem(item?.node?.id));
+                                    }
                                 } catch (e) {
                                     showErrorMsg(String(e?.message || 'Failed to add to cart'));
                                 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -17,11 +17,13 @@ import CommonInput from '../../components/ui/CommonInput';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { widthPixel, heightPixel } from '../../utils/fonts';
 import { EMAIL_REGEX } from '../../utils/Helper';
-import { createCustomerWithMetafields } from '../../graphql/graph_request';
+import { loginCustomer, createCustomerAddress, setCustomerDefaultAddress } from '../../graphql/graph_request';
+import { sendRegistrationToGoogleSheet } from '../../api/requests';
 import { saveAuthToken } from '../../utils/customerAuth';
 import { setIsLoggedIn } from '../../redux/reducers/appSlice';
 import Toolbar from '../../components/ui/Toolbar';
 import { ChevronDown } from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Indian states list
 const INDIAN_STATES = [
@@ -63,12 +65,26 @@ const INDIAN_STATES = [
     'Puducherry',
 ];
 
+// How did you hear about us options
+const HEAR_ABOUT_OPTIONS = [
+    'Google',
+    'Facebook',
+    'Instagram',
+    'YouTube',
+    'Friend / Family',
+    'Newspaper / Magazine',
+    'Trade Show / Exhibition',
+    'Other',
+];
+
 const CreateAccount = () => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { colorScheme } = useSelector(state => state.app);
     const [isLoading, setIsLoading] = useState(false);
     const [showStatePicker, setShowStatePicker] = useState(false);
+    const [showHearAboutPicker, setShowHearAboutPicker] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -108,54 +124,96 @@ const CreateAccount = () => {
             // Split name into firstName and lastName
             const nameParts = data.name.trim().split(' ');
             const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
+            const lastName = nameParts.slice(1).join(' ') || '.';
 
-            const payload = {
+            // Register customer on Shopify and Google Sheet in single call
+            const sheetResult = await sendRegistrationToGoogleSheet({
                 firstName,
                 lastName,
                 email: data.email,
                 password: data.password,
-                phone: data.mobile.startsWith('+91') ? data.mobile : `+91${data.mobile}`,
-                acceptsMarketing: true,
-                // Address fields
-                address1: data.buildingName,
-                address2: data.streetName,
-                city: data.cityName,
-                province: data.state,
-                zip: data.pinCode,
-                country: 'India',
-                // Metafields for custom fields
-                metafields: {
-                    companyName: data.company_name,
-                    gstNo: data.gstNo,
-                    areaName: data.areaName,
-                    username: data.username,
-                    state: data.state,
-                    pinCode: data.pinCode,
+                mobile: data.mobile,
+                name: data.name,
+                birthDate: data.birthDate || '',
+                companyName: data.company_name,
+                gstNumber: data.gstNo,
+                howDidYouHear: data.howDidYouHear || '',
+                buildingName: data.buildingName,
+                state: data.state,
+                cityName: data.cityName,
+                areaName: data.areaName,
+                pinCode: data.pinCode,
+                username: data.username,
+            });
+
+            if (!sheetResult?.success) {
+                let errorMsg = sheetResult?.message || 'Failed to create account';
+                if (typeof errorMsg === 'string' && errorMsg.includes('has already been taken')) {
+                    if (errorMsg.toLowerCase().includes('email')) {
+                        errorMsg = 'An account with this email address already exists.';
+                    } else if (errorMsg.toLowerCase().includes('phone') || errorMsg.toLowerCase().includes('mobile')) {
+                        errorMsg = 'An account with this mobile number already exists.';
+                    } else {
+                        errorMsg = 'An account with this email or mobile number already exists.';
+                    }
                 }
-            };
+                Alert.alert('Registration Failed', errorMsg);
+                return;
+            }
 
-            const result = await createCustomerWithMetafields(payload);
+            // Customer creation in Shopify succeeded! Log customer in to get access token:
+            const loginResult = await loginCustomer(data.email, data.password);
 
-            if (result.success) {
-                // Save auth token and login
+            if (loginResult?.customerAccessTokenCreate?.customerUserErrors?.length > 0) {
+                const err = loginResult.customerAccessTokenCreate.customerUserErrors[0];
+                Alert.alert('Login Failed', err.message || 'Could not log in after registration');
+                return;
+            }
+
+            const tokenObj = loginResult?.customerAccessTokenCreate?.customerAccessToken;
+            const accessToken = tokenObj?.accessToken;
+            const expiresAt = tokenObj?.expiresAt;
+
+            if (accessToken) {
+                // Save customer address if provided
+                if (data.buildingName && data.cityName && data.state && data.pinCode) {
+                    try {
+                        const addressInput = {
+                            address1: data.buildingName,
+                            address2: data.streetName || '',
+                            city: data.cityName,
+                            province: data.state,
+                            zip: data.pinCode,
+                            country: 'India',
+                            phone: data.mobile.startsWith('+91') ? data.mobile : `+91${data.mobile}`,
+                            firstName,
+                            lastName,
+                        };
+                        const addressResult = await createCustomerAddress(accessToken, addressInput);
+                        if (addressResult?.customerAddressCreate?.customerAddress?.id) {
+                            await setCustomerDefaultAddress(accessToken, addressResult.customerAddressCreate.customerAddress.id);
+                        }
+                    } catch (addrErr) {
+                        console.warn('Address creation error (non-critical):', addrErr);
+                    }
+                }
+
+                // Save auth token and update login state
                 await saveAuthToken(
-                    result.accessToken,
-                    result.expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString()
+                    accessToken,
+                    expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString()
                 );
                 dispatch(setIsLoggedIn(true));
 
                 Alert.alert('Success', 'Account created successfully!', [
                     {
                         text: 'OK', onPress: () => {
-                            navigation.goBack();
-
-                            navigation.goBack();
+                            navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
                         }
                     }
                 ]);
             } else {
-                Alert.alert('Error', result.message || 'Failed to create account');
+                Alert.alert('Error', 'Account created, but failed to log in automatically. Please log in.');
             }
         } catch (error) {
             console.error('Create account error:', error);
@@ -247,6 +305,54 @@ const CreateAccount = () => {
                         control={control}
                         errors={errors}
                         rules={{ required: 'Name is required' }}
+                    />
+                </View>
+
+                {/* Birth Date (Optional) */}
+                <View style={localStyles.inputContainer}>
+                    <Text style={[styles.text_12_reg_mainTextColor2, { marginBottom: 4 }]}>Birth Date (Optional)</Text>
+                    <Controller
+                        name="birthDate"
+                        control={control}
+                        render={({ field: { value } }) => (
+                            <>
+                                <TouchableOpacity
+                                    style={localStyles.pickerButton}
+                                    onPress={() => setShowDatePicker(true)}
+                                >
+                                    <Text style={[styles.text_14_reg_mainTextColor2, !value && { color: colorSet.mainSubtextColor }]}>
+                                        {value || 'dd/mm/yyyy'}
+                                    </Text>
+                                    <Text style={{ fontSize: 16, color: colorSet.dark3 }}>📅</Text>
+                                </TouchableOpacity>
+                                {showDatePicker && (
+                                    <View style={{ backgroundColor: colorSet.white, borderRadius: 8, marginTop: 8 }}>
+                                        {Platform.OS === 'ios' && (
+                                            <TouchableOpacity
+                                                onPress={() => setShowDatePicker(false)}
+                                                style={{ alignSelf: 'flex-end', paddingHorizontal: 16, paddingVertical: 8 }}
+                                            >
+                                                <Text style={[styles.text_14_bold_mainTextColor2]}>Done</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                        <DateTimePicker
+                                            value={value ? new Date(value.split('/').reverse().join('-')) : new Date()}
+                                            mode="date"
+                                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                            maximumDate={new Date()}
+                                            onChange={(event, selectedDate) => {
+                                                if (Platform.OS !== 'ios') setShowDatePicker(false);
+                                                if (selectedDate) {
+                                                    const d = selectedDate;
+                                                    const formatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                                                    setValue('birthDate', formatted);
+                                                }
+                                            }}
+                                        />
+                                    </View>
+                                )}
+                            </>
+                        )}
                     />
                 </View>
 
@@ -483,6 +589,32 @@ const CreateAccount = () => {
                     </TouchableOpacity>
                 </View>
 
+                {/* How did you hear about us? */}
+                <View style={localStyles.inputContainer}>
+                    <Text style={[styles.text_12_reg_mainTextColor2, { marginBottom: 4 }]}>How did you hear about us?</Text>
+                    <Controller
+                        name="howDidYouHear"
+                        control={control}
+                        rules={{ required: 'Please select an option' }}
+                        render={({ field: { value } }) => (
+                            <TouchableOpacity
+                                style={localStyles.pickerButton}
+                                onPress={() => setShowHearAboutPicker(true)}
+                            >
+                                <Text style={[styles.text_14_reg_mainTextColor2, !value && { color: colorSet.mainSubtextColor }]}>
+                                    {value || 'Choose a platform...'}
+                                </Text>
+                                <ChevronDown size={widthPixel(20)} color={colorSet.dark3} />
+                            </TouchableOpacity>
+                        )}
+                    />
+                    {errors?.howDidYouHear && (
+                        <Text style={{ color: 'red', marginTop: 4, fontSize: 12 }}>
+                            {errors.howDidYouHear.message}
+                        </Text>
+                    )}
+                </View>
+
                 {/* Save Button */}
                 <View style={localStyles.buttonContainer}>
                     <PrimaryButton
@@ -524,6 +656,43 @@ const CreateAccount = () => {
                                     }}
                                 >
                                     <Text style={styles.text_14_reg_mainTextColor2}>{state}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* How did you hear about us Picker Modal */}
+            <Modal
+                visible={showHearAboutPicker}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowHearAboutPicker(false)}
+            >
+                <TouchableOpacity
+                    activeOpacity={1}
+                    style={localStyles.modalOverlay}
+                    onPress={() => setShowHearAboutPicker(false)}
+                >
+                    <View style={localStyles.pickerContainer}>
+                        <View style={localStyles.pickerHeader}>
+                            <Text style={localStyles.pickerTitle}>How did you hear about us?</Text>
+                            <TouchableOpacity onPress={() => setShowHearAboutPicker(false)}>
+                                <Text style={[styles.text_14_bold_mainTextColor2]}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            {HEAR_ABOUT_OPTIONS.map((option) => (
+                                <TouchableOpacity
+                                    key={option}
+                                    style={localStyles.pickerOption}
+                                    onPress={() => {
+                                        setValue('howDidYouHear', option, { shouldValidate: true });
+                                        setShowHearAboutPicker(false);
+                                    }}
+                                >
+                                    <Text style={styles.text_14_reg_mainTextColor2}>{option}</Text>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>

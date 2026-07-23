@@ -14,4 +14,10 @@ Text.defaultProps.allowFontScaling = false;
 TextInput.defaultProps = TextInput.defaultProps || {};
 TextInput.defaultProps.allowFontScaling = false;
 
+// Must be registered before the React component tree is mounted so iOS can
+// process data-only messages while the app is in the background or terminated.
+getMessaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background:', remoteMessage.messageId);
+});
+
 AppRegistry.registerComponent(appName, () => App);

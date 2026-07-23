@@ -8,16 +8,19 @@ import {
     ActivityIndicator,
     Animated,
     TextInput,
+    Share,
+    Platform,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AppStyles from '../../styles/AppStyles';
-import { ArrowLeft, ArrowLeftCircle, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Heart, Minus, MoveLeft, Plus, ShoppingCart } from 'lucide-react-native';
+import { ArrowLeft, ArrowLeftCircle, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Heart, Minus, MoveLeft, Plus, Share2, ShoppingCart } from 'lucide-react-native';
 import Toolbar from '../../components/ui/Toolbar';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { showErrorMsg, showSuccessMsg } from '../../widgets/FlashMessages';
-import { getProductById } from '../../graphql/graph_request';
+import { getProductById, getProductByHandle } from '../../graphql/graph_request';
 import { addOrUpdateCartLine } from '../../redux/reducers/cartSlice';
+import { toggleWishlistItem } from '../../redux/reducers/wishlistSlice';
 import { addToRecentlyViewed } from '../../utils/recentlyViewedUtils';
 import FastImage from '@d11/react-native-fast-image';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
@@ -41,13 +44,12 @@ const ProductDetails = () => {
     const colorSet = AppStyles.colorSet[colorScheme];
     const navigation = useNavigation();
     const route = useRoute();
-    const { productId } = route.params;
+    const { productId, handle } = route.params || {};
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState({});
     const [quantity, setQuantity] = useState(1);
-    const [isFavorite, setIsFavorite] = useState(false);
     const carouselRef = useRef(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [accordionState, setAccordionState] = useState({
@@ -68,9 +70,12 @@ const ProductDetails = () => {
     const [colorVariants, setColorVariants] = useState([]);
 
     const dispatch = useDispatch();
+    const wishlistItems = useSelector((state) => state.wishlist.wishlistItems);
     const cart = useSelector((state) => state.cart.cart);
     const user = useSelector((state) => state.user?.user);
     const variantId = selectedVariant?.id;
+    const wishlistProductId = product?.id || productId;
+    const isFavorite = wishlistItems.includes(wishlistProductId);
 
     const [images, setImages] = useState([]);
     const cartQuantity =
@@ -117,7 +122,21 @@ const ProductDetails = () => {
     const fetchProductDetails = async () => {
         try {
             setLoading(true);
-            const response = await getProductById(productId);
+            let response;
+            if (productId) {
+                response = await getProductById(productId);
+            } else if (handle) {
+                response = await getProductByHandle(handle);
+            } else {
+                showErrorMsg('Product not found');
+                setLoading(false);
+                return;
+            }
+            if (!response?.product) {
+                showErrorMsg('Product not found');
+                setLoading(false);
+                return;
+            }
             const prod = response.product;
 
             console.log("response.pr", response.product);
@@ -230,9 +249,10 @@ const ProductDetails = () => {
                 pincode: String(pincode || '')
             } : undefined;
 
-            dispatch(
+            await dispatch(
                 addOrUpdateCartLine({ variantId: selectedVariant.id, quantity, attributes })
-            );
+            ).unwrap();
+
             console.log('Added to cart:', {
                 productId: product.id,
                 variantId: selectedVariant.id,
@@ -384,19 +404,32 @@ const ProductDetails = () => {
 
     };
 
+    const handleShare = async () => {
+        try {
+            const productTitle = product?.title || 'AGI Spares Product';
+            const priceString = selectedVariant?.price?.amount ? ` - ₹${selectedVariant.price.amount}` : '';
+            const productHandle = product?.handle;
+            const productUrl = product?.onlineStoreUrl || (productHandle ? `https://agispares.com/products/${productHandle}` : 'https://agispares.com/');
+            const imageUrl = selectedVariant?.image?.url || images?.[0]?.node?.url || '';
+
+            let shareMessage = `${productTitle}${priceString}\n\nCheck out this product on AGI Spares:\n${productUrl}\n\nShared from AGI Spares`;
+
+            await Share.share({
+                title: productTitle,
+                message: shareMessage,
+                url: Platform.OS === 'ios' ? (imageUrl || productUrl) : productUrl,
+            });
+        } catch (error) {
+            console.log('Error sharing product:', error?.message);
+        }
+    };
+
     return (
         <>
             <Toolbar
                 leftIcon={ArrowLeft}
                 onLeftPress={() => navigation.goBack()}
                 title={"Product Details"}
-                rightIcons={[
-                    {
-                        icon: Heart,
-                        onPress: () => setIsFavorite(!isFavorite),
-                        fill: isFavorite,
-                    },
-                ]}
             />
 
             <View style={[styles.container_no_padding]}>
@@ -436,6 +469,34 @@ const ProductDetails = () => {
                                 </View>
                             )}
                         />
+
+                        {isLoggedInGlobal && (
+                            <>
+                                <TouchableOpacity
+                                    style={localStyles.wishlistButton}
+                                    onPress={() => {
+                                        dispatch(toggleWishlistItem(wishlistProductId));
+                                        showSuccessMsg(isFavorite ? 'Removed from wishlist' : 'Added to wishlist');
+                                    }}
+                                >
+                                    <Heart
+                                        size={24}
+                                        color={isFavorite ? '#F04438' : '#111111'}
+                                        fill={isFavorite ? '#F04438' : 'transparent'}
+                                    />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={localStyles.shareButton}
+                                    onPress={handleShare}
+                                >
+                                    <Share2
+                                        size={22}
+                                        color={'#111111'}
+                                    />
+                                </TouchableOpacity>
+                            </>
+                        )}
 
 
 
@@ -493,6 +554,12 @@ const ProductDetails = () => {
                         </View>
 
                         {_getVerticalPadding(12)}
+
+                        {!!product?.vendor && (
+                            <Text style={[styles.text_12_semi_mainTextColor2, { color: '#F2994A', textTransform: 'uppercase', marginBottom: 4 }]}>
+                                {product.vendor}
+                            </Text>
+                        )}
 
                         <Text style={styles.text_16_semi_mainTextColor2}>{product?.title}</Text>
 
@@ -861,6 +928,40 @@ const ProductDetails = () => {
 export default ProductDetails;
 
 const localStyles = StyleSheet.create({
+    wishlistButton: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        zIndex: 2,
+    },
+    shareButton: {
+        position: 'absolute',
+        top: 68,
+        right: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        zIndex: 2,
+    },
     container: { flex: 1 },
     detailsContainer: {
         padding: 20,

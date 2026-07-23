@@ -13,6 +13,7 @@ const fetch_products = gql`
         node {
           id
           title
+          vendor
           handle
           description
           variants(first: 100) {

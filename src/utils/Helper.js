@@ -511,28 +511,23 @@ const getCameraIcon = (size = 12, color = 'black') => (
 )
 
 const getFirebaseToken = async () => {
-  if (Platform.OS === 'ios') {
-    try {
-      const token = await SecureStorage.getAPNsToken();
-      return token;
-
-    } catch (error) {
-      console.log(error, "error");
-      return "notoken";
-
-    }
-  }
   try {
-    const token = await getMessaging().getToken();
+    const messaging = getMessaging();
+
+    // iOS needs to be registered with APNs before Firebase can issue an FCM
+    // registration token. The FCM token is the token our notification API
+    // expects for both iOS and Android.
+    if (Platform.OS === 'ios' && !messaging.isDeviceRegisteredForRemoteMessages) {
+      await messaging.registerDeviceForRemoteMessages();
+    }
+
+    const token = await messaging.getToken();
     console.log('TOKEN', token);
     return token;
   } catch (error) {
     console.log('TOKEN', error);
     return null;
   }
-
-
-  return token;
 };
 
 const getFormData = (object) => {
@@ -1076,41 +1071,57 @@ const requestLocationPermission = async () => {
 };
 
 const requestNotificationPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      // For Android 13+ (API level 33+)
+  try {
+    const messaging = getMessaging();
+
+    if (Platform.OS === 'android') {
+      // For Android 13+ (API level 33+), explicitly request runtime notification permission
       if (Platform.Version >= 33) {
-        const granted = await PermissionsAndroid.check(
+        const checkPermission = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
         );
 
-        if (!granted) {
+        if (!checkPermission) {
           const result = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
             {
               title: 'Notification Permission',
               message:
-                'App needs access to your notifications ' +
-                'so you can receive important updates',
+                'App needs access to your notifications so you can receive important updates',
               buttonNeutral: 'Ask Me Later',
               buttonNegative: 'Cancel',
               buttonPositive: 'OK',
             }
           );
-          return result === PermissionsAndroid.RESULTS.GRANTED;
+          if (result !== PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('Android push notification permission denied');
+            return { granted: false, token: null };
+          }
         }
-        return true;
       }
-      // For Android <13, notification permission is granted by default
-      return true;
-    } catch (err) {
-      console.error('Notification permission error:', err);
-      return false;
-    }
-  }
-  // For iOS (you'll need to implement iOS-specific logic)
-  return false;
+    } else if (Platform.OS === 'ios') {
+      const authStatus = await messaging.requestPermission();
+      const isAuthorized =
+        authStatus === 1 || // AuthorizationStatus.AUTHORIZED
+        authStatus === 2;   // AuthorizationStatus.PROVISIONAL
 
+      if (!isAuthorized) {
+        console.log('iOS push notification permission denied');
+        return { granted: false, token: null };
+      }
+
+      if (!messaging.isDeviceRegisteredForRemoteMessages) {
+        await messaging.registerDeviceForRemoteMessages();
+      }
+    }
+
+    const token = await messaging.getToken();
+    console.log('Push notification permission granted. FCM Token:', token);
+    return { granted: true, token };
+  } catch (err) {
+    console.error('Notification permission error:', err);
+    return { granted: false, token: null, error: err };
+  }
 };
 
 const processPins = (pins) => {

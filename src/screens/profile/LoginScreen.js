@@ -77,6 +77,7 @@ const LoginForm = ({ onLoginSuccess, switchToRecovery, navigation }) => {
                     value={email}
                     onChangeText={setEmail}
                     placeholder="Enter your email"
+                    placeholderTextColor="#A0A0A0"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     editable={!isLoading}
@@ -90,6 +91,7 @@ const LoginForm = ({ onLoginSuccess, switchToRecovery, navigation }) => {
                     value={password}
                     onChangeText={setPassword}
                     placeholder="Enter your password"
+                    placeholderTextColor="#A0A0A0"
                     secureTextEntry
                     editable={!isLoading}
                 />
@@ -180,6 +182,7 @@ const PasswordRecovery = ({ switchToLogin }) => {
                     value={email}
                     onChangeText={setEmail}
                     placeholder="Enter your email"
+                    placeholderTextColor="#A0A0A0"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     editable={!isLoading}

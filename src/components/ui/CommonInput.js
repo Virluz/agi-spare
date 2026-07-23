@@ -23,6 +23,7 @@ const CommonInput = props => {
     placeholder,
     keyboardType,
     title,
+    label,
     errors,
     starMark = false,
     errorMessage = null,
@@ -35,6 +36,8 @@ const CommonInput = props => {
     iconName,
     onIconPress, maxLength = 0
   } = props;
+
+  const inputTitle = title || label;
 
   const { field } = useController({
     control: control,
@@ -54,11 +57,11 @@ const CommonInput = props => {
   const colors = AppStyles.colorSet[colorScheme];
   const styles = getStyles(colors);
   const accessbility = getAccessbility(
-    title,
+    inputTitle,
     Constants.ACESSBILITY_LABEL.TEXTINPUT,
   );
   const accessbilityButton = getAccessbility(
-    title,
+    inputTitle,
     Constants.ACESSBILITY_LABEL.BUTTON,
   );
 
@@ -72,10 +75,10 @@ const CommonInput = props => {
 
   return (
     <View style={[style]}>
-      {title &&
+      {inputTitle &&
         <Text style={[appstyles.text_12_reg_mainTextColor2]}>
-          {title}
-          {rules['required'] === true && starMark && '*'}
+          {inputTitle}
+          {rules?.['required'] === true && starMark && '*'}
         </Text>
       }
 
@@ -107,11 +110,14 @@ const CommonInput = props => {
 
       </View>
 
-      {errors[name]?.type === 'required' &&
-        _getValidateText(translateKeys.This_field_is_Required)}
-
-      {errors[name]?.type === 'pattern' &&
-        _getValidateText(errorMessage ? errorMessage : 'Enter valid ' + title)}
+      {errors[name] &&
+        _getValidateText(
+          errors[name]?.message ||
+            errorMessage ||
+            (errors[name]?.type === 'required'
+              ? translateKeys.This_field_is_Required
+              : 'Enter valid ' + (inputTitle || placeholder || 'value'))
+        )}
 
     </View>
   );

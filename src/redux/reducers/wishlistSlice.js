@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { saveWishlistToStorage } from '../../utils/wishlistStorage';
+import { saveWishlistToStorage, clearWishlistFromStorage } from '../../utils/wishlistStorage';
 
 const initialState = {
     wishlistItems: [],
@@ -32,6 +32,7 @@ const wishlistSlice = createSlice({
         },
         clearWishlist: (state) => {
             state.wishlistItems = [];
+            clearWishlistFromStorage();
         },
         setLoading: (state, action) => {
             state.loading = action.payload;

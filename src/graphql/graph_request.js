@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import cartCreate from './mutation/createNewCart';
 import fetch_product_by_id from './queries/products/fetch_product_by_id';
+import fetch_product_by_handle from './queries/products/fetch_product_by_handle';
 import fetch_products from './queries/products/fetch_products';
 import search_products from './queries/products/search_products';
 import { shopifyClient, storeFrontClient } from './shopifyClient';
@@ -48,6 +49,10 @@ export const getBestSellers = async (params) => {
 
 export const getProductById = async (id) => {
     return await storeFrontClient.request(fetch_product_by_id, { id })
+}
+
+export const getProductByHandle = async (handle) => {
+    return await storeFrontClient.request(fetch_product_by_handle, { handle })
 }
 
 

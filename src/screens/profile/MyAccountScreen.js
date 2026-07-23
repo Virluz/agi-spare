@@ -14,6 +14,7 @@ import { checkCustomerAuth } from '../../graphql/customerAuth';
 import { setCustomerDefaultAddress } from '../../graphql/graph_request';
 import { getAuthToken } from '../../utils/customerAuth';
 import { clearAuthToken } from '../../utils/customerAuth';
+import { clearWishlist } from '../../redux/reducers/wishlistSlice';
 import { t } from 'i18next';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,6 +70,7 @@ const MyAccountScreen = () => {
   const handleLogout = async () => {
     try {
       await clearAuthToken();
+      dispatch(clearWishlist());
       setCustomerData(null);
       navigation.reset({
         index: 0,
@@ -219,7 +221,7 @@ const MyAccountScreen = () => {
         <View style={localStyles.profileSection}>
           <View>
             <Text style={styles.text_16_reg_mainTextColor2}>
-              {customerData.firstName} {customerData.lastName}
+              {[customerData?.firstName, customerData?.lastName].filter(Boolean).join(' ') || customerData?.email || ''}
             </Text>
             <Text style={[styles.text_14_reg_mainTextColor2, { marginTop: 4 }]}>
               {customerData.email}

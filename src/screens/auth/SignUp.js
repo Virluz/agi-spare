@@ -15,7 +15,7 @@ import CommonInput from '../../components/ui/CommonInput';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { widthPixel, heightPixel } from '../../utils/fonts';
 import { EMAIL_REGEX } from '../../utils/Helper';
-import { registerUser } from '../../api/requests';
+import { registerUser, sendRegistrationToGoogleSheet } from '../../api/requests';
 import { loginCustomer, createAccessTokenWithMultipass } from '../../graphql/graph_request';
 import { saveAuthToken } from '../../utils/customerAuth';
 import { setIsLoggedIn } from '../../redux/reducers/appSlice';
@@ -97,12 +97,24 @@ const SignUp = () => {
                 return;
             }
 
+            // Send to Google Sheet after successful registration
+            sendRegistrationToGoogleSheet({
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                mobile,
+            });
+
             await saveAuthToken(accessToken, expiresAt || new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString());
             dispatch(setIsLoggedIn(true));
 
-            //go back two screens to avoid going to login screen
-            navigation.goBack();
-            navigation.goBack();
+            Alert.alert('Success', 'Account created successfully!', [
+                {
+                    text: 'OK', onPress: () => {
+                        navigation.reset({ index: 0, routes: [{ name: 'MainStack' }] });
+                    }
+                }
+            ]);
 
         } catch (error) {
             console.error('Signup error:', error);

@@ -1,0 +1,14 @@
+{
+  "Simulator Target Bundle": "com.algyas.agispares",
+  "aps": {
+    "alert": {
+      "title": "iOS Push Notification Test 🚀",
+      "body": "Hello from Terminal! iOS push notification test."
+    },
+    "sound": "default",
+    "badge": 1
+  },
+  "customData": {
+    "test": "true"
+  }
+}

@@ -21,6 +21,7 @@ import { getLocationTrackingSetting, updateFirebaseToken } from '../../api/reque
 import { Bell, ChevronRight, LogOut, Phone, Shield, User2, Wrench, Info, RotateCcw, LucideLogOut, Delete, DeleteIcon } from 'lucide-react-native'
 import { clearAuthToken } from '../../utils/customerAuth'
 import { setIsLoggedIn } from '../../redux/reducers/appSlice'
+import { clearWishlist } from '../../redux/reducers/wishlistSlice'
 import { checkCustomerAuth } from '../../graphql/customerAuth'
 import { showSuccessMsg } from '../../widgets/FlashMessages'
 
@@ -64,6 +65,7 @@ const Profile = () => {
     const handleLogoutFunction = async () => {
         try {
             await clearAuthToken();
+            dispatch(clearWishlist());
             dispatch(setIsLoggedIn(false));
             navigation.reset({
                 index: 0,
@@ -174,6 +176,11 @@ const Profile = () => {
         )
     }
 
+    const displayName =
+        [customerData?.firstName, customerData?.lastName].filter(Boolean).join(' ') ||
+        customerData?.email ||
+        '';
+
     return (
         <>
             {loading && <Loader />}
@@ -188,8 +195,12 @@ const Profile = () => {
                             resizeMode="cover"
                         />
                     </View>
-                    <Text style={[styles.text_18_bold_white, { marginTop: 10 }]}>{`${customerData?.firstName} ${customerData?.lastName}`}</Text>
-                    <Text style={[styles.text_12_reg_mainTextColor3, { opacity: 0.9 }]}>{customerData?.email}</Text>
+                    {displayName ? (
+                        <Text style={[styles.text_18_bold_white, { marginTop: 10 }]}>{displayName}</Text>
+                    ) : null}
+                    {customerData?.email && displayName !== customerData?.email ? (
+                        <Text style={[styles.text_12_reg_mainTextColor3, { opacity: 0.9 }]}>{customerData?.email}</Text>
+                    ) : null}
                 </View>
 
                 {/* White sheet with sections */}
@@ -212,11 +223,11 @@ const Profile = () => {
                             {/* Help & Support section */}
                             <Text style={[styles.text_16_bold_mainTextColor2, { marginTop: 20 }]}>Help & Support</Text>
                             <View style={s.card}>
-                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://www.agispares.com/pages/contact', title: 'Contact Us' }) }} />
+                                <RowItem icon={<Phone size={18} color={colorSet.dark3} />} title="Contact Us" onPress={() => { navigation.navigate('ContactUs') }} />
                                 <RowItem icon={<Shield size={18} color={colorSet.dark3} />} title="Disclaimer" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/disclaimer', title: 'Disclaimer' }) }} />
                                 <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Return Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/return-policy', title: 'Return Policy' }) }} />
                                 <RowItem icon={<RotateCcw size={18} color={colorSet.dark3} />} title="Privacy Policy" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/privacy-policy', title: 'Privacy Policy' }) }} />
-                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('WebViewScreen', { url: 'https://agispares.com/pages/about-us', title: 'About Us' }) }} />
+                                <RowItem icon={<Info size={18} color={colorSet.dark3} />} title="About Us" onPress={() => { navigation.navigate('AboutUs') }} />
 
 
                                 <RowItem icon={<DeleteIcon size={18} color={colorSet.dark3} />} title="Delete Account" onPress={handleDeleteAccount} />

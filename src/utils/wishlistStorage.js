@@ -19,3 +19,11 @@ export const loadWishlistFromStorage = async () => {
         return [];
     }
 };
+
+export const clearWishlistFromStorage = async () => {
+    try {
+        await AsyncStorage.removeItem(WISHLIST_STORAGE_KEY);
+    } catch (error) {
+        console.error('Error clearing wishlist:', error);
+    }
+};

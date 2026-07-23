@@ -2,7 +2,7 @@ import { ActivityIndicator, FlatList, Image, RefreshControl, ScrollView, StyleSh
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
 import AppStyles from '../../styles/AppStyles';
-import { ArrowLeft, ArrowRight, ArrowRightIcon, ArrowRightLeft, ArrowUpDown, Bell, Check, CheckCheck, CheckSquare, CheckSquare2, ChevronRight, Filter, Lock, Menu, MenuIcon, MenuSquareIcon, MoveLeft, MoveRight, Search, SortAsc, SortAscIcon, X } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, ArrowRightIcon, ArrowRightLeft, ArrowUpDown, Bell, Check, CheckCheck, CheckSquare, CheckSquare2, ChevronRight, Filter, Heart, Lock, Menu, MenuIcon, MenuSquareIcon, MoveLeft, MoveRight, Search, SortAsc, SortAscIcon, X } from 'lucide-react-native';
 import Toolbar from '../../components/ui/Toolbar';
 import { useTranslation } from 'react-i18next';
 import { getNumColumns, heightPixel, widthPixel } from '../../utils/fonts';
@@ -46,7 +46,8 @@ const ProductList = () => {
     console.log("ProductList mounted with title:", title, "and handle:", handle);
     console.log("ProductList current products length:", products?.length);
 
-    const { colorScheme, apiCredentials, appSettings } = useSelector(state => state.app);
+    const { colorScheme, apiCredentials, appSettings, isLoggedInGlobal } = useSelector(state => state.app);
+    const wishlistCount = useSelector(state => state.wishlist?.wishlistItems?.length || 0);
     const [products, setProducts] = useState([]);
     const styles = AppStyles.getAllStyles(colorScheme);
     const colorSet = AppStyles.colorSet[colorScheme];
@@ -486,13 +487,33 @@ const ProductList = () => {
                 leftIcon={ArrowLeft}
                 onLeftPress={() => navigation.goBack()}
                 title={collectionTitle}
-            // rightIcons={[
-            //     {
-            //         icon: Heart,
-            //         onPress: () => setIsFavorite(!isFavorite),
-            //         fill: isFavorite,
-            //     },
-            // ]}
+                isFilter={isLoggedInGlobal}
+                filerIcon={
+                    <View style={{ position: 'relative' }}>
+                        <Heart size={22} color={colorSet.black} />
+                        {wishlistCount > 0 && (
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    top: -6,
+                                    right: -8,
+                                    minWidth: 16,
+                                    height: 16,
+                                    borderRadius: 8,
+                                    backgroundColor: '#F04438',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingHorizontal: 2,
+                                }}
+                            >
+                                <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>
+                                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                }
+                onFilter={() => navigation.navigate('Wishlist')}
             />
 
 

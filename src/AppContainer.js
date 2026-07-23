@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { DefaultTheme, NavigationContainer, useNavigation } from '@react-navigation/native';
-import { Alert, Appearance, Linking, StatusBar, Text, useColorScheme, View } from 'react-native';
+import { Alert, Appearance, Linking, Platform, StatusBar, Text, useColorScheme, View } from 'react-native';
 import RootNavigator from './navigators/RootNavigator';
 import AppStyles from './styles/AppStyles';
-import { getMessaging, requestPermission } from '@react-native-firebase/messaging';
 import Constants from './utils/Constants';
-import { _isEmpty, requestNotificationPermission } from './utils/Helper';
+import { _isEmpty, getFirebaseToken, requestNotificationPermission } from './utils/Helper';
 import SecureStorage from './utils/SecureStorage';
 import { useDispatch, useSelector } from 'react-redux';
 import { setColorScheme } from './redux/reducers/appSlice';
@@ -31,25 +30,9 @@ const AppContainer = () => {
 
   useEffect(() => {
     setColors();
-    notificationRequestPermission()
-  }, [])
-
-
-  useEffect(() => {
+    requestNotificationPermission();
     dispatch(initializeCart());
   }, [dispatch]);
-
-
-  const notificationRequestPermission = () => {
-    enableNotifications();
-    getMessaging().requestPermission().then((res) => {
-      console.log("notificationRequestPermission", res);
-    })
-  }
-
-  const enableNotifications = async () => {
-    const hasPermission = await requestNotificationPermission();
-  };
 
   const setColors = () => {
 
@@ -72,6 +55,19 @@ const AppContainer = () => {
 
 
 
+  const linking = {
+    prefixes: ['https://agispares.com', 'http://agispares.com', 'agispares://'],
+    config: {
+      screens: {
+        MainStack: {
+          screens: {
+            ProductDetails: 'products/:handle',
+          },
+        },
+      },
+    },
+  };
+
   return (
 
     <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -83,6 +79,7 @@ const AppContainer = () => {
         }
       }>
         <NavigationContainer
+          linking={linking}
           theme={MyTheme}
         >
 

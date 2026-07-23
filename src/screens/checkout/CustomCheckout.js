@@ -92,6 +92,7 @@ const CustomCheckout = () => {
                                     style={{ flex: 1, borderWidth: 1, borderColor: '#ddd', padding: 10 }}
                                     value={email}
                                     placeholder="email@example.com"
+                                    placeholderTextColor="#A0A0A0"
                                     onChangeText={setEmail}
                                     keyboardType="email-address"
                                     autoCapitalize="none"
@@ -119,6 +120,7 @@ const CustomCheckout = () => {
                                     style={{ flex: 1, borderWidth: 1, borderColor: '#ddd', padding: 10 }}
                                     value={discount}
                                     placeholder="ENTER CODE"
+                                    placeholderTextColor="#A0A0A0"
                                     onChangeText={setDiscount}
                                     autoCapitalize="characters"
                                 />

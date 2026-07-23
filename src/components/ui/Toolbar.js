@@ -15,7 +15,8 @@ import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 const Toolbar = ({ home,
     title, isBottomTab = false, position, mapPage = false, isSearch = false, isFilter = false, onTravel, onSearch, onFilter, filerIcon, leftButton }) => {
-    const { colorScheme, userLocation, appSettings } = useSelector(state => state.app);
+    const { colorScheme, userLocation, appSettings, isLoggedInGlobal } = useSelector(state => state.app);
+    const wishlistCount = useSelector(state => state.wishlist?.wishlistItems?.length || 0);
     const navigation = useNavigation();
     const colorSet = AppStyles.colorSet[colorScheme];
     const localStyle = getLocalStyles(colorSet);
@@ -148,20 +149,31 @@ const Toolbar = ({ home,
                     {_getHorizontalPadding(5)}
 
 
-                    <Ripple style={{
-                        padding: widthPixel(8),
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#F4F1FB',
-                        borderRadius: 100,
-                        // opacity: 0.5
-                    }} onPress={() => {
-                        navigation.navigate('Wishlist')
-                    }} >
+                    {isLoggedInGlobal && (
+                        <Ripple style={{
+                            position: 'relative',
+                            padding: widthPixel(8),
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#F4F1FB',
+                            borderRadius: 100,
+                            // opacity: 0.5
+                        }} onPress={() => {
+                            navigation.navigate('Wishlist')
+                        }} >
 
-                        <Heart size={widthPixel(24)} color={'#666666'} />
+                            <Heart size={widthPixel(24)} color={'#666666'} />
 
-                    </Ripple>
+                            {wishlistCount > 0 && (
+                                <View style={localStyle.wishlistBadge}>
+                                    <Text style={localStyle.wishlistBadgeText}>
+                                        {wishlistCount > 99 ? '99+' : wishlistCount}
+                                    </Text>
+                                </View>
+                            )}
+
+                        </Ripple>
+                    )}
 
 
 
@@ -269,6 +281,26 @@ const getLocalStyles = (colorSet) => {
             backgroundColor: colorSet?.invert2,
             borderRadius: widthPixel(12),
             paddingHorizontal: widthPixel(16)
-        }
+        },
+        wishlistBadge: {
+            position: 'absolute',
+            top: -2,
+            right: -2,
+            minWidth: widthPixel(16),
+            height: widthPixel(16),
+            paddingHorizontal: widthPixel(3),
+            borderRadius: widthPixel(8),
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#F04438',
+            borderColor: '#FFFFFF',
+            borderWidth: 1,
+        },
+        wishlistBadgeText: {
+            color: '#FFFFFF',
+            fontSize: widthPixel(9),
+            fontWeight: '700',
+            lineHeight: widthPixel(11),
+        },
     });
 }

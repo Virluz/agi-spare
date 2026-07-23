@@ -214,6 +214,7 @@ const RequestCancellationScreen = ({ navigation, route }) => {
             <TextInput
               style={styles.textInput}
               placeholder="Write comment*(not more than 50 words)"
+              placeholderTextColor="#8E8E8E"
               multiline
               numberOfLines={4}
               value={customReason}

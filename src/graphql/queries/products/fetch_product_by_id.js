@@ -6,6 +6,7 @@ const fetch_product_by_id = gql`
     product(id: $id) {
        id
       title
+      vendor
       description
       descriptionHtml
        metafields(identifiers: [

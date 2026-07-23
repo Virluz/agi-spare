@@ -685,6 +685,7 @@ const Cart = () => {
                         <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, alignItems: 'center' }}>
                             <TextInput
                                 placeholder="Pincode"
+                                placeholderTextColor="#A0A0A0"
                                 value={storeSearchPincode}
                                 onChangeText={setStoreSearchPincode}
                                 keyboardType="number-pad"

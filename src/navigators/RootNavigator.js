@@ -28,7 +28,7 @@ import ProductList from '../screens/product/ProductList';
 import AccountContainer from './AccountContainer';
 import OnboardCarousel from '../screens/profile/OnboardCarousel';
 import { loadWishlistFromStorage } from '../utils/wishlistStorage';
-import { setWishlistItems } from '../redux/reducers/wishlistSlice';
+import { setWishlistItems, clearWishlist } from '../redux/reducers/wishlistSlice';
 import SignUp from '../screens/auth/SignUp';
 import Login from '../screens/auth/Login';
 import CreateAccount from '../screens/auth/CreateAccount';
@@ -54,13 +54,6 @@ export default RootNavigator = () => {
   const styles = AppStyles.getAllStyles(colorScheme);
   const [pendingNotificationId, setPendingNotificationId] = useState(null);
   useEffect(() => {
-    // Register background message handler inside useEffect so it runs once
-    // after mount (not on every render) and only when Firebase is ready
-    getMessaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-      callDeliveredApi(remoteMessage?.data?.IncidentTrackingLogId);
-    });
-
     const init = async () => {
       // ... initialization code
 
@@ -85,6 +78,7 @@ export default RootNavigator = () => {
       // console.log('session_expired:');
       showErrorMsg("Session has been expired! Please login again!");
       handleLogout();
+      dispatch(clearWishlist());
       SecureStorage.clear();
       navigation.dispatch(
         CommonActions.reset({
@@ -116,7 +110,6 @@ export default RootNavigator = () => {
         //   data.desc
         // );
         setShowNotification(data);
-        callDeliveredApi(remoteMessage?.data?.IncidentTrackingLogId);
       }
       console.log("onMessage", remoteMessage)
 
@@ -137,7 +130,6 @@ export default RootNavigator = () => {
     const unsubsribeInitial = getMessaging().getInitialNotification()
       .then(async remoteMessage => {
         if (remoteMessage) {
-          callDeliveredApi(remoteMessage?.data?.IncidentTrackingLogId);
           handleRedirection(remoteMessage?.data?.IncidentTrackingLogId);
         }
       });

@@ -122,13 +122,13 @@ function App(): React.JSX.Element {
         <AppContainer />
         <FlashMessage />
 
-        <ForceUpdateModal
+        {/* <ForceUpdateModal
           visible={updateInfo.showUpdateModal}
           currentVersion={updateInfo.currentVersion}
           latestVersion={updateInfo.latestVersion}
           storeUrl={updateInfo.storeUrl}
           onUpdate={handleUpdatePress}
-        />
+        /> */}
         {/* </SafeAreaView> */}
       </Provider>
     </SafeAreaProvider>

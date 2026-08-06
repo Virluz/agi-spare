@@ -87,8 +87,8 @@ android {
         applicationId "com.algyas.agispares"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 26
-        versionName "16.0.26"
+        versionCode 27
+        versionName "16.0.27"
         renderscriptTargetApi 33
         renderscriptSupportModeEnabled true
         manifestPlaceholders = [

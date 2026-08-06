@@ -85,6 +85,7 @@ const collection_by_handle = gql`
     $after: String
     $sortKey: ProductCollectionSortKeys
     $reverse: Boolean
+    $filters: [ProductFilter!]
   ) {
     collection(handle: $handle) {
       id
@@ -100,6 +101,7 @@ const collection_by_handle = gql`
         after: $after
         sortKey: $sortKey
         reverse: $reverse
+        filters: $filters
       ) {
         edges {
           node {

@@ -114,7 +114,47 @@ export const getCollectionFilters = async (params) => {
 }
 
 export const getFilters = async () => {
-    return await storeFrontClient.request(fetch_filters)
+    try {
+        const data = await storeFrontClient.request(fetch_filters);
+        const collections = data?.collections?.edges || [];
+        const filterMap = new Map();
+
+        collections.forEach(col => {
+            const filters = col.node?.products?.filters || [];
+            filters.forEach(filter => {
+                if (!filterMap.has(filter.label)) {
+                    filterMap.set(filter.label, {
+                        id: filter.id,
+                        label: filter.label,
+                        type: filter.type,
+                        valuesMap: new Map()
+                    });
+                }
+                const existingFilter = filterMap.get(filter.label);
+                (filter.values || []).forEach(val => {
+                    const key = val.input || val.label;
+                    if (!existingFilter.valuesMap.has(key)) {
+                        existingFilter.valuesMap.set(key, { ...val });
+                    } else {
+                        const existingVal = existingFilter.valuesMap.get(key);
+                        existingVal.count = (existingVal.count || 0) + (val.count || 0);
+                    }
+                });
+            });
+        });
+
+        const mergedFilters = Array.from(filterMap.values()).map(f => ({
+            id: f.id,
+            label: f.label,
+            type: f.type,
+            values: Array.from(f.valuesMap.values())
+        }));
+
+        return { products: { filters: mergedFilters } };
+    } catch (error) {
+        console.log("getFilters error:", error);
+        return { products: { filters: [] } };
+    }
 }
 
 

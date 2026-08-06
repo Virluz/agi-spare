@@ -43,8 +43,7 @@ const ProductList = () => {
     const handle = route?.params?.handle ?? null;
     const title = route?.params?.title ?? null;
 
-    console.log("ProductList mounted with title:", title, "and handle:", handle);
-    console.log("ProductList current products length:", products?.length);
+
 
     const { colorScheme, apiCredentials, appSettings, isLoggedInGlobal } = useSelector(state => state.app);
     const wishlistCount = useSelector(state => state.wishlist?.wishlistItems?.length || 0);
@@ -76,6 +75,7 @@ const ProductList = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [priceRange, setPriceRange] = useState([0, 100000]);
     const [showAllCollections, setShowAllCollections] = useState(false);
+    const [filterSearchQuery, setFilterSearchQuery] = useState('');
 
     const translateKeys = {
         notification: t('Notifications'),
@@ -93,7 +93,7 @@ const ProductList = () => {
 
     }, [isSearchView])
 
-    const callApi = async (loader = true, endCursor = null, searchQueryParam = null, sortKey = selectedSortOption.value, reverse = selectedSortOption.reverse) => {
+    const callApi = async (loader = true, endCursor = null, searchQueryParam = null, sortKey = selectedSortOption.value, reverse = selectedSortOption.reverse, activeFilters = selectedFilters) => {
 
         if (loader) {
             setLoading(true)
@@ -108,6 +108,21 @@ const ProductList = () => {
             const isSearching = searchQueryParam && searchQueryParam.trim().length > 0;
 
             console.log("callApi - isSearching:", isSearching, "searchQueryParam:", searchQueryParam);
+
+            // Construct filter input list from activeFilters
+            const filterInputList = [];
+            Object.values(activeFilters || {}).forEach(arr => {
+                if (Array.isArray(arr)) {
+                    arr.forEach(valStr => {
+                        try {
+                            const parsed = typeof valStr === 'string' ? JSON.parse(valStr) : valStr;
+                            if (parsed) filterInputList.push(parsed);
+                        } catch (e) {
+                            console.log("Error parsing filter input:", e);
+                        }
+                    });
+                }
+            });
 
             if (isSearching) {
                 // SEARCH MODE - Use searchProducts API
@@ -135,29 +150,35 @@ const ProductList = () => {
                 // COLLECTION MODE - Use collection-specific API when handle is provided
                 const variables = { handle, first: 20, sortKey, reverse };
                 if (endCursor) variables.after = endCursor;
+                if (filterInputList.length > 0) {
+                    variables.filters = filterInputList;
+                }
 
                 // Only fetch filters on initial load (not during pagination)
                 if (!endCursor) {
-                    const filterResponse = await getCollectionFilters({ handle })
+                    const filterResponse = await getCollectionFilters({ handle });
                     console.log("filterResponse response", filterResponse);
-                    setAvailableFilters(filterResponse.collection.products.filters);
-                    setSelectedFilterCategory(filterResponse.collection.products.filters[0]?.label)
+                    const fetchedFilters = filterResponse?.collection?.products?.filters || [];
+                    setAvailableFilters(fetchedFilters);
+                    if (fetchedFilters.length > 0) {
+                        setSelectedFilterCategory(prev => prev || fetchedFilters[0]?.label);
+                    }
                 }
 
                 const response = await getCollectionByHandle(variables);
                 console.log("getCollectionByHandle response", response, variables);
 
                 if (endCursor) {
-                    setProducts(prev => [...prev, ...response.collection.products.edges]);
+                    setProducts(prev => [...prev, ...(response?.collection?.products?.edges || [])]);
                 } else {
-                    setProducts(response.collection.products.edges);
+                    setProducts(response?.collection?.products?.edges || []);
                 }
 
                 if (response?.collection?.title) {
                     setCollectionTitle(response.collection.title);
                 }
-                setHasNextPage(response.collection.products.pageInfo.hasNextPage);
-                setEndCursor(response.collection.products.pageInfo.endCursor);
+                setHasNextPage(response?.collection?.products?.pageInfo?.hasNextPage || false);
+                setEndCursor(response?.collection?.products?.pageInfo?.endCursor || null);
 
             } else {
                 // ALL PRODUCTS MODE - Use general products API when no handle is provided
@@ -166,22 +187,28 @@ const ProductList = () => {
 
                 // Only fetch filters on initial load (not during pagination)
                 if (!endCursor) {
-                    const filterResponse = await getFilters()
-                    console.log("filterResponse response", filterResponse);
-                    setAvailableFilters(filterResponse.products.filters);
-                    setSelectedFilterCategory(filterResponse.products.filters[0]?.label)
+                    const filterResponse = await getFilters();
+                    console.log("filterResponse response for All", filterResponse);
+                    const fetchedFilters = filterResponse?.products?.filters || [];
+                    setAvailableFilters(fetchedFilters);
+                    if (fetchedFilters.length > 0) {
+                        setSelectedFilterCategory(prev => prev || fetchedFilters[0]?.label);
+                    }
                 }
 
                 const response = await getProducts(variables);
                 console.log("getProducts response", response, variables);
 
                 if (endCursor) {
-                    setProducts(prev => [...prev, ...response.products.edges]);
+                    setProducts(prev => [...prev, ...(response?.products?.edges || [])]);
                 } else {
-                    setProducts(response.products.edges);
+                    setProducts(response?.products?.edges || []);
                 }
-                setHasNextPage(response.products.pageInfo.hasNextPage);
-                setEndCursor(response.products.pageInfo.endCursor);
+                if (!handle && !collectionTitle) {
+                    setCollectionTitle('All Products');
+                }
+                setHasNextPage(response?.products?.pageInfo?.hasNextPage || false);
+                setEndCursor(response?.products?.pageInfo?.endCursor || null);
             }
 
         } catch (error) {
@@ -200,7 +227,7 @@ const ProductList = () => {
 
         if (!hasNextPage || loading || endlessLoader) return;
         // Pass current search query when loading more
-        callApi(false, endCursor, searchQuery, selectedSortOption.value, selectedSortOption.reverse);
+        callApi(false, endCursor, searchQuery, selectedSortOption.value, selectedSortOption.reverse, selectedFilters);
     };
 
     const handleFilterChange = (filterId, values) => {
@@ -211,15 +238,10 @@ const ProductList = () => {
         }));
     };
 
-    const applyFiltersToApi = async (filters) => {
-        // Note: Filters work with collections, not with search
-        // So we clear the search query when applying filters
+    const applyFiltersToApi = async (filtersToApply = selectedFilters) => {
         setSearchQuery('');
         setEndCursor(null);
-
-        // For now, just reload the collection without filters since the filter
-        // implementation needs to be handled differently in collections
-        callApi(true, null, null, selectedSortOption.value, selectedSortOption.reverse);
+        callApi(true, null, null, selectedSortOption.value, selectedSortOption.reverse, filtersToApply);
     };
 
     const handleSortChange = (option) => {
@@ -276,15 +298,20 @@ const ProductList = () => {
     };
 
     const getFilterBottomSheet = () => {
-        const selectedFilter = availableFilters.find(filter => filter.label === selectedFilterCategory);
+        const selectedFilterCategoryToUse = selectedFilterCategory || availableFilters[0]?.label;
+        const selectedFilter = availableFilters.find(filter => filter.label === selectedFilterCategoryToUse) || availableFilters[0];
         const isPriceFilter = selectedFilter?.id === 'filter.v.price';
+
+        const filteredValues = (selectedFilter?.values || []).filter(val =>
+            val?.label?.toLowerCase().includes((filterSearchQuery || '').trim().toLowerCase())
+        );
 
         return (
             <BottomSheet
                 ref={refFilterRBSheet}
                 closeOnDragDown={true}
                 closeOnPressMask={true}
-                height={DEVICE_HEIGHT / 2}
+                height={DEVICE_HEIGHT * 0.6}
                 customStyles={{
                     wrapper: {
                         backgroundColor: "rgba(0,0,0,0.5)"
@@ -299,7 +326,8 @@ const ProductList = () => {
                         <Text style={styles.text_24_reg_mainTextColor2}>Filter</Text>
                         <TouchableOpacity onPress={() => {
                             setSelectedFilters({});
-                            setPriceRange([0, 10000]);
+                            setPriceRange([0, 100000]);
+                            setFilterSearchQuery('');
                         }}>
                             <Text style={[styles.text_14_semi_mainTextColor2, { textDecorationLine: 'underline' }]}>Clear All</Text>
                         </TouchableOpacity>
@@ -317,15 +345,18 @@ const ProductList = () => {
                                     <TouchableOpacity
                                         key={filter?.id || `filter-${filter?.label || index}`}
                                         style={{ padding: 5 }}
-                                        onPress={() => setSelectedFilterCategory(filter.label)}
+                                        onPress={() => {
+                                            setSelectedFilterCategory(filter.label);
+                                            setFilterSearchQuery('');
+                                        }}
                                     >
-                                        {selectedFilterCategory === filter.label && (
+                                        {selectedFilterCategoryToUse === filter.label && (
                                             <View style={styles.selectedFilterCategoryIndicator} />
                                         )}
                                         <Text
                                             style={[
                                                 styles.text_14_reg_mainTextColor2,
-                                                selectedFilterCategory === filter.label && { color: colorSet.primaryColor }
+                                                selectedFilterCategoryToUse === filter.label && { color: colorSet.primaryColor }
                                             ]}
                                         >
                                             {filter.label}
@@ -336,6 +367,34 @@ const ProductList = () => {
 
                         </View>
                         <View style={{ flex: 1.5, borderLeftWidth: 1, paddingTop: 10, paddingLeft: 10, borderColor: '#DEDEDE' }}>
+                            {!isPriceFilter && (
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    backgroundColor: '#F5F5F5',
+                                    borderRadius: 8,
+                                    paddingHorizontal: 8,
+                                    height: 36,
+                                    marginBottom: 10,
+                                    marginRight: 10,
+                                    borderWidth: StyleSheet.hairlineWidth,
+                                    borderColor: '#E0E0E0'
+                                }}>
+                                    <Search size={16} color={'#F2994A'} />
+                                    <TextInput
+                                        placeholder={`Search ${selectedFilter?.label || 'options'}...`}
+                                        placeholderTextColor={'#8E8E8E'}
+                                        value={filterSearchQuery}
+                                        onChangeText={setFilterSearchQuery}
+                                        style={{ flex: 1, marginLeft: 6, fontSize: 13, paddingVertical: 0, color: colorSet.black }}
+                                    />
+                                    {filterSearchQuery.length > 0 && (
+                                        <TouchableOpacity onPress={() => setFilterSearchQuery('')}>
+                                            <X size={16} color={'#8E8E8E'} />
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            )}
                             <ScrollView>
 
                                 {isPriceFilter ? (
@@ -376,11 +435,8 @@ const ProductList = () => {
                                         </View>
 
                                         <View style={{
-                                            // alignItems: 'center',
                                             flex: 1,
-                                            flewWrap: 'wrap',
                                             marginTop: 20, marginBottom: 10,
-                                            //  width: 200
                                         }}>
                                             <MultiSlider
                                                 values={priceRange}
@@ -412,16 +468,14 @@ const ProductList = () => {
                                             <Text style={styles.text_12_reg_mainTextColor2}>₹{priceRange[1]}</Text>
                                         </View>
                                     </View>
-                                ) : (
-                                    selectedFilter?.values.map((value, valueIndex) => {
+                                ) : filteredValues.length > 0 ? (
+                                    filteredValues.map((value, valueIndex) => {
                                         const isSelected = selectedFilters[selectedFilter.id]?.includes(value.input);
                                         return (
                                             <TouchableOpacity
                                                 key={value?.id || value?.input || `${value?.label || 'opt'}-${valueIndex}`}
-                                                style={{ padding: 5, flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                                                style={{ padding: 6, flexDirection: 'row', gap: 6, alignItems: 'center' }}
                                                 onPress={() => {
-                                                    console.log("sldhdg", selectedFilters);
-
                                                     const currentValues = selectedFilters[selectedFilter.id] || [];
                                                     let newValues;
                                                     if (isSelected) {
@@ -433,21 +487,26 @@ const ProductList = () => {
                                                 }}
                                             >
                                                 <View style={[{
-                                                    height: 16, width: 16,
-                                                    borderWidth: 0.5,
+                                                    height: 18, width: 18,
+                                                    borderWidth: 1,
+                                                    borderColor: '#A0A0A0',
+                                                    borderRadius: 3,
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
                                                 }, isSelected && {
                                                     backgroundColor: colorSet.primaryColor,
                                                     borderColor: colorSet.primaryColor,
                                                 }]}>
-                                                    {/* <CheckSquare2 /> */}
                                                     {isSelected && <Check size={14} color={colorSet.white} />}
                                                 </View>
-                                                <Text style={styles.text_14_reg_mainTextColor2}>{value.label}</Text>
+                                                <Text style={[styles.text_14_reg_mainTextColor2, { flex: 1 }]}>{value.label}</Text>
                                             </TouchableOpacity>
                                         );
                                     })
+                                ) : (
+                                    <Text style={[styles.text_12_reg_mainTextColor2, { color: '#8E8E8E', padding: 12, textAlign: 'center' }]}>
+                                        No options found
+                                    </Text>
                                 )}
                             </ScrollView>
 
@@ -565,7 +624,7 @@ const ProductList = () => {
                                     borderRadius: widthPixel(24),
                                     height: heightPixel(44),
                                     paddingHorizontal: widthPixel(14),
-                                    marginHorizontal: SIDE_MARGIN,
+                                    // marginHorizontal: SIDE_MARGIN,
                                     marginBottom: ITEM_SPACING,
                                     borderWidth: StyleSheet.hairlineWidth,
                                     borderColor: 'rgba(0,0,0,0.08)'
@@ -596,10 +655,12 @@ const ProductList = () => {
 
 
                                 <View
-
                                     style={{
-                                        flexDirection: 'row', gap: 8, flexWrap: 'wrap',
-
+                                        flexDirection: 'row',
+                                        gap: 8,
+                                        flexWrap: 'wrap',
+                                        // marginHorizontal: SIDE_MARGIN,
+                                        marginBottom: ITEM_SPACING,
                                     }}
                                 >
                                     {/* All button */}
@@ -608,13 +669,14 @@ const ProductList = () => {
                                             flexDirection: 'row',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            paddingHorizontal: 8,
+                                            paddingHorizontal: 12,
                                             paddingVertical: 6,
                                             backgroundColor: !handle ? '#F2994A' : '#1D1A44',
                                             borderRadius: 20,
                                             gap: 6,
                                         }}
                                         onPress={() => {
+                                            setSelectedFilters({});
                                             navigation.navigate('ProductList', {
                                                 handle: null,
                                                 title: 'All Products',
@@ -647,7 +709,7 @@ const ProductList = () => {
                                                         flexDirection: 'row',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        paddingHorizontal: 8,
+                                                        paddingHorizontal: 12,
                                                         paddingVertical: 6,
                                                         backgroundColor: isCurrentCollection ? '#F2994A' : '#1D1A44',
                                                         borderRadius: 20,
@@ -666,7 +728,6 @@ const ProductList = () => {
                                                     ]}>
                                                         {collection.title}
                                                     </Text>
-                                                    {/* <ArrowRightIcon size={16} color={'#fff'} /> */}
                                                 </TouchableOpacity>
                                             );
                                         })
@@ -677,9 +738,8 @@ const ProductList = () => {
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                paddingHorizontal: 8,
+                                                paddingHorizontal: 12,
                                                 paddingVertical: 6,
-                                                // backgroundColor: '#1D1A44',
                                                 borderRadius: 20,
                                                 gap: 6,
                                                 borderWidth: 1,
@@ -696,50 +756,6 @@ const ProductList = () => {
                                         </TouchableOpacity>
                                     )}
                                 </View>
-
-
-
-
-                                {/* Category chips */}
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: SIDE_MARGIN, paddingBottom: ITEM_SPACING }}>
-                                    {availableFilters?.find(filter => filter.id === 'filter.p.m.custom.select_product_type')?.values?.map((item, index) => {
-                                        const isSelected = selectedFilters['filter.p.m.custom.select_product_type']?.includes(item.input);
-                                        const isDisabled = item?.count === 0;
-                                        return (
-                                            <TouchableOpacity
-                                                key={item?.id || item?.input || `${item?.label || 'value'}-${index}`}
-                                                style={{
-                                                    paddingVertical: 8,
-                                                    paddingHorizontal: 12,
-                                                    marginRight: 8,
-                                                    borderRadius: 20,
-                                                    backgroundColor: isSelected ? '#F2994A' : '#1D1A44',
-                                                    opacity: isDisabled ? 0.5 : 1,
-                                                }}
-                                                disabled={isDisabled}
-                                                onPress={async () => {
-                                                    let value = item?.input;
-                                                    const currentValues = selectedFilters['filter.p.m.custom.select_product_type'] || [];
-                                                    let newValues;
-                                                    if (currentValues.includes(value)) {
-                                                        newValues = currentValues.filter(v => v !== value);
-                                                    } else {
-                                                        newValues = [value];
-                                                    }
-                                                    const updatedFilters = {
-                                                        ...selectedFilters,
-                                                        'filter.p.m.custom.select_product_type': newValues
-                                                    }
-                                                    setSelectedFilters(updatedFilters);
-                                                    applyFiltersToApi(updatedFilters);
-                                                    return;
-                                                }}
-                                            >
-                                                <Text style={{ color: isSelected ? '#fff' : '#fff' }}>{item.label}</Text>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </ScrollView>
                             </View>
                         }
                         renderItem={({ item, index }) => (

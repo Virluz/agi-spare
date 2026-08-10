@@ -215,13 +215,39 @@ const Home = () => {
                 {/* Hero banner */}
                 <BannerCarousel scrollRef={scrollRef} />
 
-                {/* Welcome card */}
-                <View style={localStyles.welcomeCard}>
-                    <Text style={localStyles.welcomeTitle}>Welcome to AGI Spare</Text>
-                    <Text style={localStyles.welcomeSubtitle}>Reaching New Heights in Safety{"\n"}and Service</Text>
+                {/* Welcome section */}
+                <View style={localStyles.welcomeSection}>
+                    <Text style={localStyles.welcomeTitle}>Welcome to AGI{"\n"}Spares</Text>
+                    <Text style={localStyles.welcomeSubtitle}>Reaching New Heights in Safety and{"\n"}Service</Text>
                     <Text style={localStyles.welcomeBody}>
-                        Al-Gyas Infrastructure has specialised in supplying high-quality original and OEM spare parts for Aerial Work Platforms across India. Headquartere in Mumbai, we source parts from trusted.
+                        Al-Gyas Infrastructure has specialized in supplying high-quality original and AWP, JLG & Manlift spare parts for Aerial Work Platforms across India. Headquartered in Mumbai, we source parts from trusted global markets including Europe, the USA, the Middle East, and Far East Asia—ensuring reliability, performance, and safety in high-altitude operations.
                     </Text>
+                    <TouchableOpacity
+                        style={localStyles.knowMoreButton}
+                        onPress={() => navigation.navigate('Profile', { screen: 'AboutUs' })}
+                    >
+                        <Text style={localStyles.knowMoreText}>Know More</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Brand section */}
+                <View style={localStyles.brandsSection}>
+                    <Text style={localStyles.brandsTitle}>
+                        <Text style={localStyles.brandsTitleBlack}>OUR </Text>
+                        BRANDS
+                    </Text>
+                    <View style={localStyles.brandMachineRow}>
+                        <FastImage
+                            source={require('../../../assets/images/brands/genie-new.png')}
+                            style={localStyles.brandMachine}
+                            resizeMode={FastImage.resizeMode.contain}
+                        />
+                        <FastImage
+                            source={require('../../../assets/images/brands/jlg-1.png')}
+                            style={localStyles.brandMachine}
+                            resizeMode={FastImage.resizeMode.contain}
+                        />
+                    </View>
                 </View>
 
                 {/* Shop by Category section */}
@@ -296,25 +322,6 @@ const Home = () => {
                         <Text style={localStyles.loadMoreText}>View All</Text>
                     </TouchableOpacity>
                 </View> */}
-
-                {/* Partners */}
-                <View style={localStyles.partnersSection}>
-                    <Text style={localStyles.partnersTitle}>Our brands and partners</Text>
-                    <Text style={localStyles.partnersSubtitle}>Trusted by leading brands and{"\n"}valued clients worldwide</Text>
-
-                    <View style={localStyles.partnersGrid}>
-                        {partnerLogos.map((logo, i) => (
-                            <View key={i} style={dynamicStyles.partnerBox}>
-                                <FastImage
-                                    source={logo}
-
-                                    resizeMode={FastImage.resizeMode.contain}
-                                    style={{ width: '60%', height: '50%' }}
-                                />
-                            </View>
-                        ))}
-                    </View>
-                </View>
 
                 {/* Success Story Carousel */}
                 <View style={localStyles.successSection}>
@@ -402,38 +409,76 @@ const localStyles = StyleSheet.create({
         color: '#8E8E8E',
         fontSize: heightPixel(14),
     },
-    welcomeCard: {
-        marginTop: heightPixel(16),
-        marginHorizontal: widthPixel(16),
-        backgroundColor: '#FFFFFF',
-        borderRadius: widthPixel(12),
-        padding: widthPixel(16),
-        shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-        elevation: 2,
+    welcomeSection: {
+        backgroundColor: '#F8F8FF',
+        paddingHorizontal: widthPixel(24),
+        paddingTop: heightPixel(42),
+        paddingBottom: heightPixel(34),
+        alignItems: 'center',
     },
     welcomeTitle: {
-        fontSize: heightPixel(20),
+        fontSize: heightPixel(31),
         fontFamily: fontFamily.boldFont,
-        color: '#4A4A68',
+        color: '#292365',
         textAlign: 'center',
-        marginBottom: heightPixel(6),
+        lineHeight: heightPixel(38),
+        marginBottom: heightPixel(34),
     },
     welcomeSubtitle: {
-        fontSize: heightPixel(14),
+        fontSize: heightPixel(18),
         fontFamily: fontFamily.semiBoldFont,
         color: '#4A4A68',
         textAlign: 'center',
-        marginBottom: heightPixel(10),
+        lineHeight: heightPixel(27),
+        marginBottom: heightPixel(38),
     },
     welcomeBody: {
-        fontSize: heightPixel(12),
-        fontFamily: fontFamily.regularFont,
-        color: '#605E5E',
-        textAlign: 'left',
-        lineHeight: heightPixel(18),
+        fontSize: heightPixel(17),
+        fontFamily: fontFamily.semiBoldFont,
+        color: '#59568C',
+        textAlign: 'center',
+        lineHeight: heightPixel(27),
+    },
+    knowMoreButton: {
+        marginTop: heightPixel(34),
+        minWidth: widthPixel(160),
+        backgroundColor: '#F77D00',
+        borderRadius: widthPixel(22),
+        paddingHorizontal: widthPixel(26),
+        paddingVertical: heightPixel(13),
+        alignItems: 'center',
+    },
+    knowMoreText: {
+        color: '#FFFFFF',
+        fontFamily: fontFamily.boldFont,
+        fontSize: heightPixel(16),
+    },
+    brandsSection: {
+        backgroundColor: '#FFFFFF',
+        paddingTop: heightPixel(28),
+        paddingBottom: heightPixel(18),
+        alignItems: 'center',
+    },
+    brandsTitle: {
+        color: '#F4511E',
+        fontFamily: fontFamily.boldFont,
+        fontSize: heightPixel(27),
+        letterSpacing: widthPixel(2),
+        marginBottom: heightPixel(22),
+    },
+    brandsTitleBlack: {
+        color: '#000000',
+    },
+    brandMachineRow: {
+        width: '100%',
+        paddingHorizontal: widthPixel(22),
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    brandMachine: {
+        width: '48%',
+        height: heightPixel(150),
     },
     categorySection: {
         marginTop: heightPixel(16),

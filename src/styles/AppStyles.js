@@ -186,26 +186,13 @@ const colorSet = {
 };
 
 export const fontFamily = {
-  // boldFont: 'NeueMontreal-Bold',
-  // semiBoldFont: 'NeueMontreal-Medium',
-  // regularFont: 'NeueMontreal-Regular',
-  // boldFont: 'Metropolis-Bold',
-  // semiBoldFont: 'Metropolis-SemiBold',
-  // regularFont: 'Metropolis-Regular',
-
-  boldFont: 'Inter-Bold',
-  semiBoldFont: 'Inter-SemiBold',
-  regularFont: 'Inter-Medium',
-
-
-  // boldFont: 'Campton-Book',
-  // semiBoldFont: 'Campton-Book',
-  // regularFont: 'Campton-Book',
-
-  secondaryFont: 'inner',
-  // boldFont: 'Satoshi-Bold',
-  // semiBoldFont: 'Satoshi-Medium',
-  // regularFont: 'Satoshi-Regular',
+  boldFont: 'Poppins-Bold',
+  semiBoldFont: 'Poppins-SemiBold',
+  regularFont: 'Poppins-Regular',
+  mediumFont: 'Poppins-Medium',
+  lightFont: 'Poppins-Light',
+  thinFont: 'Poppins-Thin',
+  secondaryFont: 'Poppins-Regular',
 };
 
 const getToolbarStyle = () => {

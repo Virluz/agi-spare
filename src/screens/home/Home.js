@@ -7,8 +7,6 @@ import AppStyles, { fontFamily } from '../../styles/AppStyles';
 import Toolbar from '../../components/ui/Toolbar';
 import { _getVerticalPadding, DEVICE_WIDTH } from '../../utils/Helper';
 import { heightPixel, widthPixel, getNumColumns, useIsTablet } from '../../utils/fonts';
-import storeFrontClient from '../../graphql/storeFrontClient';
-import { MENU_QUERY } from '../../graphql/queries/menu/fetch_menus';
 import FastImage from '@d11/react-native-fast-image';
 import { SearchIcon, ArrowRight, Instagram, Youtube, Facebook } from 'lucide-react-native';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
@@ -162,9 +160,7 @@ const Home = () => {
     useEffect(() => {
         const loadCollections = async () => {
             try {
-                const result = dispatch(fetchCollections(200));
-                const response = await storeFrontClient.request(MENU_QUERY, { handle: 'react-native-mobile-app' });
-                console.log('MENU_QUERY result:', response, result);
+                await dispatch(fetchCollections(200));
             } catch (err) {
                 console.error('Collection fetch error:', err);
             }

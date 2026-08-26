@@ -1230,17 +1230,17 @@ const extactColorsFromVariants = (data) => {
 }
 
 const tagStyles = {
-  h3: { fontSize: 18, fontWeight: '600', marginVertical: 4, fontFamily: 'Campton-Book' },
-  strong: { fontFamily: 'Campton-SemiBold' },
-  b: { fontFamily: 'Campton-bold' },
-  p: { fontSize: 14, lineHeight: 20, fontFamily: 'Campton-Book' },
-  ul: { paddingLeft: 16, marginVertical: 4, fontFamily: 'Campton-Book' },
+  h3: { fontSize: 18, fontWeight: '600', marginVertical: 4, fontFamily: 'Poppins-Medium' },
+  strong: { fontFamily: 'Poppins-SemiBold' },
+  b: { fontFamily: 'Poppins-Bold' },
+  p: { fontSize: 14, lineHeight: 20, fontFamily: 'Poppins-Regular' },
+  ul: { paddingLeft: 16, marginVertical: 4, fontFamily: 'Poppins-Regular' },
   li: {
-    fontSize: 14, marginBottom: 4, fontFamily: 'Campton-Book'
+    fontSize: 14, marginBottom: 4, fontFamily: 'Poppins-Regular'
   },
   div: { marginVertical: 4 },
   hr: { marginVertical: 4, borderBottomWidth: 1, borderBottomColor: '#ccc' },
-  span: { fontSize: 14, fontFamily: 'Campton-Book' }
+  span: { fontSize: 14, fontFamily: 'Poppins-Regular' }
 }
 
 export {

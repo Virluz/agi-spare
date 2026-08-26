@@ -115,9 +115,10 @@ export default fonts = {
   _DEVICE_HEIGHT: Dimensions.get('window').height,
   _DEVICE_WIDTH: Dimensions.get('window').width,
   FONT_FAMILY: {
-    Regular: Platform.OS === 'ios' ? 'Avenir-Black' : 'Poppins-Regular',
-    Medium: Platform.OS === 'ios' ? 'Avenir-Medium' : 'Poppins-Medium',
-    Bold: Platform.OS === 'ios' ? 'Avenir-Heavy' : 'Poppins-Bold',
+    Regular: 'Poppins-Regular',
+    Medium: 'Poppins-Medium',
+    Bold: 'Poppins-Bold',
+    SemiBold: 'Poppins-SemiBold',
   },
 };
 

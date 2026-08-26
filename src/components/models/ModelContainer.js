@@ -138,7 +138,7 @@ const getLocalStyles = (colorSet) => {
             textAlign: "center",
         },
         welcomeMsg: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             color: "#1F2024",
             fontSize: 24,
             fontWeight: 700,
@@ -152,7 +152,7 @@ const getLocalStyles = (colorSet) => {
         },
 
         boldText: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             color: "#1F2024",
             fontSize: 24,
             fontWeight: 700,
@@ -161,7 +161,7 @@ const getLocalStyles = (colorSet) => {
             textAlign: "center",
         },
         tinyText: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.mediumFont,
             fontSize: 14,
             fontWeight: "500",
             lineHeight: 20,
@@ -170,7 +170,7 @@ const getLocalStyles = (colorSet) => {
             color: "#8F9098",
         },
         grayText: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.regularFont,
             fontSize: 16,
             fontWeight: "400",
             lineHeight: 22,
@@ -179,7 +179,7 @@ const getLocalStyles = (colorSet) => {
             color: "#8F9098",
         },
         popTit: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             fontSize: 24,
             fontWeight: "700",
             lineHeight: 29,
@@ -188,7 +188,7 @@ const getLocalStyles = (colorSet) => {
             color: "#1F2024",
         },
         popMsg: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.regularFont,
             fontSize: 14,
             fontWeight: "400",
             lineHeight: 20,
@@ -197,7 +197,7 @@ const getLocalStyles = (colorSet) => {
             color: "#8F9098",
         },
         doLater: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             fontSize: 14,
             fontWeight: "700",
             lineHeight: 17,
@@ -206,7 +206,7 @@ const getLocalStyles = (colorSet) => {
             color: "#8F9098",
         },
         info: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.regularFont,
             fontSize: 14,
             fontWeight: "400",
             lineHeight: 20,
@@ -216,7 +216,7 @@ const getLocalStyles = (colorSet) => {
             marginTop: 15,
         },
         amount: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             fontSize: 24,
             fontWeight: "700",
             lineHeight: 29,
@@ -227,7 +227,7 @@ const getLocalStyles = (colorSet) => {
             textAlign: "end",
         },
         totalText: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.regularFont,
             fontSize: 14,
             fontWeight: "400",
             lineHeight: 20,
@@ -236,7 +236,7 @@ const getLocalStyles = (colorSet) => {
             color: "#71727A",
         },
         colorMoney: {
-            fontFamily: "Neue Montreal",
+            fontFamily: AppStyles.fontFamily.boldFont,
             fontSize: 24,
             fontWeight: "700",
             lineHeight: 29,
